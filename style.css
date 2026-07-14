@@ -433,6 +433,9 @@ footer.site-footer a:hover { color: var(--orange); }
   margin-bottom: 20px;
   border-bottom: 1px solid rgba(255,255,255,0.1);
 }
+.footer-brand { display: flex; align-items: center; }
+.footer-brand img { height: 64px; width: auto; }
+.footer-social-group { display: flex; align-items: center; gap: 14px; }
 .footer-social-label { font-size: 0.78rem; color: #8A7F78; }
 .social-links { display: flex; gap: 10px; }
 .social-links a {
