@@ -236,6 +236,7 @@ section { padding: 88px 0; }
 .actus h2 { font-size: clamp(1.8rem, 3vw, 2.4rem); margin-bottom: 14px; }
 .actus p.lead { color: var(--ink-soft); max-width: 56ch; margin: 0 auto 32px; }
 .actus-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.actus-feed { margin-top: 48px; text-align: left; }
 
 /* ---- Soutenir ---- */
 .support .wrap h2 { font-size: clamp(1.8rem, 3vw, 2.4rem); margin-bottom: 12px; text-align: center; }
