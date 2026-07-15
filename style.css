@@ -94,7 +94,7 @@ section { padding: 88px 0; }
   height: 76px;
 }
 .brand { display: flex; align-items: center; gap: 10px; }
-.brand img { height: 40px; width: auto; }
+.brand img { height: 56px; width: auto; }
 .main-nav ul { display: flex; gap: 32px; align-items: center; }
 .main-nav a {
   font-size: 0.92rem;
