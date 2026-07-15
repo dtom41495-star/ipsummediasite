@@ -394,6 +394,28 @@ section { padding: 88px 0; }
 .support-card p { color: var(--ink-soft); margin-bottom: 22px; }
 @media (max-width: 860px) { .support-grid { grid-template-columns: 1fr; } }
 
+/* ---- Collectivités / établissements ---- */
+.institutions { background: var(--white); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.institutions-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; }
+.institution-card {
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 26px;
+}
+.institution-card h3 { font-size: 1.05rem; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.soon-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--orange-dark);
+  background: var(--orange-light);
+  padding: 3px 8px;
+  border-radius: 100px;
+}
+.institution-card p { color: var(--ink-soft); font-size: 0.9rem; }
+
 /* ---- Contact ---- */
 .contact { background: var(--ink); color: var(--white); }
 .contact .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
