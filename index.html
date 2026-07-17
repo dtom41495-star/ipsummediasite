@@ -29,13 +29,13 @@
     </a>
     <nav class="main-nav" id="main-nav">
       <ul>
-        <li><a href="#accueil">Accueil</a></li>
+        <li><a href="#accueil" class="active">Accueil</a></li>
         <li><a href="#histoire">À propos</a></li>
         <li><a href="#equipe">Équipe</a></li>
         <li><a href="#actus">Nos actus</a></li>
         <li><a href="#soutenir">Soutenir</a></li>
+        <li><a href="nous-rejoindre.html">Nous rejoindre</a></li>
         <li><a href="#contact">Contact</a></li>
-        <li><a href="https://compo.ipsummedia.fr/" target="_blank" rel="noopener">Espace bénévole</a></li>
       </ul>
     </nav>
     <div class="header-cta">
@@ -140,22 +140,7 @@
           <p>Étudiant en licence de Science Politique, option journalisme, à l'ESJ Lille.</p>
         </div>
       </div>
-      <p class="team-note">Ipsum Média, c'est une équipe organisée autour de la rédaction, de la communication, de la vie associative et de la formation.</p>
-    </div>
-    <div class="diversity">
-      <div class="diversity-photos">
-        <img src="assets/team/leopold.png" alt="Bénévole Ipsum Média">
-        <img src="assets/team/leo.jpg" alt="Bénévole Ipsum Média">
-        <img src="assets/team/gabriel.jpg" alt="Bénévole Ipsum Média">
-      </div>
-      <p class="diversity-text">Une vingtaine de bénévoles, de tous âges, venus de
-        <span class="cycle-word">
-          <span>lycée</span>
-          <span>formation communication</span>
-          <span>journalisme</span>
-          <span>audiovisuel</span>
-        </span>
-      </p>
+      <p class="team-note">Ipsum Média, c'est une équipe organisée autour de la rédaction, de la communication, de la vie associative et de la formation. Et une vingtaine de bénévoles de tous âges et de tous horizons. <a href="nous-rejoindre.html">Envie de nous rejoindre ?</a></p>
     </div>
   </section>
 
@@ -244,8 +229,8 @@
         </div>
         <div class="support-card">
           <h3>Devenir bénévole</h3>
-          <p>Rédaction, photo, vidéo, réseaux sociaux... rejoignez notre collectif et participez à la vie du Tarn. Postulez directement via Je Veux Aider.</p>
-          <a class="btn btn-outline" href="https://www.jeveuxaider.gouv.fr/organisations/33705-ipsum-media" target="_blank" rel="noopener">Je postule</a>
+          <p>Rédaction, photo, vidéo, réseaux sociaux... rejoignez notre collectif et participez à la vie du Tarn.</p>
+          <a class="btn btn-outline" href="nous-rejoindre.html">Nous rejoindre</a>
         </div>
       </div>
     </div>
@@ -281,8 +266,32 @@
       <div>
         <h2>Contactez-nous</h2>
         <p>Une info à nous transmettre, une envie de collaborer, une question ?</p>
-        <p><a class="mail" href="mailto:contact@ipsummedia.fr">contact@ipsummedia.fr</a></p>
-        <a class="btn btn-light" style="margin-top:20px;" href="assets/docs/dossier-de-presse-ipsum-media.pdf" target="_blank" rel="noopener">Télécharger notre dossier de presse</a>
+
+        <form id="contact-form" class="contact-form">
+          <div class="form-row">
+            <label for="cf-nom">Nom</label>
+            <input type="text" id="cf-nom" name="nom" required>
+          </div>
+          <div class="form-row">
+            <label for="cf-email">Email</label>
+            <input type="email" id="cf-email" name="email" required>
+          </div>
+          <div class="form-row">
+            <label for="cf-redaction">Rédaction concernée</label>
+            <select id="cf-redaction" name="redaction_id" required>
+              <option value="" disabled selected>Chargement des rédactions...</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="cf-message">Message</label>
+            <textarea id="cf-message" name="message" rows="4" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" id="cf-submit">Envoyer</button>
+          <p class="form-status" id="cf-status" role="status"></p>
+        </form>
+
+        <p style="margin-top:20px; font-size:0.85rem; color:var(--ink-soft);">Ou écrivez-nous directement à <a class="mail" href="mailto:contact@ipsummedia.fr">contact@ipsummedia.fr</a></p>
+        <a class="btn btn-light" style="margin-top:16px;" href="assets/docs/dossier-de-presse-ipsum-media.pdf" target="_blank" rel="noopener">Télécharger notre dossier de presse</a>
       </div>
       <div class="legal-box">
         <p><strong>Mentions légales</strong></p>
@@ -329,6 +338,7 @@
     <span>© <span id="year"></span> Ipsum Média, association loi 1901</span>
     <span>
       <a href="assets/docs/dossier-de-presse-ipsum-media.pdf" target="_blank" rel="noopener">Dossier de presse</a>
+      · <a href="https://compo.ipsummedia.fr/" target="_blank" rel="noopener">Espace bénévole</a>
       · <a href="mailto:contact@ipsummedia.fr">contact@ipsummedia.fr</a>
     </span>
   </div>
@@ -342,6 +352,67 @@
   const nav = document.getElementById('main-nav');
   toggle.addEventListener('click', () => nav.classList.toggle('open'));
   nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => nav.classList.remove('open')));
+</script>
+
+<script>
+  (function() {
+    var SUPABASE_URL = 'https://ctmekufqaxdelgfyjwly.supabase.co';
+    var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0bWVrdWZxYXhkZWxnZnlqd2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMDI1OTksImV4cCI6MjA5MDg3ODU5OX0.32wkp9NsqNTktvuC2Pb3S5EnAPPipt06DYLxfeyf5xE';
+    var SB_FN_HEADERS = { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY };
+    var redactionSelect = document.getElementById('cf-redaction');
+    var form = document.getElementById('contact-form');
+    var status = document.getElementById('cf-status');
+    var submitBtn = document.getElementById('cf-submit');
+
+    fetch(SUPABASE_URL + '/functions/v1/redactions-publiques', { headers: SB_FN_HEADERS })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var redactions = (data && data.redactions) || [];
+        if (!redactions.length) {
+          redactionSelect.innerHTML = '<option value="" disabled selected>Aucune rédaction disponible</option>';
+          return;
+        }
+        redactionSelect.innerHTML = redactions.map(function(r) {
+          return '<option value="' + r.id + '">' + r.nom + '</option>';
+        }).join('');
+      })
+      .catch(function() {
+        redactionSelect.innerHTML = '<option value="" disabled selected>Indisponible pour le moment</option>';
+      });
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      status.textContent = 'Envoi en cours...';
+      status.className = 'form-status';
+
+      fetch(SUPABASE_URL + '/functions/v1/contact-form', {
+        method: 'POST',
+        headers: Object.assign({ 'Content-Type': 'application/json' }, SB_FN_HEADERS),
+        body: JSON.stringify({
+          nom: document.getElementById('cf-nom').value,
+          email: document.getElementById('cf-email').value,
+          redaction_id: redactionSelect.value,
+          message: document.getElementById('cf-message').value
+        })
+      })
+        .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }); })
+        .then(function(res) {
+          if (res.ok) {
+            status.textContent = 'Message envoyé, merci ! Vous allez recevoir une confirmation par email.';
+            status.className = 'form-status form-status-ok';
+            form.reset();
+          } else {
+            throw new Error((res.data && res.data.error) || 'Erreur inconnue');
+          }
+        })
+        .catch(function() {
+          status.textContent = 'Le formulaire est momentanément indisponible, écrivez-nous à contact@ipsummedia.fr.';
+          status.className = 'form-status form-status-error';
+        })
+        .finally(function() { submitBtn.disabled = false; });
+    });
+  })();
 </script>
 
 </body>
