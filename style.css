@@ -195,6 +195,8 @@ section { padding: 88px 0; }
 .hero-video h1 { color: var(--white); max-width: 16ch; }
 .hero-video p.lead { color: #E8E1DC; margin: 0 0 32px; max-width: 44ch; }
 .hero-video .hero-actions { justify-content: flex-start; }
+.hero-video .btn-outline { color: var(--white); border-color: rgba(255,255,255,0.55); }
+.hero-video .btn-outline:hover { border-color: var(--white); color: var(--white); }
 @media (max-width: 640px) { .hero-video { min-height: 460px; } .hero-video-content { padding-left: 4px; } }
 
 /* ---- Pourquoi nous rejoindre (liste numérotée, page Nous rejoindre) ---- */
