@@ -372,6 +372,11 @@
           redactionSelect.innerHTML = '<option value="" disabled selected>Aucune rédaction disponible</option>';
           return;
         }
+        redactions.sort(function(a, b) {
+          if (a.nom === 'Tarn') return -1;
+          if (b.nom === 'Tarn') return 1;
+          return a.nom.localeCompare(b.nom);
+        });
         redactionSelect.innerHTML = redactions.map(function(r) {
           return '<option value="' + r.id + '">' + r.nom + '</option>';
         }).join('');
