@@ -143,24 +143,13 @@ section { padding: 88px 0; }
   padding: 100px 0 90px;
   background: radial-gradient(circle at 85% 20%, var(--orange-light), transparent 55%);
 }
-.hero .wrap { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 48px; align-items: center; }
+.hero .wrap { max-width: 720px; text-align: center; }
 .hero h1 { font-size: clamp(2.2rem, 4.5vw, 3.4rem); margin-bottom: 20px; }
 .hero h1 em { color: var(--orange); font-style: normal; }
-.hero p.lead { font-size: 1.15rem; color: var(--ink-soft); max-width: 44ch; margin-bottom: 32px; }
-.hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
-.hero-card {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 32px;
-  box-shadow: var(--shadow);
-}
-.hero-card .cross { width: 46px; height: 46px; margin-bottom: 16px; }
-.hero-card h3 { font-size: 1.1rem; margin-bottom: 8px; }
-.hero-card p { color: var(--ink-soft); font-size: 0.92rem; margin-bottom: 18px; }
+.hero p.lead { font-size: 1.15rem; color: var(--ink-soft); max-width: 52ch; margin: 0 auto 32px; }
+.hero-actions { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
 
 @media (max-width: 860px) {
-  .hero .wrap { grid-template-columns: 1fr; }
 }
 
 /* ---- Formats (reportages / newsletter / articles) ---- */
