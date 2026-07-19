@@ -210,8 +210,8 @@
         <a class="btn btn-primary" href="https://ipsummedia.substack.com" target="_blank" rel="noopener">Lire nos derniers articles</a>
         <a class="btn btn-outline" href="https://ipsummedia.substack.com/subscribe" target="_blank" rel="noopener">S'abonner à la newsletter</a>
       </div>
-      <div class="actus-feed">
-        <div data-supascribe-embed-id="450578113494" data-supascribe-feed></div>
+      <div class="actus-feed" id="substack-feed">
+        <p class="feed-loading">Chargement des derniers articles...</p>
       </div>
     </div>
   </section>
@@ -344,14 +344,49 @@
   </div>
 </footer>
 
-<script src="https://js.supascribe.com/v1/loader/StNFfJunYyT6a1aNpoIZTz3WxJi1.js" async></script>
-
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
   const toggle = document.getElementById('nav-toggle');
   const nav = document.getElementById('main-nav');
   toggle.addEventListener('click', () => nav.classList.toggle('open'));
   nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => nav.classList.remove('open')));
+</script>
+
+<script>
+  (function() {
+    var feedEl = document.getElementById('substack-feed');
+
+    function formatDate(iso) {
+      try {
+        return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+      } catch (e) { return ''; }
+    }
+
+    fetch('/.netlify/functions/substack-feed')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var items = (data && data.items) || [];
+        if (!items.length) {
+          feedEl.innerHTML = '<p class="feed-loading">Aucun article pour le moment.</p>';
+          return;
+        }
+        feedEl.innerHTML = '<div class="feed-grid">' + items.slice(0, 3).map(function(item) {
+          var img = item.image
+            ? '<img src="' + item.image + '" alt="" class="feed-card-img" loading="lazy">'
+            : '';
+          return '<a class="feed-card" href="' + item.link + '" target="_blank" rel="noopener">' +
+            img +
+            '<div class="feed-card-body">' +
+            '<span class="feed-card-date">' + formatDate(item.pubDate) + '</span>' +
+            '<h3>' + item.title + '</h3>' +
+            '<p>' + item.description + '</p>' +
+            '</div></a>';
+        }).join('') + '</div>';
+      })
+      .catch(function() {
+        feedEl.innerHTML = '<p class="feed-loading">Impossible de charger les articles pour le moment. <a href="https://ipsummedia.substack.com" target="_blank" rel="noopener">Voir sur Substack</a>.</p>';
+      });
+  })();
 </script>
 
 <script>
