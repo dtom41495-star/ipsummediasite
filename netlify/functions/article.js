@@ -94,6 +94,36 @@ function removeDuplicateImage(html, imageUrl) {
     .replace(/<(figure|div)\b[^>]*>\s*<\/\1>/gi, '');
 }
 
+// Insère un bloc pub après le 2e paragraphe de l'article (ou en fin de
+// contenu s'il y a moins de 2 paragraphes).
+function insertInlineAd(html) {
+  const adBlock = `
+  <div class="ad-slot ad-slot-inline">
+    <span class="ad-slot-label">Avec cette pub, Ipsum Média reste gratuit</span>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-7695287329907050"
+         data-ad-slot="4713288084"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </div>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>`;
+
+  const re = /<\/p>/gi;
+  let count = 0;
+  let insertIndex = -1;
+  let m;
+  while ((m = re.exec(html)) !== null) {
+    count++;
+    if (count === 2) {
+      insertIndex = m.index + m[0].length;
+      break;
+    }
+  }
+  if (insertIndex === -1) return html + adBlock;
+  return html.slice(0, insertIndex) + adBlock + html.slice(insertIndex);
+}
+
 function escapeHtml(s) {
   return (s || '').replace(/[&<>"']/g, function (c) {
     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -183,6 +213,30 @@ ${bodyHtml}
   const nav = document.getElementById('main-nav');
   toggle.addEventListener('click', () => nav.classList.toggle('open'));
 </script>
+
+<script src="/assets/tarteaucitron/tarteaucitron.min.js"></script>
+<script>
+  tarteaucitron.init({
+    privacyUrl: '',
+    orientation: 'bottom',
+    showAlertSmall: false,
+    cookieslist: true,
+    acceptAllCta: true,
+    denyAllCta: true,
+    highPrivacy: true,
+    handleBrowserDNTRequest: false,
+    removeCredit: true,
+    moreInfoLink: false,
+    useExternalCss: false,
+    readmoreLink: ''
+  });
+
+  tarteaucitron.user.gtagUa = 'G-033HT830CF';
+  (tarteaucitron.job = tarteaucitron.job || []).push('gtag');
+
+  tarteaucitron.user.adsensecapub = 'ca-pub-7695287329907050';
+  (tarteaucitron.job = tarteaucitron.job || []).push('adsenseauto');
+</script>
 </body>
 </html>`;
 }
@@ -197,7 +251,7 @@ function renderArticle(a) {
     <h1>${titleSafe}</h1>
     <p class="article-meta">Par ${escapeHtml(a.author)} · ${escapeHtml(a.dateFr)}</p>
     ${a.image ? `<img class="article-cover" src="${escapeHtml(a.image)}" alt="">` : ''}
-    <div class="article-body">${a.content}</div>
+    <div class="article-body">${insertInlineAd(a.content)}</div>
     <div class="article-subscribe">
       <h3>Envie de ne rater aucun article ?</h3>
       <p>Recevez l'actu du Tarn chaque jeudi directement par email.</p>

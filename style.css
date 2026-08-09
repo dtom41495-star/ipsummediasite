@@ -400,6 +400,20 @@ section { padding: 88px 0; }
 
 /* ---- Emplacement pub ---- */
 .ad-slot { padding: 24px 0; text-align: center; }
+.ad-slot-inline {
+  margin: 1.6em 0;
+  padding: 16px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.ad-slot-label {
+  display: block;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  margin-bottom: 10px;
+}
 
 /* ---- Stats ---- */
 .stats { background: var(--ink); color: var(--white); padding: 56px 0; }
