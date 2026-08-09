@@ -37,8 +37,12 @@ exports.handler = async function (event) {
     const link = extractTag(match, 'link');
     const pubDate = extractTag(match, 'pubDate');
     const author = extractTag(match, 'dc:creator') || 'Ipsum Média';
-    const content = extractTag(match, 'content:encoded') || stripHtml(extractTag(match, 'description'));
+    let content = extractTag(match, 'content:encoded') || stripHtml(extractTag(match, 'description'));
     let image = extractAttr(match, 'enclosure', 'url');
+
+    if (image) {
+      content = removeDuplicateImage(content, image);
+    }
 
     const dateFr = formatDateFr(pubDate);
 
@@ -74,6 +78,20 @@ function extractAttr(xml, tag, attr) {
 
 function stripHtml(html) {
   return (html || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+// Retire du corps de l'article les <img> qui correspondent à l'image de
+// couverture déjà affichée en haut de page (Substack la réinsère parfois
+// dans le contenu, souvent en fin d'article dans le bloc "s'abonner").
+function removeDuplicateImage(html, imageUrl) {
+  var idMatch = imageUrl.match(/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i);
+  var needle = idMatch ? idMatch[1] : imageUrl;
+  return html
+    .replace(/<img\b[^>]*>/gi, function (tag) {
+      return tag.indexOf(needle) !== -1 ? '' : tag;
+    })
+    .replace(/<a\b[^>]*>\s*<\/a>/gi, '')
+    .replace(/<(figure|div)\b[^>]*>\s*<\/\1>/gi, '');
 }
 
 function escapeHtml(s) {
@@ -135,8 +153,8 @@ ${headExtra}
     <nav class="main-nav" id="main-nav">
       <ul>
         <li><a href="/index.html#accueil">Accueil</a></li>
-        <li><a href="/index.html#histoire">À propos</a></li>
-        <li><a href="/index.html#equipe">Équipe</a></li>
+        <li><a href="/a-propos.html">À propos</a></li>
+        <li><a href="/a-propos.html#equipe">Équipe</a></li>
         <li><a href="/index.html#actus">Nos actus</a></li>
         <li><a href="/nous-rejoindre.html">Nous rejoindre</a></li>
         <li><a href="/index.html#contact">Contact</a></li>
@@ -186,13 +204,20 @@ function renderArticle(a) {
       <a class="btn btn-primary" href="https://ipsummedia.substack.com/subscribe" target="_blank" rel="noopener">Je m'inscris à la newsletter</a>
     </div>
   </div>`;
+  const descSafe = escapeHtml(stripHtml(a.content).slice(0, 160));
   const head = `<title>${titleSafe} — Ipsum Média</title>
-<meta name="description" content="${escapeHtml(stripHtml(a.content).slice(0, 160))}">
+<meta name="description" content="${descSafe}">
 <link rel="canonical" href="${escapeHtml(ownUrl)}">
 <meta property="og:type" content="article">
 <meta property="og:title" content="${titleSafe}">
+<meta property="og:description" content="${descSafe}">
 <meta property="og:url" content="${escapeHtml(ownUrl)}">
-${a.image ? `<meta property="og:image" content="${escapeHtml(a.image)}">` : ''}`;
+<meta property="og:site_name" content="Ipsum Média">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${titleSafe}">
+<meta name="twitter:description" content="${descSafe}">
+${a.image ? `<meta property="og:image" content="${escapeHtml(a.image)}">
+<meta name="twitter:image" content="${escapeHtml(a.image)}">` : ''}`;
   return pageShell(body, head);
 }
 

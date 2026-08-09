@@ -16,6 +16,7 @@ exports.handler = async function () {
       const link = extractTag(itemXml, 'link');
       const pubDate = extractTag(itemXml, 'pubDate');
       const description = stripHtml(extractTag(itemXml, 'description')).slice(0, 160).trim();
+      const author = extractTag(itemXml, 'dc:creator') || null;
 
       let image = extractAttr(itemXml, 'enclosure', 'url');
       if (!image) {
@@ -24,7 +25,7 @@ exports.handler = async function () {
         image = imgMatch ? imgMatch[1] : null;
       }
 
-      items.push({ title, link, pubDate, description, image });
+      items.push({ title, link, pubDate, description, image, author });
     }
 
     return {
