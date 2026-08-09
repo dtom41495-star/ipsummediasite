@@ -19,15 +19,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7695287329907050" crossorigin="anonymous"></script>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-033HT830CF"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-033HT830CF');
-</script>
 </head>
 <body>
 
@@ -106,6 +97,18 @@
         <div class="stat-num">25k</div>
         <div class="stat-label">Vues en moyenne par mois</div>
       </div>
+    </div>
+  </section>
+
+  <section class="ad-slot">
+    <div class="wrap">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-7695287329907050"
+           data-ad-slot="4713288084"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
     </div>
   </section>
 
@@ -361,6 +364,30 @@
   nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => nav.classList.remove('open')));
 </script>
 
+<script src="assets/tarteaucitron/tarteaucitron.min.js"></script>
+<script>
+  tarteaucitron.init({
+    privacyUrl: '',
+    orientation: 'bottom',
+    showAlertSmall: false,
+    cookieslist: true,
+    acceptAllCta: true,
+    denyAllCta: true,
+    highPrivacy: true,
+    handleBrowserDNTRequest: false,
+    removeCredit: true,
+    moreInfoLink: false,
+    useExternalCss: false,
+    readmoreLink: ''
+  });
+
+  tarteaucitron.user.gtagUa = 'G-033HT830CF';
+  (tarteaucitron.job = tarteaucitron.job || []).push('gtag');
+
+  tarteaucitron.user.adsensecapub = 'ca-pub-7695287329907050';
+  (tarteaucitron.job = tarteaucitron.job || []).push('adsenseauto');
+</script>
+
 <script>
   (function() {
     var feedEl = document.getElementById('substack-feed');
@@ -383,7 +410,9 @@
           var img = item.image
             ? '<img src="' + item.image + '" alt="" class="feed-card-img" loading="lazy">'
             : '';
-          return '<a class="feed-card" href="' + item.link + '" target="_blank" rel="noopener">' +
+          var slugMatch = item.link && item.link.match(/\/p\/([^/?#]+)/);
+          var href = slugMatch ? '/articles/' + slugMatch[1] : item.link;
+          return '<a class="feed-card" href="' + href + '">' +
             img +
             '<div class="feed-card-body">' +
             '<span class="feed-card-date">' + formatDate(item.pubDate) + '</span>' +

@@ -274,6 +274,9 @@ section { padding: 88px 0; }
 .format-card p { color: var(--ink-soft); font-size: 0.9rem; }
 @media (max-width: 760px) { .formats .wrap { grid-template-columns: 1fr; } }
 
+/* ---- Emplacement pub ---- */
+.ad-slot { padding: 24px 0; text-align: center; }
+
 /* ---- Stats ---- */
 .stats { background: var(--ink); color: var(--white); padding: 56px 0; }
 .stats .wrap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; text-align: center; }
