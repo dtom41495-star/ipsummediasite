@@ -159,7 +159,7 @@ section { padding: 88px 0; }
 .hero .btn-outline:hover { border-color: var(--white); color: var(--white); }
 
 /* ---- Bandeau newsletter compact (remplace le héros sur l'accueil) ---- */
-.newsletter-bar { background: var(--orange-light); padding: 14px 0; }
+.newsletter-bar { background: var(--orange-light); padding: 28px 0; }
 .newsletter-bar-inner {
   display: flex;
   align-items: center;
@@ -168,8 +168,48 @@ section { padding: 88px 0; }
   flex-wrap: wrap;
   text-align: center;
 }
-.newsletter-bar-inner p { font-size: 0.92rem; font-weight: 500; color: var(--ink); margin: 0; }
+.newsletter-bar-inner p { font-size: 0.92rem; font-weight: 500; color: var(--ink); margin: 0; max-width: 320px; text-align: left; }
 .newsletter-bar .btn-primary { padding: 9px 20px; font-size: 0.85rem; }
+@media (max-width: 560px) { .newsletter-bar-inner p { text-align: center; } }
+
+/* ---- Modale newsletter (choix de la rédaction) ---- */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(32, 26, 23, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 1000;
+}
+.modal-backdrop[hidden] { display: none; }
+.modal-box {
+  position: relative;
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 32px 28px;
+  max-width: 380px;
+  width: 100%;
+  text-align: left;
+}
+.modal-box h3 { margin: 12px 0 8px; font-size: 1.3rem; }
+.modal-text { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 18px; }
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--ink-soft);
+  cursor: pointer;
+  padding: 4px;
+}
+.modal-close:hover { color: var(--ink); }
+.modal-redaction-list { display: flex; flex-direction: column; gap: 10px; }
+.modal-redaction-btn { width: 100%; text-align: center; }
 
 /* ---- Hero avec vidéo en fond (bandeau, titre aligné à gauche) ---- */
 .hero-video {

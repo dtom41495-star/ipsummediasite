@@ -39,7 +39,7 @@
       </ul>
     </nav>
     <div class="header-cta">
-      <a class="btn btn-primary" href="https://ipsummedia.substack.com/subscribe" target="_blank" rel="noopener"><span class="long">Je m'inscris</span></a>
+      <button class="btn btn-primary newsletter-open-btn" type="button"><span class="long">Je m'inscris</span></button>
       <button class="nav-toggle" id="nav-toggle" aria-label="Menu">
         <span></span><span></span><span></span>
       </button>
@@ -52,9 +52,21 @@
   <section class="newsletter-bar" id="accueil">
     <div class="wrap newsletter-bar-inner">
       <p>L'actu du Tarn dans votre boîte mail, tous les jeudis. Et en plus, c'est gratuit.</p>
-      <a class="btn btn-primary" href="https://ipsummedia.substack.com/subscribe" target="_blank" rel="noopener">Je m'inscris à la newsletter</a>
+      <button class="btn btn-primary newsletter-open-btn" type="button">Je m'inscris à la newsletter</button>
     </div>
   </section>
+
+  <div class="modal-backdrop" id="newsletter-modal" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="newsletter-modal-title">
+      <button class="modal-close" id="newsletter-close-btn" type="button" aria-label="Fermer">&times;</button>
+      <span class="eyebrow">Newsletter</span>
+      <h3 id="newsletter-modal-title">Choisissez votre rédaction</h3>
+      <p class="modal-text">Chaque rédaction a sa propre newsletter. Choisissez la vôtre pour recevoir l'actu de votre département.</p>
+      <div class="modal-redaction-list" id="nl-redaction-list">
+        <p class="modal-text">Chargement...</p>
+      </div>
+    </div>
+  </div>
 
   <section class="headline-banner" id="headline">
     <div class="headline-bg" id="headline-bg"></div>
@@ -427,6 +439,74 @@
         })
         .finally(function() { submitBtn.disabled = false; });
     });
+  })();
+</script>
+
+<script>
+  (function() {
+    var SUPABASE_URL = 'https://ctmekufqaxdelgfyjwly.supabase.co';
+    var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0bWVrdWZxYXhkZWxnZnlqd2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMDI1OTksImV4cCI6MjA5MDg3ODU5OX0.32wkp9NsqNTktvuC2Pb3S5EnAPPipt06DYLxfeyf5xE';
+    var SB_FN_HEADERS = { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY };
+    var DEFAULT_SUBSCRIBE = 'https://ipsummedia.substack.com/subscribe';
+
+    var modal = document.getElementById('newsletter-modal');
+    var openBtns = document.querySelectorAll('.newsletter-open-btn');
+    var closeBtn = document.getElementById('newsletter-close-btn');
+    var list = document.getElementById('nl-redaction-list');
+    var loaded = false;
+
+    function substackSubscribeUrl(lien) {
+      if (!lien) return DEFAULT_SUBSCRIBE;
+      var base = lien.replace(/\/feed\/?$/, '').replace(/^([^:]+:)?\/\//, 'https://').replace(/\/$/, '');
+      return base + '/subscribe';
+    }
+
+    function renderButtons(redactions) {
+      list.innerHTML = redactions.map(function(r) {
+        return '<button type="button" class="btn btn-outline modal-redaction-btn" data-url="' +
+          substackSubscribeUrl(r.lien_substack) + '">' + r.nom + '</button>';
+      }).join('');
+      list.querySelectorAll('.modal-redaction-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          window.open(btn.getAttribute('data-url'), '_blank', 'noopener,width=480,height=650');
+          closeModal();
+        });
+      });
+    }
+
+    function loadRedactions() {
+      if (loaded) return;
+      loaded = true;
+      fetch(SUPABASE_URL + '/functions/v1/redactions-publiques', { headers: SB_FN_HEADERS })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var redactions = (data && data.redactions) || [];
+          if (!redactions.length) {
+            renderButtons([{ nom: 'Ipsum Média', lien_substack: null }]);
+            return;
+          }
+          redactions.sort(function(a, b) {
+            if (a.nom === 'Tarn') return -1;
+            if (b.nom === 'Tarn') return 1;
+            return a.nom.localeCompare(b.nom);
+          });
+          renderButtons(redactions);
+        })
+        .catch(function() {
+          renderButtons([{ nom: 'Ipsum Média', lien_substack: null }]);
+        });
+    }
+
+    function openModal() {
+      modal.hidden = false;
+      loadRedactions();
+    }
+    function closeModal() { modal.hidden = true; }
+
+    openBtns.forEach(function(btn) { btn.addEventListener('click', openModal); });
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && !modal.hidden) closeModal(); });
   })();
 </script>
 

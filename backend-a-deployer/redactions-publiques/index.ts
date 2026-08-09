@@ -22,10 +22,11 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // select() volontairement limité à id et nom : jamais d'email, jamais d'adhérents.
+    // select() volontairement limité à id, nom et lien_substack : jamais d'email, jamais d'adhérents.
+    // lien_substack sert à rediriger vers la newsletter du bon département depuis le site vitrine.
     const { data, error } = await supabase
       .from("redactions")
-      .select("id, nom")
+      .select("id, nom, lien_substack")
       .order("nom", { ascending: true });
 
     if (error) throw error;
