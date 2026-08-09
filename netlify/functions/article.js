@@ -155,7 +155,7 @@ ${headExtra}
         <li><a href="/index.html#accueil">Accueil</a></li>
         <li><a href="/a-propos.html">À propos</a></li>
         <li><a href="/a-propos.html#equipe">Équipe</a></li>
-        <li><a href="/index.html#actus">Nos actus</a></li>
+        <li><a href="/articles.html">Nos actus</a></li>
         <li><a href="/nous-rejoindre.html">Nous rejoindre</a></li>
         <li><a href="/index.html#contact">Contact</a></li>
       </ul>
@@ -192,7 +192,7 @@ function renderArticle(a) {
   const ownUrl = 'https://www.ipsummedia.fr/articles/' + encodeURIComponent(a.slug);
   const body = `
   <div class="article-page">
-    <a class="btn btn-outline article-back" href="/index.html#actus">&larr; Retour aux actus</a>
+    <a class="btn btn-outline article-back" href="/articles.html">&larr; Retour aux actus</a>
     <span class="eyebrow">Article</span>
     <h1>${titleSafe}</h1>
     <p class="article-meta">Par ${escapeHtml(a.author)} · ${escapeHtml(a.dateFr)}</p>
@@ -227,7 +227,7 @@ function renderNotFound() {
     <span class="eyebrow">Article</span>
     <h1>Article introuvable</h1>
     <p class="article-meta">Cet article n'existe plus ou a été déplacé.</p>
-    <a class="btn btn-primary" href="/index.html#actus">Voir nos derniers articles</a>
+    <a class="btn btn-primary" href="/articles.html">Voir nos derniers articles</a>
   </div>`;
   return pageShell(body, '<title>Article introuvable — Ipsum Média</title>');
 }

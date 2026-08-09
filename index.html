@@ -32,7 +32,7 @@
         <li><a href="#accueil" class="active">Accueil</a></li>
         <li><a href="a-propos.html">À propos</a></li>
         <li><a href="a-propos.html#equipe">Équipe</a></li>
-        <li><a href="#actus">Nos actus</a></li>
+        <li><a href="articles.html">Nos actus</a></li>
         <li><a href="#soutenir">Soutenir</a></li>
         <li><a href="nous-rejoindre.html">Nous rejoindre</a></li>
         <li><a href="#contact">Contact</a></li>
@@ -49,17 +49,10 @@
 
 <main>
 
-  <section class="hero" id="accueil">
-    <div class="wrap">
-      <div>
-        <span class="eyebrow">Média associatif indépendant</span>
-        <h1>Ipsum Média, <em>le Tarn</em> en grand.</h1>
-        <p class="lead">L'actu du Tarn dans votre poche, tous les jeudis. Reportages, interviews et infos exclusives sur ce qui fait vivre notre département.</p>
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="https://ipsummedia.substack.com/subscribe" target="_blank" rel="noopener">Je m'inscris à la newsletter</a>
-          <a class="btn btn-outline" href="https://ipsummedia.substack.com" target="_blank" rel="noopener">Nos derniers articles</a>
-        </div>
-      </div>
+  <section class="newsletter-bar" id="accueil">
+    <div class="wrap newsletter-bar-inner">
+      <p>L'actu du Tarn dans votre boîte mail, tous les jeudis. Et en plus, c'est gratuit.</p>
+      <a class="btn btn-primary" href="https://ipsummedia.substack.com/subscribe" target="_blank" rel="noopener">Je m'inscris à la newsletter</a>
     </div>
   </section>
 
@@ -352,17 +345,15 @@
           feedEl.innerHTML = '';
           return;
         }
-        feedEl.innerHTML = '<div class="feed-grid">' + otherItems.map(function(item) {
-          var img = item.image
-            ? '<img src="' + item.image + '" alt="" class="feed-card-img" loading="lazy">'
-            : '';
+        feedEl.innerHTML = '<div class="feed-tile-grid">' + otherItems.map(function(item) {
           var href = slugHref(item);
-          return '<a class="feed-card" href="' + href + '">' +
-            img +
-            '<div class="feed-card-body">' +
-            '<span class="feed-card-date">' + formatDate(item.pubDate) + (item.author ? ' · ' + item.author : '') + '</span>' +
+          var bg = item.image ? "background-image:url('" + item.image + "')" : '';
+          return '<a class="feed-tile" href="' + href + '">' +
+            '<div class="feed-tile-bg" style="' + bg + '"></div>' +
+            '<div class="feed-tile-overlay"></div>' +
+            '<div class="feed-tile-content">' +
+            '<span class="feed-tile-date">' + formatDate(item.pubDate) + (item.author ? ' · ' + item.author : '') + '</span>' +
             '<h3>' + item.title + '</h3>' +
-            '<p>' + item.description + '</p>' +
             '</div></a>';
         }).join('') + '</div>';
       })

@@ -10,7 +10,7 @@ exports.handler = async function () {
     const items = [];
     const blocks = xml.split('<item>').slice(1);
 
-    for (const block of blocks.slice(0, 6)) {
+    for (const block of blocks.slice(0, 20)) {
       const itemXml = block.split('</item>')[0];
       const title = extractTag(itemXml, 'title');
       const link = extractTag(itemXml, 'link');
