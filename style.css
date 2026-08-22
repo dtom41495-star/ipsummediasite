@@ -357,7 +357,10 @@ section { padding: 88px 0; }
 @media (max-width: 640px) { .headline-banner { min-height: 400px; } }
 
 /* ---- Autres articles (sous le bandeau à la une) : tuiles collées, image plein cadre ---- */
-.actus-secondary { padding: 0; }
+.actus-secondary { padding: 48px 0 8px; }
+.redac-group { margin-bottom: 48px; }
+.redac-group:last-child { margin-bottom: 8px; }
+.redac-title { font-size: 1.4rem; margin-bottom: 16px; }
 .feed-tile-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -791,4 +794,10 @@ footer.site-footer a:hover { color: var(--orange); }
 .social-links a:hover { background: var(--grad); }
 .social-links svg { width: 16px; height: 16px; flex-shrink: 0; }
 .social-links svg * { transition: color 0.15s ease; }
+
+/* ---- Logo dans le bandeau de cookies (tarteaucitron) ---- */
+/* #tarteaucitronAlertBig est déjà en position:fixed (CSS de tarteaucitron),
+   ce qui sert de repère de positionnement pour le logo en position absolute. */
+#tarteaucitron-logo { position: absolute; top: 18px; left: 18px; width: 56px; height: 56px; margin: 0; }
+#tarteaucitronDisclaimerAlert { display: block; margin-top: 48px; }
 @media (max-width: 640px) { .footer-top { flex-direction: column; gap: 14px; text-align: center; } }

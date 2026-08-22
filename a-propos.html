@@ -203,7 +203,7 @@
 <script>
   tarteaucitron.init({
     privacyUrl: '',
-    orientation: 'bottom',
+    orientation: 'middle',
     showAlertSmall: false,
     cookieslist: true,
     acceptAllCta: true,
@@ -221,6 +221,21 @@
 
   tarteaucitron.user.adsensecapub = 'ca-pub-7695287329907050';
   (tarteaucitron.job = tarteaucitron.job || []).push('adsenseauto');
+</script>
+
+<script>
+  (function insertTarteaucitronLogo(attempts) {
+    var target = document.getElementById('tarteaucitronDisclaimerAlert');
+    if (target && !document.getElementById('tarteaucitron-logo')) {
+      var img = document.createElement('img');
+      img.src = 'assets/logo.png';
+      img.alt = 'Ipsum Média';
+      img.id = 'tarteaucitron-logo';
+      target.parentNode.insertBefore(img, target);
+      return;
+    }
+    if ((attempts || 0) < 50) setTimeout(function() { insertTarteaucitronLogo((attempts || 0) + 1); }, 200);
+  })();
 </script>
 
 </body>

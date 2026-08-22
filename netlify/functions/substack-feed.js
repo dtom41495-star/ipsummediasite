@@ -1,16 +1,46 @@
-// Récupère le flux RSS public de Substack côté serveur (pas de CORS depuis le
-// navigateur) et le transforme en JSON simple pour le site.
+// Récupère les flux RSS publics Substack (Tarn + Haute-Garonne) côté serveur
+// (pas de CORS depuis le navigateur), les fusionne triés par date, et les
+// transforme en JSON simple pour le site.
+
+const FLUX = [
+  { url: 'https://ipsummedia.substack.com/feed', redaction: 'Tarn' },
+  { url: 'https://ipsummediahautegaronne.substack.com/feed', redaction: 'Haute-Garonne' },
+];
 
 exports.handler = async function () {
   try {
-    const res = await fetch('https://ipsummedia.substack.com/feed');
-    if (!res.ok) throw new Error('Flux Substack inaccessible (' + res.status + ')');
-    const xml = await res.text();
+    const resultats = await Promise.all(FLUX.map(fetchFlux));
+    const items = [].concat(...resultats);
+    items.sort(function (a, b) { return new Date(b.pubDate) - new Date(a.pubDate); });
 
-    const items = [];
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'public, max-age=900',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify({ items: items.slice(0, 20) }),
+    };
+  } catch (e) {
+    return {
+      statusCode: 500,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: String(e) }),
+    };
+  }
+};
+
+// Un flux en panne ou vide (ex : Haute-Garonne qui débute) ne doit jamais
+// faire planter l'ensemble — on renvoie juste une liste vide pour celui-là.
+async function fetchFlux(flux) {
+  try {
+    const res = await fetch(flux.url);
+    if (!res.ok) return [];
+    const xml = await res.text();
     const blocks = xml.split('<item>').slice(1);
 
-    for (const block of blocks.slice(0, 20)) {
+    return blocks.map(function (block) {
       const itemXml = block.split('</item>')[0];
       const title = extractTag(itemXml, 'title');
       const link = extractTag(itemXml, 'link');
@@ -25,26 +55,12 @@ exports.handler = async function () {
         image = imgMatch ? imgMatch[1] : null;
       }
 
-      items.push({ title, link, pubDate, description, image, author });
-    }
-
-    return {
-      statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=900',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({ items }),
-    };
+      return { title, link, pubDate, description, image, author, redaction: flux.redaction };
+    });
   } catch (e) {
-    return {
-      statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: String(e) }),
-    };
+    return [];
   }
-};
+}
 
 function extractTag(xml, tag) {
   const re = new RegExp('<' + tag + '[^>]*>([\\s\\S]*?)</' + tag + '>', 'i');

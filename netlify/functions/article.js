@@ -1,5 +1,10 @@
-// Génère une page article complète à partir du flux RSS Substack.
-// Appelée via la redirection /articles/:slug -> /.netlify/functions/article/:slug
+// Génère une page article complète à partir des flux RSS Substack (Tarn +
+// Haute-Garonne). Appelée via la redirection /articles/:slug -> /.netlify/functions/article/:slug
+
+const FLUX = [
+  'https://ipsummedia.substack.com/feed',
+  'https://ipsummediahautegaronne.substack.com/feed',
+];
 
 exports.handler = async function (event) {
   const parts = event.path.split('/').filter(Boolean);
@@ -10,19 +15,21 @@ exports.handler = async function (event) {
   }
 
   try {
-    const res = await fetch('https://ipsummedia.substack.com/feed');
-    if (!res.ok) throw new Error('Flux Substack inaccessible (' + res.status + ')');
-    const xml = await res.text();
-
-    const blocks = xml.split('<item>').slice(1);
     let match = null;
-    for (const block of blocks) {
-      const itemXml = block.split('</item>')[0];
-      const link = extractTag(itemXml, 'link');
-      if (link && link.indexOf('/p/' + slug) !== -1) {
-        match = itemXml;
-        break;
+    for (const url of FLUX) {
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const xml = await res.text();
+      const blocks = xml.split('<item>').slice(1);
+      for (const block of blocks) {
+        const itemXml = block.split('</item>')[0];
+        const link = extractTag(itemXml, 'link');
+        if (link && link.indexOf('/p/' + slug) !== -1) {
+          match = itemXml;
+          break;
+        }
       }
+      if (match) break;
     }
 
     if (!match) {
@@ -138,7 +145,8 @@ function formatDateFr(pubDate) {
   }
 }
 
-function pageShell(bodyHtml, headExtra) {
+function pageShell(bodyHtml, headExtra, subscribeUrl) {
+  const subUrl = subscribeUrl || 'https://ipsummedia.substack.com/subscribe';
   return `<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -191,7 +199,7 @@ ${headExtra}
       </ul>
     </nav>
     <div class="header-cta">
-      <a class="btn btn-primary" href="https://ipsummedia.substack.com/subscribe" target="_blank" rel="noopener"><span class="long">Je m'inscris</span></a>
+      <a class="btn btn-primary" href="${subUrl}" target="_blank" rel="noopener"><span class="long">Je m'inscris</span></a>
       <button class="nav-toggle" id="nav-toggle" aria-label="Menu">
         <span></span><span></span><span></span>
       </button>
@@ -218,7 +226,7 @@ ${bodyHtml}
 <script>
   tarteaucitron.init({
     privacyUrl: '',
-    orientation: 'bottom',
+    orientation: 'middle',
     showAlertSmall: false,
     cookieslist: true,
     acceptAllCta: true,
@@ -237,13 +245,39 @@ ${bodyHtml}
   tarteaucitron.user.adsensecapub = 'ca-pub-7695287329907050';
   (tarteaucitron.job = tarteaucitron.job || []).push('adsenseauto');
 </script>
+
+<script>
+  (function insertTarteaucitronLogo(attempts) {
+    var target = document.getElementById('tarteaucitronDisclaimerAlert');
+    if (target && !document.getElementById('tarteaucitron-logo')) {
+      var img = document.createElement('img');
+      img.src = '/assets/logo.png';
+      img.alt = 'Ipsum Média';
+      img.id = 'tarteaucitron-logo';
+      target.parentNode.insertBefore(img, target);
+      return;
+    }
+    if ((attempts || 0) < 50) setTimeout(function() { insertTarteaucitronLogo((attempts || 0) + 1); }, 200);
+  })();
+</script>
 </body>
 </html>`;
+}
+
+// Détermine la rédaction (et son Substack) à partir du lien de l'article
+// lui-même — évite de proposer la newsletter du Tarn sous un article
+// Haute-Garonne, et inversement.
+function redacDepuisLien(lien) {
+  if (lien && lien.indexOf('hautegaronne') !== -1) {
+    return { nom: 'Haute-Garonne', subscribeUrl: 'https://ipsummediahautegaronne.substack.com/subscribe' };
+  }
+  return { nom: 'Tarn', subscribeUrl: 'https://ipsummedia.substack.com/subscribe' };
 }
 
 function renderArticle(a) {
   const titleSafe = escapeHtml(a.title);
   const ownUrl = 'https://www.ipsummedia.fr/articles/' + encodeURIComponent(a.slug);
+  const redac = redacDepuisLien(a.link);
   const body = `
   <div class="article-page">
     <a class="btn btn-outline article-back" href="/articles.html">&larr; Retour aux actus</a>
@@ -254,8 +288,8 @@ function renderArticle(a) {
     <div class="article-body">${insertInlineAd(a.content)}</div>
     <div class="article-subscribe">
       <h3>Envie de ne rater aucun article ?</h3>
-      <p>Recevez l'actu du Tarn chaque jeudi directement par email.</p>
-      <a class="btn btn-primary" href="https://ipsummedia.substack.com/subscribe" target="_blank" rel="noopener">Je m'inscris à la newsletter</a>
+      <p>Recevez l'actu ${redac.nom === 'Tarn' ? 'du Tarn' : "d'Haute-Garonne"} chaque jeudi directement par email.</p>
+      <a class="btn btn-primary" href="${redac.subscribeUrl}" target="_blank" rel="noopener">Je m'inscris à la newsletter</a>
     </div>
   </div>`;
   const descSafe = escapeHtml(stripHtml(a.content).slice(0, 160));
@@ -272,7 +306,7 @@ function renderArticle(a) {
 <meta name="twitter:description" content="${descSafe}">
 ${a.image ? `<meta property="og:image" content="${escapeHtml(a.image)}">
 <meta name="twitter:image" content="${escapeHtml(a.image)}">` : ''}`;
-  return pageShell(body, head);
+  return pageShell(body, head, redac.subscribeUrl);
 }
 
 function renderNotFound() {

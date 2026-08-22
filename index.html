@@ -78,8 +78,17 @@
 
   <section class="actus-secondary">
     <div class="wrap">
-      <div class="actus-feed" id="substack-feed">
-        <p class="feed-loading">Chargement des articles...</p>
+      <div class="redac-group">
+        <h2 class="redac-title">La Rédac' du Tarn</h2>
+        <div class="feed-tile-grid" id="feed-tarn">
+          <p class="feed-loading">Chargement des articles...</p>
+        </div>
+      </div>
+      <div class="redac-group">
+        <h2 class="redac-title">La Rédac' d'Haute-Garonne</h2>
+        <div class="feed-tile-grid" id="feed-hautegaronne">
+          <p class="feed-loading">Chargement des articles...</p>
+        </div>
       </div>
     </div>
   </section>
@@ -293,7 +302,7 @@
 <script>
   tarteaucitron.init({
     privacyUrl: '',
-    orientation: 'bottom',
+    orientation: 'middle',
     showAlertSmall: false,
     cookieslist: true,
     acceptAllCta: true,
@@ -314,8 +323,24 @@
 </script>
 
 <script>
+  (function insertTarteaucitronLogo(attempts) {
+    var target = document.getElementById('tarteaucitronDisclaimerAlert');
+    if (target && !document.getElementById('tarteaucitron-logo')) {
+      var img = document.createElement('img');
+      img.src = 'assets/logo.png';
+      img.alt = 'Ipsum Média';
+      img.id = 'tarteaucitron-logo';
+      target.parentNode.insertBefore(img, target);
+      return;
+    }
+    if ((attempts || 0) < 50) setTimeout(function() { insertTarteaucitronLogo((attempts || 0) + 1); }, 200);
+  })();
+</script>
+
+<script>
   (function() {
-    var feedEl = document.getElementById('substack-feed');
+    var feedTarn = document.getElementById('feed-tarn');
+    var feedHG = document.getElementById('feed-hautegaronne');
     var headlineBg = document.getElementById('headline-bg');
     var headlineContent = document.getElementById('headline-content');
 
@@ -330,12 +355,31 @@
       return slugMatch ? '/articles/' + slugMatch[1] : item.link;
     }
 
+    function renderGroup(el, list) {
+      if (!list.length) {
+        el.innerHTML = '<p class="feed-loading">Les premiers articles arrivent bientôt.</p>';
+        return;
+      }
+      el.innerHTML = list.map(function(item) {
+        var href = slugHref(item);
+        var bg = item.image ? "background-image:url('" + item.image + "')" : '';
+        return '<a class="feed-tile" href="' + href + '">' +
+          '<div class="feed-tile-bg" style="' + bg + '"></div>' +
+          '<div class="feed-tile-overlay"></div>' +
+          '<div class="feed-tile-content">' +
+          '<span class="feed-tile-date">' + formatDate(item.pubDate) + (item.author ? ' · ' + item.author : '') + '</span>' +
+          '<h3>' + item.title + '</h3>' +
+          '</div></a>';
+      }).join('');
+    }
+
     fetch('/.netlify/functions/substack-feed')
       .then(function(r) { return r.json(); })
       .then(function(data) {
         var items = (data && data.items) || [];
         if (!items.length) {
-          feedEl.innerHTML = '<p class="feed-loading">Aucun article pour le moment.</p>';
+          renderGroup(feedTarn, []);
+          renderGroup(feedHG, []);
           headlineContent.innerHTML = '<p class="feed-loading" style="color:rgba(255,255,255,0.85);">Aucun article pour le moment.</p>';
           return;
         }
@@ -345,32 +389,21 @@
         if (latest.image) {
           headlineBg.style.backgroundImage = "url('" + latest.image + "')";
         }
+        var latestRedacLabel = latest.redaction === 'Haute-Garonne' ? "la rédaction d'Haute-Garonne" : 'la rédaction du Tarn';
         headlineContent.innerHTML =
           '<span class="eyebrow">À la une</span>' +
           '<h2><a href="' + latestHref + '" style="color:inherit; text-decoration:none;">' + latest.title + '</a></h2>' +
           '<p class="headline-excerpt">' + latest.description + '</p>' +
-          '<p class="headline-meta">Par ' + (latest.author || 'la rédaction du Tarn') + ' · ' + formatDate(latest.pubDate) + '</p>' +
+          '<p class="headline-meta">Par ' + (latest.author || latestRedacLabel) + ' · ' + formatDate(latest.pubDate) + '</p>' +
           '<a class="btn btn-primary" href="' + latestHref + '">Lire l\'article</a>';
 
-        var otherItems = items.slice(1, 4);
-        if (!otherItems.length) {
-          feedEl.innerHTML = '';
-          return;
-        }
-        feedEl.innerHTML = '<div class="feed-tile-grid">' + otherItems.map(function(item) {
-          var href = slugHref(item);
-          var bg = item.image ? "background-image:url('" + item.image + "')" : '';
-          return '<a class="feed-tile" href="' + href + '">' +
-            '<div class="feed-tile-bg" style="' + bg + '"></div>' +
-            '<div class="feed-tile-overlay"></div>' +
-            '<div class="feed-tile-content">' +
-            '<span class="feed-tile-date">' + formatDate(item.pubDate) + (item.author ? ' · ' + item.author : '') + '</span>' +
-            '<h3>' + item.title + '</h3>' +
-            '</div></a>';
-        }).join('') + '</div>';
+        renderGroup(feedTarn, items.filter(function(i) { return i.redaction === 'Tarn'; }).slice(0, 6));
+        renderGroup(feedHG, items.filter(function(i) { return i.redaction === 'Haute-Garonne'; }).slice(0, 6));
       })
       .catch(function() {
-        feedEl.innerHTML = '<p class="feed-loading">Impossible de charger les articles pour le moment. <a href="https://ipsummedia.substack.com" target="_blank" rel="noopener">Voir sur Substack</a>.</p>';
+        var msg = '<p class="feed-loading">Impossible de charger les articles pour le moment. <a href="https://ipsummedia.substack.com" target="_blank" rel="noopener">Voir sur Substack</a>.</p>';
+        feedTarn.innerHTML = msg;
+        feedHG.innerHTML = msg;
         headlineContent.innerHTML = '<p class="feed-loading" style="color:rgba(255,255,255,0.85);">Impossible de charger le dernier article.</p>';
       });
   })();
