@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Politique de confidentialité — Ipsum Média</title>
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a href="index.html#accueil" class="brand">
+      <img src="assets/logo.png" alt="Ipsum Média">
+    </a>
+    <nav class="main-nav" id="main-nav">
+      <ul>
+        <li><a href="index.html#accueil">Accueil</a></li>
+        <li><a href="a-propos.html">À propos</a></li>
+        <li><a href="articles.html">Nos actus</a></li>
+        <li><a href="nous-rejoindre.html">Nous rejoindre</a></li>
+      </ul>
+    </nav>
+    <div class="header-cta">
+      <button class="nav-toggle" id="nav-toggle" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <section class="hero" style="min-height:auto; padding: 70px 0 40px; background: var(--cream);">
+    <div class="wrap" style="text-align:left;">
+      <span class="eyebrow">Ipsum Média</span>
+      <h1 style="color:var(--ink);">Politique de confidentialité</h1>
+      <p class="lead" style="color:var(--ink-soft);">Outil de gestion des réseaux sociaux (Postiz) — usage interne à l'association.</p>
+    </div>
+  </section>
+
+  <section style="padding: 8px 0 100px;">
+    <div class="wrap" style="max-width:720px;">
+      <p style="color:var(--ink-soft); font-size:1.05rem; line-height:1.75; margin-bottom:1.2em;">Ipsum Média utilise Postiz, un outil auto-hébergé, pour programmer et publier du contenu sur ses comptes de réseaux sociaux officiels. Seuls les membres autorisés de l'association y ont accès via un compte protégé par mot de passe.</p>
+      <p style="color:var(--ink-soft); font-size:1.05rem; line-height:1.75; margin-bottom:1.2em;">Les données traitées sont : les identifiants de connexion des membres autorisés, les jetons d'autorisation des comptes de réseaux sociaux de l'association (obtenus via OAuth), et le contenu programmé pour publication. Ces données sont stockées sur une infrastructure gérée par l'association et ne sont partagées avec aucun tiers, hormis les plateformes de réseaux sociaux concernées, dans le seul but de publier le contenu programmé.</p>
+      <p style="color:var(--ink-soft); font-size:1.05rem; line-height:1.75;">Pour toute question ou demande d'accès, de rectification ou de suppression de données vous concernant, contactez : <a href="mailto:contact@ipsummedia.fr" style="color:var(--orange);">contact@ipsummedia.fr</a></p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>© <span id="year"></span> Ipsum Média, association loi 1901</span>
+    <span><a href="mailto:contact@ipsummedia.fr">contact@ipsummedia.fr</a></span>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+  const toggle = document.getElementById('nav-toggle');
+  const nav = document.getElementById('main-nav');
+  toggle.addEventListener('click', () => nav.classList.toggle('open'));
+</script>
+
+</body>
+</html>
