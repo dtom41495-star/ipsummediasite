@@ -108,6 +108,20 @@ section { padding: 88px 0; }
 .main-nav a:hover { color: var(--orange); }
 .main-nav a.active { color: var(--orange); font-weight: 700; }
 .header-cta { display: flex; align-items: center; gap: 20px; }
+.whatsapp-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #25D366;
+  color: #fff;
+  flex-shrink: 0;
+  transition: opacity 0.15s ease;
+}
+.whatsapp-btn:hover { opacity: 0.85; }
+.whatsapp-btn svg { width: 20px; height: 20px; }
 .nav-toggle {
   display: none;
   background: none;
