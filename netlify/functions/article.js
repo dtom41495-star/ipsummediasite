@@ -192,7 +192,7 @@ ${headExtra}
       <ul>
         <li><a href="/index.html#accueil">Accueil</a></li>
         <li><a href="/a-propos.html">À propos</a></li>
-        <li><a href="/a-propos.html#equipe">Équipe</a></li>
+        <li><a href="/nos-valeurs.html">Nos valeurs</a></li>
         <li><a href="/articles.html">Nos actus</a></li>
         <li><a href="/nous-rejoindre.html">Nous rejoindre</a></li>
         <li><a href="/index.html#contact">Contact</a></li>
@@ -213,6 +213,9 @@ ${bodyHtml}
   <div class="wrap">
     <span>© <span id="year"></span> Ipsum Média, association loi 1901</span>
     <span><a href="mailto:contact@ipsummedia.fr">contact@ipsummedia.fr</a></span>
+  </div>
+  <div class="wrap footer-legal">
+    <p>Ipsum Média est une association loi 1901 immatriculée au Registre National des Associations sous le n°W812010251. SIRET 100 238 435 00018, code APE 58.13Y (Édition de revues et périodiques). Nom de domaine : Infomaniak Network SA (infomaniak.com). Hébergement du site : Netlify, Inc. (netlify.com).</p>
   </div>
 </footer>
 <script>
@@ -269,9 +272,9 @@ ${bodyHtml}
 // Haute-Garonne, et inversement.
 function redacDepuisLien(lien) {
   if (lien && lien.indexOf('hautegaronne') !== -1) {
-    return { nom: 'Haute-Garonne', subscribeUrl: 'https://ipsummediahautegaronne.substack.com/subscribe' };
+    return { nom: 'Haute-Garonne', subscribeUrl: 'https://ipsummediahautegaronne.substack.com/subscribe', substackHome: 'https://ipsummediahautegaronne.substack.com' };
   }
-  return { nom: 'Tarn', subscribeUrl: 'https://ipsummedia.substack.com/subscribe' };
+  return { nom: 'Tarn', subscribeUrl: 'https://ipsummedia.substack.com/subscribe', substackHome: 'https://ipsummedia.substack.com' };
 }
 
 function renderArticle(a) {
@@ -291,6 +294,7 @@ function renderArticle(a) {
       <p>Recevez l'actu ${redac.nom === 'Tarn' ? 'du Tarn' : "d'Haute-Garonne"} chaque jeudi directement par email.</p>
       <a class="btn btn-primary" href="${redac.subscribeUrl}" target="_blank" rel="noopener">Je m'inscris à la newsletter</a>
     </div>
+    <p style="text-align:center; margin-top:20px;"><a href="${redac.substackHome}" target="_blank" rel="noopener" style="color:var(--ink-soft); font-size:0.85rem;">Voir tous nos articles (archives complètes sur Substack) →</a></p>
   </div>`;
   const descSafe = escapeHtml(stripHtml(a.content).slice(0, 160));
   const head = `<title>${titleSafe} — Ipsum Média</title>
