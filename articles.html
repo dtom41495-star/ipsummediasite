@@ -6,14 +6,14 @@
 <title>Nos articles — Ipsum Média</title>
 <meta name="description" content="Tous les derniers articles d'Ipsum Média : reportages, interviews et actualités du Tarn.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://www.ipsummedia.fr/articles.html">
+<meta property="og:url" content="https://ipsummedia.fr/articles.html">
 <meta property="og:title" content="Nos articles — Ipsum Média">
 <meta property="og:description" content="Tous les derniers articles d'Ipsum Média : reportages, interviews et actualités du Tarn.">
-<meta property="og:image" content="https://www.ipsummedia.fr/assets/logo-gradient.png">
+<meta property="og:image" content="https://ipsummedia.fr/assets/logo-gradient.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Nos articles — Ipsum Média">
 <meta name="twitter:description" content="Tous les derniers articles d'Ipsum Média : reportages, interviews et actualités du Tarn.">
-<meta name="twitter:image" content="https://www.ipsummedia.fr/assets/logo-gradient.png">
+<meta name="twitter:image" content="https://ipsummedia.fr/assets/logo-gradient.png">
 <link rel="icon" type="image/png" href="assets/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -50,7 +50,7 @@
 
   <section class="hero" style="min-height:auto; padding: 70px 0 40px; background: var(--cream);">
     <div class="wrap" style="text-align:left;">
-      <span class="eyebrow">Nos actus</span>
+      <span class="eyebrow" style="color:var(--orange);">Nos actus</span>
       <h1 style="color:var(--ink);">Tous nos articles</h1>
       <p class="lead" style="color:var(--ink-soft);">Reportages, interviews et actualités du Tarn, publiés par la rédaction.</p>
     </div>
@@ -60,6 +60,14 @@
     <div class="wrap">
       <div id="articles-container">
         <p class="feed-loading">Chargement des articles...</p>
+      </div>
+      <div class="archive-cta" id="archive-cta" hidden>
+        <h2>Voir tous les articles</h2>
+        <p>Le site affiche nos derniers articles. Retrouvez toutes les archives sur Substack, en choisissant votre rédaction.</p>
+        <div class="archive-cta-choices">
+          <a class="btn btn-primary" href="https://ipsummedia.substack.com/archive" target="_blank" rel="noopener">La Rédac' du Tarn &rarr;</a>
+          <a class="btn btn-primary" href="https://ipsummediahautegaronne.substack.com/archive" target="_blank" rel="noopener">La Rédac' d'Haute-Garonne &rarr;</a>
+        </div>
       </div>
     </div>
   </section>
@@ -176,6 +184,10 @@
       })
       .catch(function() {
         container.innerHTML = '<p class="feed-loading">Impossible de charger les articles pour le moment. <a href="https://ipsummedia.substack.com" target="_blank" rel="noopener">Voir sur Substack</a>.</p>';
+      })
+      .then(function() {
+        // Dans tous les cas (liste affichée, vide ou en erreur) : lien vers les archives
+        document.getElementById('archive-cta').hidden = false;
       });
   })();
 </script>
