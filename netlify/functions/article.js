@@ -152,7 +152,7 @@ exports.handler = async function (event) {
       .map((it) => ({
         title: extractTag(it, 'title'),
         slug: slugDuLien(extractTag(it, 'link')),
-        image: extractAttr(it, 'enclosure', 'url'),
+        image: redimensionnerImage(extractAttr(it, 'enclosure', 'url'), 480),
         date: formatDateFr(extractTag(it, 'pubDate')),
       }));
 
@@ -282,6 +282,15 @@ function insertInlineAd(html) {
   return html.slice(0, insertIndex) + adBlock + html.slice(insertIndex);
 }
 
+// Les couvertures du flux Substack sont les photos d'origine, parfois de 40 à 70 millions
+// de pixels (4 Mo pour une seule image) : trop lourd à afficher, et les aperçus de partage
+// (WhatsApp, Facebook) les refusent. On demande au CDN de Substack une version à la bonne
+// largeur (la signature $s_!...! de l'adresse reste valable).
+function redimensionnerImage(url, largeur) {
+  if (!url || url.indexOf('substackcdn.com/image/fetch/') === -1) return url;
+  return url.replace(/(\/image\/fetch\/\$s_![^,\/]+!),(?!w_)/, '$1,w_' + largeur + ',c_limit,');
+}
+
 function escapeHtml(s) {
   return (s || '').replace(/[&<>"']/g, function (c) {
     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -358,7 +367,7 @@ function pageShell(bodyHtml, headExtra, subscribeUrl) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 ${headExtra}
-<link rel="icon" type="image/png" href="/assets/logo.png">
+<link rel="icon" type="image/png" href="/assets/logo-carre.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -642,7 +651,7 @@ function donneesStructurees(a, c) {
     article.datePublished = c.iso;
     article.dateModified = c.iso;
   }
-  if (a.image) article.image = [a.image];
+  if (c.image) article.image = [c.image];
   const filAriane = {
     '@type': 'BreadcrumbList',
     itemListElement: [
@@ -689,7 +698,7 @@ function renderArticle(a) {
         ${share}
       </div>
     </div>
-    ${a.image ? `<img class="article-cover" src="${escapeHtml(a.image)}" alt="">` : ''}
+    ${a.image ? `<img class="article-cover" src="${escapeHtml(redimensionnerImage(a.image, 1400))}" alt="">` : ''}
     <div class="article-body">${insertInlineAd(contenu)}</div>
     <div class="article-share-end">
       <p>Cet article vous a plu ? Partagez-le.</p>
@@ -782,8 +791,9 @@ function renderArticle(a) {
   })();
   </script>`;
   const resume = (chapo || texte).slice(0, 160);
+  const imgPartage = a.image ? redimensionnerImage(a.image, 1200) : null;
   const descSafe = escapeHtml(resume);
-  const ld = donneesStructurees(a, { url: ownUrl, resume, iso, mots, section: redac.libelle });
+  const ld = donneesStructurees(a, { url: ownUrl, resume, iso, mots, section: redac.libelle, image: imgPartage });
   const head = `<title>${titleSafe} — Ipsum Média</title>
 <meta name="description" content="${descSafe}">
 <link rel="canonical" href="${escapeHtml(ownUrl)}">
@@ -797,8 +807,8 @@ ${iso ? `<meta property="article:published_time" content="${iso}">\n` : ''}<meta
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${titleSafe}">
 <meta name="twitter:description" content="${descSafe}">
-${a.image ? `<meta property="og:image" content="${escapeHtml(a.image)}">
-<meta name="twitter:image" content="${escapeHtml(a.image)}">\n` : ''}<script type="application/ld+json">${ld}</script>`;
+${imgPartage ? `<meta property="og:image" content="${escapeHtml(imgPartage)}">
+<meta name="twitter:image" content="${escapeHtml(imgPartage)}">\n` : ''}<script type="application/ld+json">${ld}</script>`;
   return pageShell(body, head, redac.subscribeUrl);
 }
 

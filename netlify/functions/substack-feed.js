@@ -12,6 +12,13 @@ exports.handler = async function () {
     const resultats = await Promise.all(FLUX.map(fetchFlux));
     const items = [].concat(...resultats);
     items.sort(function (a, b) { return new Date(b.pubDate) - new Date(a.pubDate); });
+    const recents = items.slice(0, 20);
+
+    // Couverture générique : la même image sur plusieurs articles (le logo, pour les
+    // newsletters). Le site s'en sert pour choisir un vrai article avec photo à la une.
+    const compte = {};
+    recents.forEach(function (it) { const id = idImage(it.image); if (id) compte[id] = (compte[id] || 0) + 1; });
+    recents.forEach(function (it) { const id = idImage(it.image); it.coverGenerique = !!id && compte[id] > 1; });
 
     return {
       statusCode: 200,
@@ -20,7 +27,7 @@ exports.handler = async function () {
         'Cache-Control': 'public, max-age=900',
         'Access-Control-Allow-Origin': '*',
       },
-      body: JSON.stringify({ items: items.slice(0, 20) }),
+      body: JSON.stringify({ items: recents }),
     };
   } catch (e) {
     return {
@@ -55,11 +62,27 @@ async function fetchFlux(flux) {
         image = imgMatch ? imgMatch[1] : null;
       }
 
-      return { title, link, pubDate, description, image, author, redaction: flux.redaction };
+      // image : pour les cartes ; imageLarge : pour le bandeau "à la une" pleine largeur
+      return { title, link, pubDate, description, image: redimensionnerImage(image, 720), imageLarge: redimensionnerImage(image, 1600), author, redaction: flux.redaction };
     });
   } catch (e) {
     return [];
   }
+}
+
+// Les couvertures du flux sont les photos d'origine, parfois de 40 à 70 millions de
+// pixels (4 Mo pour une seule carte) : le navigateur peinait à les décoder et les
+// cartes s'affichaient par morceaux en défilant. On demande au CDN de Substack une
+// version à la bonne largeur (la signature $s_!...! de l'adresse reste valable).
+function redimensionnerImage(url, largeur) {
+  if (!url || url.indexOf('substackcdn.com/image/fetch/') === -1) return url;
+  return url.replace(/(\/image\/fetch\/\$s_![^,\/]+!),(?!w_)/, '$1,w_' + largeur + ',c_limit,');
+}
+
+// Identifiant (uuid) du fichier image dans l'adresse Substack, ou null
+function idImage(url) {
+  const m = String(url || '').match(/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/i);
+  return m ? m[0].toLowerCase() : null;
 }
 
 function extractTag(xml, tag) {

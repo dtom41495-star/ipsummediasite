@@ -14,7 +14,7 @@
 <meta name="twitter:title" content="Ipsum Média, le Tarn en grand">
 <meta name="twitter:description" content="Média associatif indépendant du Tarn. Reportages, articles et newsletter hebdomadaire chaque jeudi.">
 <meta name="twitter:image" content="https://ipsummedia.fr/assets/logo-gradient.png">
-<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="icon" type="image/png" href="assets/logo-carre.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -52,7 +52,32 @@
 
 <main>
 
-  <section class="newsletter-bar" id="accueil">
+  <section class="headline-banner" id="accueil">
+    <div class="headline-bg" id="headline-bg"></div>
+    <div class="headline-overlay"></div>
+    <div class="wrap headline-content" id="headline-content">
+      <p class="feed-loading" style="color:rgba(255,255,255,0.85);">Chargement du dernier article...</p>
+    </div>
+  </section>
+
+  <section class="actus-secondary">
+    <div class="wrap">
+      <div class="redac-group">
+        <h2 class="redac-title">La Rédac' du Tarn</h2>
+        <div class="feed-tile-grid" id="feed-tarn">
+          <p class="feed-loading">Chargement des articles...</p>
+        </div>
+      </div>
+      <div class="redac-group" id="group-hautegaronne" hidden>
+        <h2 class="redac-title">La Rédac' d'Haute-Garonne</h2>
+        <div class="feed-tile-grid" id="feed-hautegaronne">
+          <p class="feed-loading">Chargement des articles...</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="newsletter-bar">
     <div class="wrap newsletter-bar-inner">
       <p>L'actu du Tarn dans votre boîte mail, tous les jeudis. Et en plus, c'est gratuit.</p>
       <button class="btn btn-primary newsletter-open-btn" type="button">Je m'inscris à la newsletter</button>
@@ -71,27 +96,12 @@
     </div>
   </div>
 
-  <section class="headline-banner" id="headline">
-    <div class="headline-bg" id="headline-bg"></div>
-    <div class="headline-overlay"></div>
-    <div class="wrap headline-content" id="headline-content">
-      <p class="feed-loading" style="color:rgba(255,255,255,0.85);">Chargement du dernier article...</p>
-    </div>
-  </section>
-
-  <section class="actus-secondary">
+  <section class="reportage">
     <div class="wrap">
-      <div class="redac-group">
-        <h2 class="redac-title">La Rédac' du Tarn</h2>
-        <div class="feed-tile-grid" id="feed-tarn">
-          <p class="feed-loading">Chargement des articles...</p>
-        </div>
-      </div>
-      <div class="redac-group">
-        <h2 class="redac-title">La Rédac' d'Haute-Garonne</h2>
-        <div class="feed-tile-grid" id="feed-hautegaronne">
-          <p class="feed-loading">Chargement des articles...</p>
-        </div>
+      <span class="eyebrow" style="display:block; text-align:center;">Notre meilleur reportage</span>
+      <h2 style="text-align:center;">On vous emmène sur le terrain</h2>
+      <div class="reportage-video">
+        <iframe src="https://www.youtube.com/embed/P3COBU1jV9g" title="Notre meilleur reportage - Ipsum Média" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>
       </div>
     </div>
   </section>
@@ -113,6 +123,28 @@
         <h3>Articles</h3>
         <p>Interviews, enquêtes et actualités locales publiées tout au long de la semaine.</p>
       </div>
+    </div>
+  </section>
+
+  <section class="partners">
+    <div class="wrap">
+      <span class="eyebrow" style="display:block; text-align:center;">Ils parlent de nous</span>
+      <h2 style="text-align:center;">Nos collaborations</h2>
+      <div class="partners-grid">
+        <div class="partner-card">
+          <img src="assets/partners/miss-tarn.png" alt="Miss Tarn" class="partner-logo">
+          <p>Média officiel des élections Miss Tarn depuis mai 2025.</p>
+        </div>
+        <div class="partner-card">
+          <img src="assets/partners/rcf-radio.png" alt="RCF Radio Pays Tarnais" class="partner-logo">
+          <p>Interview et relais de nos actions sur les ondes locales.</p>
+        </div>
+        <div class="partner-card">
+          <img src="assets/partners/club-presse.png" alt="Club de la presse Occitanie" class="partner-logo">
+          <p>Nous sommes membres du Club de la presse Occitanie.</p>
+        </div>
+      </div>
+      <p class="team-note">Ipsum Média est membre du Club de la presse Occitanie et d'Animafac.</p>
     </div>
   </section>
 
@@ -163,39 +195,6 @@
         </div>
       </div>
 
-    </div>
-  </section>
-
-
-  <section class="partners">
-    <div class="wrap">
-      <span class="eyebrow" style="display:block; text-align:center;">Ils parlent de nous</span>
-      <h2 style="text-align:center;">Nos collaborations</h2>
-      <div class="partners-grid">
-        <div class="partner-card">
-          <img src="assets/partners/miss-tarn.png" alt="Miss Tarn" class="partner-logo">
-          <p>Média officiel des élections Miss Tarn depuis mai 2025.</p>
-        </div>
-        <div class="partner-card">
-          <img src="assets/partners/rcf-radio.png" alt="RCF Radio Pays Tarnais" class="partner-logo">
-          <p>Interview et relais de nos actions sur les ondes locales.</p>
-        </div>
-        <div class="partner-card">
-          <img src="assets/partners/club-presse.png" alt="Club de la presse Occitanie" class="partner-logo">
-          <p>Nous sommes membres du Club de la presse Occitanie.</p>
-        </div>
-      </div>
-      <p class="team-note">Ipsum Média est membre du Club de la presse Occitanie et d'Animafac.</p>
-    </div>
-  </section>
-
-  <section class="reportage">
-    <div class="wrap">
-      <span class="eyebrow" style="display:block; text-align:center;">Notre meilleur reportage</span>
-      <h2 style="text-align:center;">On vous emmène sur le terrain</h2>
-      <div class="reportage-video">
-        <iframe src="https://www.youtube.com/embed/P3COBU1jV9g" title="Notre meilleur reportage - Ipsum Média" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>
-      </div>
     </div>
   </section>
 
@@ -402,6 +401,7 @@
     var feedHG = document.getElementById('feed-hautegaronne');
     var headlineBg = document.getElementById('headline-bg');
     var headlineContent = document.getElementById('headline-content');
+    var groupHG = document.getElementById('group-hautegaronne');
 
     function formatDate(iso) {
       try {
@@ -438,15 +438,15 @@
         var items = (data && data.items) || [];
         if (!items.length) {
           renderGroup(feedTarn, []);
-          renderGroup(feedHG, []);
           headlineContent.innerHTML = '<p class="feed-loading" style="color:rgba(255,255,255,0.85);">Aucun article pour le moment.</p>';
           return;
         }
 
-        var latest = items[0];
+        // À la une : le dernier article avec une vraie photo (les newsletters ont le logo en couverture)
+        var latest = items.filter(function(i) { return i.image && !i.coverGenerique; })[0] || items[0];
         var latestHref = slugHref(latest);
         if (latest.image) {
-          headlineBg.style.backgroundImage = "url('" + latest.image + "')";
+          headlineBg.style.backgroundImage = "url('" + (latest.imageLarge || latest.image) + "')";
         }
         var latestRedacLabel = latest.redaction === 'Haute-Garonne' ? "la rédaction d'Haute-Garonne" : 'la rédaction du Tarn';
         headlineContent.innerHTML =
@@ -456,8 +456,16 @@
           '<p class="headline-meta">Par ' + (latest.author || latestRedacLabel) + ' · ' + formatDate(latest.pubDate) + '</p>' +
           '<a class="btn btn-primary" href="' + latestHref + '">Lire l\'article</a>';
 
-        renderGroup(feedTarn, items.filter(function(i) { return i.redaction === 'Tarn'; }).slice(0, 6));
-        renderGroup(feedHG, items.filter(function(i) { return i.redaction === 'Haute-Garonne'; }).slice(0, 6));
+        // Les actus : les 6 plus récentes de chaque rédaction, sans l'article déjà à la une
+        var autres = items.filter(function(i) { return i !== latest; });
+        var itemsTarn = autres.filter(function(i) { return i.redaction === 'Tarn'; }).slice(0, 6);
+        var itemsHG = autres.filter(function(i) { return i.redaction === 'Haute-Garonne'; }).slice(0, 6);
+        renderGroup(feedTarn, itemsTarn);
+        // Haute-Garonne n'apparaît que lorsqu'elle a des articles
+        if (itemsHG.length) {
+          renderGroup(feedHG, itemsHG);
+          groupHG.hidden = false;
+        }
       })
       .catch(function() {
         var msg = '<p class="feed-loading">Impossible de charger les articles pour le moment. <a href="https://ipsummedia.substack.com" target="_blank" rel="noopener">Voir sur Substack</a>.</p>';

@@ -14,7 +14,7 @@
 <meta name="twitter:title" content="Nos articles — Ipsum Média">
 <meta name="twitter:description" content="Tous les derniers articles d'Ipsum Média : reportages, interviews et actualités du Tarn.">
 <meta name="twitter:image" content="https://ipsummedia.fr/assets/logo-gradient.png">
-<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="icon" type="image/png" href="assets/logo-carre.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -49,10 +49,10 @@
 <main>
 
   <section class="hero" style="min-height:auto; padding: 70px 0 40px; background: var(--cream);">
-    <div class="wrap" style="text-align:left;">
+    <div class="wrap" style="text-align:center; margin:0 auto;">
       <span class="eyebrow" style="color:var(--orange);">Nos actus</span>
       <h1 style="color:var(--ink);">Tous nos articles</h1>
-      <p class="lead" style="color:var(--ink-soft);">Reportages, interviews et actualités du Tarn, publiés par la rédaction.</p>
+      <p class="lead" style="color:var(--ink-soft); margin:0 auto;">Reportages, interviews et actualités du Tarn, publiés par la rédaction.</p>
     </div>
   </section>
 
@@ -169,7 +169,7 @@
         }
         container.innerHTML = '<div class="feed-grid">' + items.map(function(item) {
           var img = item.image
-            ? '<img src="' + item.image + '" alt="" class="feed-card-img" loading="lazy">'
+            ? '<img src="' + item.image + '" alt="" class="feed-card-img" loading="lazy" decoding="async">'
             : '';
           var slugMatch = item.link && item.link.match(/\/p\/([^/?#]+)/);
           var href = slugMatch ? '/articles/' + slugMatch[1] : item.link;
