@@ -209,13 +209,15 @@ ${headExtra}
 <style>
   .article-page { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
   .article-page .eyebrow { display:block; margin-bottom: 14px; }
-  .article-page h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); margin-bottom: 14px; }
+  .article-page h1 { font-size: clamp(1.5rem, 3.4vw, 2.1rem); line-height: 1.2; margin-bottom: 14px; }
   .article-meta { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 28px; }
-  .article-meta-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
-  .article-meta-row .article-meta { min-width: 0; margin: 0; }
-  /* Bouton "Sources préférées" de Google (lien simple : aucun script Google n'est chargé) */
-  .article-google { margin-bottom: 28px; }
-  .google-source-btn { display: inline-flex; align-items: center; gap: 10px; padding: 9px 18px 9px 13px; background: var(--white); border: 1px solid var(--border); border-radius: 100px; color: var(--ink); font-size: 0.9rem; font-weight: 600; line-height: 1.3; transition: border-color 0.15s ease, box-shadow 0.15s ease; }
+  /* Signature à gauche, boutons "Sources préférées" et "Partager" côte à côte à droite
+     (sous la signature quand la place manque) */
+  .article-meta-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px 16px; margin-bottom: 28px; }
+  .article-meta-row .article-meta { margin: 0; }
+  .article-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+  /* Bouton "Sources préférées" de Google (lien simple tant que le script de Google n'est pas autorisé) */
+  .google-source-btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px 8px 11px; background: var(--white); border: 1px solid var(--border); border-radius: 100px; color: var(--ink); font-size: 0.85rem; font-weight: 500; line-height: 1.3; transition: border-color 0.15s ease, box-shadow 0.15s ease; }
   .google-source-btn:hover { border-color: var(--orange); box-shadow: var(--shadow); }
   .google-source-btn:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
   .google-source-btn svg { width: 20px; height: 20px; flex: none; }
@@ -233,7 +235,8 @@ ${headExtra}
   .article-body figcaption { margin-top: -0.4em; margin-bottom: 1.4em; color: var(--ink-soft); font-size: 0.85rem; line-height: 1.5; text-align: center; }
   .article-body a { color: var(--orange); text-decoration: underline; }
   .article-body blockquote { border-left: 3px solid var(--orange); padding-left: 16px; color: var(--ink-soft); margin: 1.2em 0; }
-  .article-back { margin-bottom: 32px; }
+  .article-back { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 32px; color: var(--ink); font-size: 0.95rem; font-weight: 600; transition: color 0.15s ease; }
+  .article-back:hover { color: var(--orange); }
   .article-subscribe {
     margin-top: 48px;
     padding: 28px;
@@ -245,19 +248,23 @@ ${headExtra}
   .article-subscribe p { color: var(--ink-soft); margin-bottom: 18px; }
   /* Bouton "Partager" : <details> pour que le menu s'ouvre même sans JS */
   .article-share { position: relative; display: inline-block; flex: none; }
-  .article-share summary { display: inline-flex; align-items: center; gap: 8px; padding: 9px 18px; list-style: none; background: var(--white); border: 1px solid var(--border); border-radius: 100px; color: var(--ink); font-size: 0.9rem; font-weight: 600; cursor: pointer; user-select: none; transition: border-color 0.15s ease, color 0.15s ease; }
+  .article-share summary { display: inline-flex; align-items: center; gap: 7px; padding: 8px 15px; list-style: none; background: var(--white); border: 1px solid var(--border); border-radius: 100px; color: var(--ink); font-size: 0.85rem; font-weight: 500; cursor: pointer; user-select: none; transition: border-color 0.15s ease, color 0.15s ease; }
   .article-share summary::-webkit-details-marker { display: none; }
   .article-share summary:hover, .article-share[open] summary { border-color: var(--orange); color: var(--orange); }
   .article-share summary:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
   .article-share summary svg { width: 18px; height: 18px; flex: none; }
-  .share-menu { position: absolute; top: calc(100% + 8px); right: 0; z-index: 20; display: flex; flex-direction: column; min-width: 230px; padding: 8px; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 14px 34px rgba(32, 26, 23, 0.16); }
+  .share-menu { position: absolute; top: calc(100% + 8px); left: 0; z-index: 20; display: flex; flex-direction: column; min-width: 230px; padding: 8px; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 14px 34px rgba(32, 26, 23, 0.16); }
   .share-menu a, .share-menu button { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 12px; background: none; border: 0; border-radius: 10px; color: var(--ink); font: inherit; font-size: 0.95rem; text-align: left; cursor: pointer; }
   .share-menu a:hover, .share-menu button:hover, .share-menu a:focus-visible, .share-menu button:focus-visible { background: var(--orange-light); outline: none; }
   .share-menu button[hidden] { display: none; }
   .share-menu svg { width: 18px; height: 18px; flex: none; color: var(--ink-soft); }
+  /* Petit écran : le bouton du haut ne garde que l'icône, pour tenir sur la même ligne que "Sources préférées" */
+  @media (max-width: 480px) {
+    .article-meta-row .article-share summary { padding: 8px 11px; }
+    .article-meta-row .article-share summary span { display: none; }
+  }
   .article-share-end { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 40px; text-align: center; }
   .article-share-end p { margin: 0; color: var(--ink-soft); }
-  .article-share-end .share-menu { right: auto; left: 50%; transform: translateX(-50%); }
 </style>
 </head>
 <body>
@@ -269,10 +276,10 @@ ${headExtra}
     <nav class="main-nav" id="main-nav">
       <ul>
         <li><a href="/index.html#accueil">Accueil</a></li>
-        <li><a href="/a-propos.html">À propos</a></li>
-        <li><a href="/nos-valeurs.html">Nos valeurs</a></li>
         <li><a href="/articles.html">Nos actus</a></li>
+        <li><a href="/nos-valeurs.html">Nos valeurs</a></li>
         <li><a href="/nous-rejoindre.html">Nous rejoindre</a></li>
+        <li><a href="/a-propos.html">À propos</a></li>
         <li><a href="/index.html#contact">Contact</a></li>
       </ul>
     </nav>
@@ -417,7 +424,7 @@ function renderShare(a) {
     return '<a href="' + escapeHtml(o[2]) + '"' + target + '>' + o[1] + '<span>' + o[0] + '</span></a>';
   }).join('');
   return `<details class="article-share" data-url="${escapeHtml(a.link)}" data-title="${escapeHtml(a.title)}">
-        <summary>${ICONS.share}<span>Partager</span></summary>
+        <summary aria-label="Partager">${ICONS.share}<span>Partager</span></summary>
         <div class="share-menu">${links}<button type="button" class="share-copy" hidden>${ICONS.link}<span>Copier le lien</span></button></div>
       </details>`;
 }
@@ -429,18 +436,18 @@ function renderArticle(a) {
   const share = renderShare(a);
   const body = `
   <div class="article-page">
-    <a class="btn btn-outline article-back" href="/articles.html">&larr; Retour aux actus</a>
+    <a class="article-back" href="/articles.html">&larr; Retour aux actus</a>
     <span class="eyebrow">Article</span>
     <h1>${titleSafe}</h1>
     <div class="article-meta-row">
       <p class="article-meta">Par ${escapeHtml(a.author)} · ${escapeHtml(a.dateFr)}</p>
-      ${share}
-    </div>
-    <div class="article-google">
-      <a class="google-source-btn" id="google-sources-fallback" href="https://www.google.com/preferences/source?q=ipsummedia.fr&amp;hl=fr" target="_blank" rel="noopener" title="Ajouter Ipsum Média aux Sources préférées de Google, pour voir plus souvent nos articles dans « À la une »">
-        ${ICONS.google}<span>Ajouter aux Sources préférées</span>
-      </a>
-      <div id="google-sources-official" google-add-preferred-source-btn data-lang="fr" data-theme="light" style="display:none"></div>
+      <div class="article-actions">
+        <a class="google-source-btn" id="google-sources-fallback" href="https://www.google.com/preferences/source?q=ipsummedia.fr&amp;hl=fr" target="_blank" rel="noopener" title="Ajouter Ipsum Média aux Sources préférées de Google, pour voir plus souvent nos articles dans « À la une »">
+          ${ICONS.google}<span>Ajouter aux Sources préférées</span>
+        </a>
+        <div id="google-sources-official" google-add-preferred-source-btn data-lang="fr" data-theme="light" style="display:none"></div>
+        ${share}
+      </div>
     </div>
     ${a.image ? `<img class="article-cover" src="${escapeHtml(a.image)}" alt="">` : ''}
     <div class="article-body">${insertInlineAd(a.content)}</div>
@@ -462,16 +469,29 @@ function renderArticle(a) {
     // Menu natif du système seulement sur écran tactile (téléphone, tablette)
     var natif = !!navigator.share && !!window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
 
+    // Place le menu sous le bouton, aligné sur son bord droit (centré pour le
+    // bouton du bas) sans jamais sortir de l'écran, où que se trouve le bouton.
+    // 230 = largeur du menu (min-width en CSS).
+    function placer(box) {
+      var menu = box.querySelector('.share-menu');
+      var r = box.getBoundingClientRect();
+      var l = 230;
+      var vw = document.documentElement.clientWidth;
+      var voulu = box.closest('.article-share-end') ? r.left + r.width / 2 - l / 2 : r.right - l;
+      var gauche = Math.max(12, Math.min(voulu, vw - 12 - l));
+      menu.style.left = (gauche - r.left) + 'px';
+    }
+
     boxes.forEach(function (box) {
       var summary = box.querySelector('summary');
       var url = box.getAttribute('data-url');
       var title = box.getAttribute('data-title');
 
       summary.addEventListener('click', function (e) {
-        if (!natif) return;
+        if (!natif) { placer(box); return; }
         e.preventDefault();
         navigator.share({ title: title, text: title, url: url }).catch(function (err) {
-          if (err && err.name !== 'AbortError') box.open = true;
+          if (err && err.name !== 'AbortError') { placer(box); box.open = true; }
         });
       });
 
@@ -543,8 +563,13 @@ function renderNotFound() {
   <div class="article-page" style="text-align:center;">
     <span class="eyebrow">Article</span>
     <h1>Article introuvable</h1>
-    <p class="article-meta">Cet article n'existe plus ou a été déplacé.</p>
+    <p class="article-meta">Le lien est peut-être erroné, ou l'article est plus ancien : le site n'affiche que nos derniers articles.</p>
     <a class="btn btn-primary" href="/articles.html">Voir nos derniers articles</a>
+    <p class="article-meta" style="margin: 32px 0 14px;">Pour un article plus ancien, consultez les archives de la rédaction :</p>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:12px;">
+      <a class="btn btn-outline" href="https://ipsummedia.substack.com/archive" target="_blank" rel="noopener">La Rédac' du Tarn</a>
+      <a class="btn btn-outline" href="https://ipsummediahautegaronne.substack.com/archive" target="_blank" rel="noopener">La Rédac' d'Haute-Garonne</a>
+    </div>
   </div>`;
-  return pageShell(body, '<title>Article introuvable — Ipsum Média</title>');
+  return pageShell(body, '<title>Article introuvable — Ipsum Média</title>\n<meta name="robots" content="noindex">');
 }
