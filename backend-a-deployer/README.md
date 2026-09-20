@@ -39,11 +39,32 @@ curl https://ctmekufqaxdelgfyjwly.supabase.co/functions/v1/redactions-publiques
 
 doit renvoyer `{"redactions":[{"id":"...","nom":"Tarn"}]}`.
 
+## 4. Fonction lien-publication (articles anciens)
+
+Quand un article n'est plus dans les 20 derniers du flux RSS, le site retrouve son lien
+Substack dans Compo (colonne `articles.lien_publication`, le lien renseigné sur
+l'article) et y envoie le lecteur. Sans cette fonction, le site vérifie
+directement sur Substack : elle rend le lien exact de Compo prioritaire.
+
+```
+supabase functions deploy lien-publication --no-verify-jwt
+```
+
+Vérifier avec le slug d'un article publié dont le lien est renseigné :
+
+```
+curl "https://ctmekufqaxdelgfyjwly.supabase.co/functions/v1/lien-publication?slug=mon-article"
+```
+
+doit renvoyer `{"lien":"https://...substack.com/p/mon-article"}` (ou `{"lien":null}`).
+
 ## Sécurité
 
 - `redactions-publiques` ne renvoie jamais l'email ni aucune donnée sur les
   adhérents, uniquement `id` et `nom`.
 - `contact-form` ne renvoie jamais l'email du rédac chef au client : la
   recherche se fait côté serveur avec la clé service role.
+- `lien-publication` ne renvoie que le lien de publication d'un article publié
+  (jamais titre, auteur ni contenu), et seulement si le slug correspond exactement.
 - Le formulaire du site vitrine n'aura donc jamais connaissance d'aucun
   email interne.
