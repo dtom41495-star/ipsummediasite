@@ -477,8 +477,11 @@ section { padding: 88px 0; }
 .ville .fil { margin-top: 0; }
 
 /* Newsletter : l'invitation et les dernières éditions */
-.journal-newsletter { margin-top: 24px; padding: 48px 0; background: var(--orange-light); }
-.journal-newsletter .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: center; }
+.journal-newsletter { position: relative; margin-top: 24px; padding: 48px 0; overflow: hidden; background: var(--orange-light); }
+.journal-newsletter .wrap { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: center; }
+.journal-newsletter .wrap > div { position: relative; z-index: 1; }
+/* Grande enveloppe penchée derrière le texte, qui déborde du cadre à gauche et en bas */
+.newsletter-deco { position: absolute; bottom: -130px; left: -120px; z-index: 0; width: 540px; height: auto; transform: rotate(-13deg); pointer-events: none; }
 .journal-newsletter h2 { margin-bottom: 12px; font-size: clamp(1.5rem, 2.6vw, 2rem); }
 .journal-newsletter p { max-width: 46ch; margin-bottom: 20px; color: var(--ink-soft); }
 .editions { padding: 22px 24px; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); }
@@ -498,6 +501,8 @@ section { padding: 88px 0; }
   .une-texte { padding: 20px 20px 22px; }
   .une-bouton { display: none; }
   .journal-newsletter .wrap { grid-template-columns: 1fr; gap: 28px; }
+  /* Sur téléphone les blocs sont empilés : l'enveloppe passe en haut à droite, sinon la carte des éditions la cacherait */
+  .newsletter-deco { top: -30px; right: -170px; bottom: auto; left: auto; width: 400px; transform: rotate(14deg); }
   /* Sur téléphone, les communes défilent sur une seule ligne */
   .villes-pastilles { flex-wrap: nowrap; overflow-x: auto; margin: 0 -24px 24px; padding: 2px 24px 6px; scrollbar-width: none; }
   .villes-pastilles::-webkit-scrollbar { display: none; }
