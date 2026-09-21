@@ -94,15 +94,18 @@ exports.handler = async function (event) {
     const sources = {};
     REDACTIONS.forEach(function (r, i) { sources[r.nom] = resultats[i].source; });
 
-    return {
-      statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=900',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({ items, sources }),
+    // Le bandeau "en direct" appelle cette fonction depuis toutes les pages : la réponse est donc gardée
+    // 15 minutes dans le navigateur et 5 minutes dans le cache partagé de Netlify ("durable", puis la
+    // version un peu périmée est servie pendant qu'une nouvelle est récupérée). Ni la fonction ni Substack
+    // ne sont ainsi sollicités à chaque page vue. Une liste vide (panne) n'est presque pas gardée.
+    const headers = {
+      'Content-Type': 'application/json',
+      'Cache-Control': items.length ? 'public, max-age=900' : 'public, max-age=60',
+      'Access-Control-Allow-Origin': '*',
     };
+    if (items.length) headers['Netlify-CDN-Cache-Control'] = 'public, max-age=300, stale-while-revalidate=600, durable';
+
+    return { statusCode: 200, headers, body: JSON.stringify({ items, sources }) };
   } catch (e) {
     return {
       statusCode: 500,

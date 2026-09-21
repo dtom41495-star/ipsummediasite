@@ -473,6 +473,13 @@ ${headExtra}
     </div>
   </div>
 </header>
+<div class="ticker" id="ticker" role="region" aria-label="Dernières actualités en direct">
+  <div class="ticker-inner">
+    <span class="ticker-label"><span class="ticker-dot" aria-hidden="true"></span>En direct</span>
+    <div class="ticker-viewport"><div class="ticker-track" id="ticker-track"><noscript><a class="ticker-item" href="/articles.html">Toutes nos actus</a></noscript></div></div>
+    <button type="button" class="ticker-pause" id="ticker-pause" aria-label="Mettre en pause le défilement" title="Mettre en pause le défilement" hidden></button>
+  </div>
+</div>
 <main>
 ${bodyHtml}
 </main>
@@ -563,6 +570,8 @@ ${bodyHtml}
     if ((attempts || 0) < 50) setTimeout(function() { insertTarteaucitronLogo((attempts || 0) + 1); }, 200);
   })();
 </script>
+
+<script src="/assets/ticker.js"></script>
 </body>
 </html>`;
 }

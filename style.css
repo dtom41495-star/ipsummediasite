@@ -157,6 +157,91 @@ section { padding: 88px 0; }
   .header-cta .btn-primary { padding: 10px 16px; font-size: 0.82rem; }
 }
 
+/* ---- Bandeau "en direct" sous le menu : les derniers articles qui défilent (assets/ticker.js) ---- */
+.ticker { overflow: hidden; background: var(--ink); color: var(--white); }
+.ticker[hidden] { display: none; }
+.ticker-inner { display: flex; align-items: stretch; height: 40px; }
+.ticker-label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: none;
+  padding: 0 18px;
+  background: var(--grad);
+  color: var(--white);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.ticker-dot { position: relative; width: 8px; height: 8px; border-radius: 50%; background: var(--white); }
+.ticker-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--white);
+  animation: ticker-pulse 1.6s ease-out infinite;
+}
+@keyframes ticker-pulse {
+  from { transform: scale(1); opacity: 0.7; }
+  to { transform: scale(3); opacity: 0; }
+}
+.ticker-viewport {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 28px, #000 calc(100% - 28px), transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 28px, #000 calc(100% - 28px), transparent 100%);
+}
+.ticker-track { display: flex; width: max-content; will-change: transform; }
+.ticker-set { display: flex; flex: none; }
+.ticker.is-ready .ticker-track { animation: ticker-defile var(--duree, 40s) linear infinite; }
+/* Le défilement s'arrête quand on survole ou qu'on atteint un titre au clavier, ou avec le bouton pause
+   (le bouton lui-même est hors de la zone survolée, sinon "reprendre" ne semblerait pas marcher) */
+.ticker-viewport:hover .ticker-track, .ticker-viewport:focus-within .ticker-track, .ticker.is-paused .ticker-track { animation-play-state: paused; }
+/* La piste contient la liste répétée --copies fois : on la décale d'une liste entière, puis ça recommence */
+@keyframes ticker-defile {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(calc(-100% / var(--copies, 2)), 0, 0); }
+}
+.ticker-item { display: inline-flex; align-items: center; gap: 10px; flex: none; color: var(--white); font-size: 0.88rem; font-weight: 500; white-space: nowrap; }
+.ticker-item::after { content: ''; width: 6px; height: 6px; margin: 0 30px; border-radius: 50%; background: var(--orange); }
+.ticker-item:hover .ticker-titre { text-decoration: underline; text-underline-offset: 3px; }
+/* Sans JavaScript, le bandeau se limite à un lien vers la liste des articles */
+.ticker-track > noscript .ticker-item { padding-left: 28px; }
+.ticker-track > noscript .ticker-item::after { display: none; }
+.ticker-when { color: #FFB27A; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+.ticker-pause {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 40px;
+  background: transparent;
+  border: 0;
+  color: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+}
+.ticker-pause:hover { color: var(--white); }
+.ticker-pause[hidden] { display: none; }
+.ticker a:focus-visible, .ticker-pause:focus-visible { outline: 2px solid var(--white); outline-offset: -2px; }
+/* Visiteurs qui demandent moins d'animations : la liste reste en place et se fait défiler à la main */
+.ticker.is-static .ticker-viewport { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
+.ticker.is-static .ticker-track { animation: none; }
+@media (max-width: 640px) {
+  .ticker-inner { height: 36px; }
+  .ticker-label { padding: 0 12px; font-size: 0.68rem; }
+  .ticker-item { font-size: 0.84rem; }
+  .ticker-item::after { margin: 0 22px; }
+  .ticker-pause { width: 34px; }
+}
+@media (prefers-reduced-motion: reduce) { .ticker-dot::after { animation: none; } }
+@media print { .ticker { display: none; } }
+
 /* ---- Hero ---- */
 .hero {
   padding: 100px 0 90px;
