@@ -876,10 +876,11 @@ section { padding: 88px 0; }
 .institutions { background: var(--white); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
 .institutions h2 { margin-bottom: 12px; font-size: clamp(1.8rem, 3vw, 2.4rem); }
 .soon-badge {
+  font-family: 'Montserrat', 'Inter', sans-serif;
   font-size: 0.65rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   color: var(--orange-dark);
   background: var(--orange-light);
   padding: 3px 8px;
