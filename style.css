@@ -689,9 +689,7 @@ section { padding: 88px 0; }
 .partners { position: relative; background: var(--ink); color: var(--white); }
 .partners::before { content: ''; position: absolute; top: 0; right: 0; left: 0; height: 4px; background: var(--grad); }
 .partners .eyebrow { color: #FFB27A; }
-.partners h2 { color: var(--white); }
-.partners-sous-titre { margin-top: 6px; color: #A79E97; font-size: 0.72rem; letter-spacing: 0.03em; text-align: center; }
-.partners-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; max-width: 920px; margin: 36px auto 0; }
+.partners h2 { color: var(--white); }.partners-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; max-width: 920px; margin: 36px auto 0; }
 .partner-card {
   display: flex;
   align-items: center;
