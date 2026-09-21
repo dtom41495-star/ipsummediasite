@@ -258,22 +258,6 @@ section { padding: 88px 0; }
 .hero .btn-outline { color: var(--white); border-color: rgba(255,255,255,0.55); }
 .hero .btn-outline:hover { border-color: var(--white); color: var(--white); }
 
-/* ---- Bandeau newsletter compact (remplace le héros sur l'accueil) ---- */
-.newsletter-bar { background: var(--orange-light); padding: 28px 0; }
-.newsletter-bar-inner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
-  flex-wrap: wrap;
-  text-align: center;
-}
-.newsletter-bar-inner p { font-size: 0.92rem; font-weight: 500; color: var(--ink); margin: 0; max-width: 320px; text-align: left; }
-.newsletter-bar .btn-primary { padding: 9px 20px; font-size: 0.85rem; }
-@media (max-width: 560px) { .newsletter-bar-inner p { text-align: center; } }
-/* Sur ordinateur, le texte tient sur une seule ligne */
-@media (min-width: 900px) { .newsletter-bar-inner p { max-width: none; white-space: nowrap; } }
-
 /* ---- Modale newsletter (choix de la rédaction) ---- */
 .modal-backdrop {
   position: fixed;
@@ -428,157 +412,110 @@ section { padding: 88px 0; }
 .stage-apply { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding-top: clamp(20px, 2.4vw, 28px); border-top: 1px solid var(--border); }
 .stage-apply span { color: var(--ink-soft); font-size: 0.95rem; line-height: 1.55; }
 
-/* ---- À la une (dernier article, style page de journal) ---- */
-.headline-banner {
-  position: relative;
-  padding: 0; /* le contenu a déjà son propre espacement (sinon "section" ajoute 88px en haut et en bas) */
-  min-height: 360px;
-  min-height: clamp(300px, 52svh, 420px);
-  display: flex;
-  align-items: flex-end;
-  overflow: hidden;
-  background: var(--ink);
-}
-.headline-bg {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  background-color: var(--ink);
-  transition: opacity 0.3s ease;
-}
-.headline-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(0deg, rgba(15,11,9,0.95) 0%, rgba(15,11,9,0.55) 55%, rgba(15,11,9,0.15) 100%);
-}
-.headline-content {
-  position: relative;
-  z-index: 2;
-  padding: 28px 24px 30px;
-  max-width: 820px;
-}
-.headline-content .eyebrow {
-  color: var(--white);
-  background: var(--grad);
-  padding: 5px 12px;
-  border-radius: 100px;
-  font-size: 0.68rem;
-}
-.headline-content h2 {
-  font-size: clamp(1.5rem, 2.6vw, 2.1rem);
-  color: var(--white);
-  margin: 12px 0 10px;
-  line-height: 1.15;
-  text-wrap: balance;
-}
-.headline-content .headline-excerpt {
-  color: rgba(255,255,255,0.88);
-  font-size: 1rem;
-  max-width: 62ch;
-  margin-bottom: 12px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.headline-content .headline-meta {
-  color: rgba(255,255,255,0.65);
-  font-size: 0.8rem;
-  margin-bottom: 16px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-/* Écran peu haut : on garde le titre, la date et le bouton, sans le résumé, pour que le bandeau tienne dans l'écran */
-@media (max-height: 760px) { .headline-content .headline-excerpt { display: none; } }
-@media (max-width: 640px) { .headline-banner { min-height: 320px; min-height: clamp(300px, 58svh, 380px); } }
+/* ---- Accueil "journal" : la une, les dernières actus, l'actu de chaque commune, la newsletter ---- */
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
+.journal { padding: 28px 0 12px; }
+.journal + .journal { padding-top: 24px; }
 
-/* ---- Autres articles (sous le bandeau à la une) : tuiles collées, image plein cadre ---- */
-.actus-secondary { padding: 48px 0; }
-.redac-group + .redac-group { margin-top: 48px; }
-.redac-title { font-size: 1.4rem; margin-bottom: 16px; }
-.feed-tile-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2px;
-  background: var(--white);
-}
-.feed-tile {
-  position: relative;
-  display: block;
-  aspect-ratio: 4 / 3;
-  overflow: hidden;
-  border: 2px solid var(--white);
-}
-.feed-tile-bg {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  background-color: var(--ink);
-  transition: transform 0.3s ease;
-}
-.feed-tile:hover .feed-tile-bg { transform: scale(1.05); }
-.feed-tile-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(0deg, rgba(15,11,9,0.92) 0%, rgba(15,11,9,0.35) 60%, rgba(15,11,9,0) 100%);
-}
-.feed-tile-content {
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  z-index: 2;
-  padding: 16px;
-}
-.feed-tile-date {
-  display: block;
-  color: rgba(255,255,255,0.75);
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-bottom: 6px;
-}
-.feed-tile-content h3 {
-  color: var(--white);
-  font-size: 1rem;
-  line-height: 1.3;
-  margin: 0;
-}
-@media (max-width: 760px) {
-  .feed-tile-grid { grid-template-columns: 1fr; }
-  .feed-tile { aspect-ratio: 16 / 9; }
-}
+/* Titre d'une rubrique : filet noir, comme dans un journal, avec un trait de dégradé du logo */
+.journal-tete { position: relative; display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 18px; padding-bottom: 10px; border-bottom: 2px solid var(--ink); }
+.journal-tete::after { content: ''; position: absolute; left: 0; bottom: -2px; width: 56px; height: 4px; border-radius: 2px; background: var(--grad); }
+.journal-tete h2 { font-size: 1.25rem; }
+.journal-tete a, .ville-tete a { flex: none; font-size: 0.82rem; font-weight: 600; color: var(--orange); }
+.journal-tete a:hover, .ville-tete a:hover { text-decoration: underline; text-underline-offset: 3px; }
 
-/* ---- Formats (reportages / newsletter / articles) ---- */
-.formats { padding: 24px 0 64px; }
-.formats .wrap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-.format-card {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 28px;
-  text-align: center;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+.kicker { display: block; margin-bottom: 6px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--orange); }
+.pastille { display: inline-block; padding: 5px 12px; border-radius: 100px; background: var(--grad); color: var(--white); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+
+/* La une : photo pleine, voile sombre et titre en blanc (comme l'ancien bandeau), puis deux tuiles à côté */
+.une-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+.une-grid.sans-cote { grid-template-columns: minmax(0, 1fr); }
+.une-cote[hidden] { display: none; }
+.une-main { min-height: 420px; }
+.une-lead, .une-card, .une-tuile { display: block; }
+.une-visuel { position: relative; display: flex; align-items: flex-end; overflow: hidden; aspect-ratio: 4 / 3; border-radius: var(--radius); background: var(--ink); }
+.fond { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.35s ease; }
+.voile { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(15, 11, 9, 0.93) 0%, rgba(15, 11, 9, 0.55) 50%, rgba(15, 11, 9, 0.05) 88%); }
+.une-texte { position: relative; z-index: 1; padding: 26px 28px 28px; }
+.une-lead h2 { margin: 12px 0 8px; color: var(--white); font-size: clamp(1.5rem, 2.6vw, 2.1rem); line-height: 1.15; text-wrap: balance; }
+.une-meta-clair { display: block; margin-bottom: 14px; color: rgba(255, 255, 255, 0.72); font-size: 0.76rem; letter-spacing: 0.04em; text-transform: uppercase; }
+.une-bouton { padding: 9px 20px; font-size: 0.85rem; }
+.une-lead-chapo { max-width: 62ch; margin-top: 16px; color: var(--ink-soft); font-size: 1.05rem; line-height: 1.55; }
+.une-secondaires { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 24px; }
+.une-tuile { position: relative; overflow: hidden; aspect-ratio: 4 / 3; border-radius: var(--radius); background: var(--ink); }
+.une-tuile .une-texte { position: absolute; right: 0; bottom: 0; left: 0; padding: 16px 18px 18px; }
+.une-tuile h3 { margin: 8px 0 4px; color: var(--white); font-size: 1.02rem; line-height: 1.28; }
+.une-tuile .une-meta-clair { margin-bottom: 0; font-size: 0.7rem; }
+.une-lead:hover .fond, .une-tuile:hover .fond { transform: scale(1.04); }
+
+/* Carte avec photo au-dessus du texte (colonnes des communes) */
+.une-img { display: block; aspect-ratio: 3 / 2; margin-bottom: 12px; overflow: hidden; border-radius: var(--radius); background: var(--border); }
+.une-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.35s ease; }
+.une-card:hover .une-img img { transform: scale(1.03); }
+.une-meta { display: block; margin-top: 8px; color: var(--ink-soft); font-size: 0.78rem; }
+.une-card h3, .une-card h4 { font-family: 'Bitter', Georgia, serif; font-size: 1.12rem; font-weight: 700; line-height: 1.25; color: var(--ink); }
+.une-card:hover h3, .une-card:hover h4, .fil a:hover .fil-titre { color: var(--orange); }
+.une-lead:focus-visible, .une-card:focus-visible, .une-tuile:focus-visible, .fil a:focus-visible, .villes-pastilles a:focus-visible { outline: 2px solid var(--orange); outline-offset: 4px; border-radius: 6px; }
+
+
+/* Liste d'articles : date, commune, titre */
+.fil li + li { border-top: 1px solid var(--border); }
+.fil a { display: block; padding: 12px 0; }
+.fil li:first-child a { padding-top: 0; }
+.fil-meta { display: block; margin-bottom: 3px; color: var(--orange); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+.fil-meta span + span::before { content: '·'; margin: 0 6px; color: var(--ink-soft); }
+.fil-titre { display: block; color: var(--ink); font-family: 'Bitter', Georgia, serif; font-size: 0.98rem; font-weight: 600; line-height: 1.3; }
+
+/* L'actu de chaque commune */
+.villes-pastilles { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 30px; }
+.villes-pastilles a { display: inline-flex; padding: 6px 14px; background: var(--white); border: 1px solid var(--border); border-radius: 100px; color: var(--ink); font-size: 0.85rem; font-weight: 500; transition: border-color 0.15s ease, color 0.15s ease; }
+.villes-pastilles a:hover { border-color: var(--orange); color: var(--orange); }
+.villes-grille { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 36px 28px; }
+.ville-tete { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; padding-left: 12px; border-left: 4px solid var(--orange); }
+.ville-tete h3 { font-size: 1.2rem; }
+.ville .une-card { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+.ville .fil { margin-top: 0; }
+
+/* Newsletter : l'invitation et les dernières éditions */
+.journal-newsletter { margin-top: 24px; padding: 48px 0; background: var(--orange-light); }
+.journal-newsletter .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: center; }
+.journal-newsletter h2 { margin-bottom: 12px; font-size: clamp(1.5rem, 2.6vw, 2rem); }
+.journal-newsletter p { max-width: 46ch; margin-bottom: 20px; color: var(--ink-soft); }
+.editions { padding: 22px 24px; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); }
+.editions[hidden] { display: none; }
+.editions h3 { margin-bottom: 14px; font-size: 1rem; }
+
+@media (max-width: 1023px) {
+  .une-grid { grid-template-columns: 1fr; gap: 36px; }
+  .une-main { min-height: 0; }
+  .une-cote .fil li:nth-child(n+7) { display: none; }
 }
-.format-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
-.format-icon {
-  width: 52px;
-  height: 52px;
-  margin: 0 auto 16px;
-  border-radius: 50%;
-  background: var(--orange-light);
-  color: var(--orange);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+@media (max-width: 720px) {
+  .journal { padding-top: 20px; }
+  .une-secondaires { grid-template-columns: 1fr; gap: 20px; }
+  .une-tuile { aspect-ratio: 16 / 10; }
+  .une-visuel { aspect-ratio: 4 / 5; }
+  .une-texte { padding: 20px 20px 22px; }
+  .une-bouton { display: none; }
+  .journal-newsletter .wrap { grid-template-columns: 1fr; gap: 28px; }
+  /* Sur téléphone, les communes défilent sur une seule ligne */
+  .villes-pastilles { flex-wrap: nowrap; overflow-x: auto; margin: 0 -24px 24px; padding: 2px 24px 6px; scrollbar-width: none; }
+  .villes-pastilles::-webkit-scrollbar { display: none; }
+  .villes-pastilles a { flex: 0 0 auto; white-space: nowrap; }
 }
-.format-icon svg { width: 24px; height: 24px; }
-.format-card h3 { font-size: 1.1rem; margin-bottom: 8px; }
-.format-card p { color: var(--ink-soft); font-size: 0.9rem; }
-@media (max-width: 760px) { .formats .wrap { grid-template-columns: 1fr; } }
 
 /* ---- Emplacement pub ---- */
 .ad-slot { padding: 24px 0; text-align: center; }
+/* Zone de publicité qui garde sa place : cadre délimité avec le logo d'Ipsum Média en gris, remplacé par
+   l'annonce dès qu'il y en a une (assets/pub.js ajoute la classe is-filled) */
+.pub-boite { position: relative; display: flex; align-items: center; justify-content: center; min-height: 90px; overflow: hidden; background: rgba(255, 255, 255, 0.7); border: 1px dashed #D8CABF; border-radius: 10px; }
+.pub-zone .pub-logo { position: absolute; top: 50%; left: 50%; display: block; width: auto; max-width: none; height: 38px; margin: 0; border-radius: 0; transform: translate(-50%, -50%); filter: grayscale(1); opacity: 0.4; pointer-events: none; }
+.pub-boite ins.adsbygoogle { position: relative; z-index: 1; display: block; width: 100%; }
+.pub-zone.is-filled .pub-logo { display: none; }
+.pub-zone.is-filled .pub-boite { background: none; border-color: transparent; }
+/* En haut de l'accueil, sous le bandeau "en direct" : pleine largeur du contenu */
+.pub-haut { padding: 20px 0 0; text-align: center; }
+@media (max-width: 640px) { .pub-boite { min-height: 100px; } .pub-haut { padding-top: 16px; } }
 .ad-slot-inline {
   margin: 1.6em 0;
   padding: 16px 0;

@@ -57,37 +57,63 @@
   </div>
 </div>
 
+<!-- Publicité pleine largeur : le cadre garde sa place (logo en gris) tant qu'il n'y a pas d'annonce -->
+<aside class="pub-zone pub-haut" aria-label="Publicité">
+  <div class="wrap">
+    <span class="ad-slot-label">Avec cette pub, Ipsum Média reste gratuit</span>
+    <div class="pub-boite">
+      <img class="pub-logo" src="assets/logo.png" alt="">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-7695287329907050"
+           data-ad-slot="4713288084"
+           data-ad-format="horizontal"
+           data-full-width-responsive="true"></ins>
+    </div>
+  </div>
+</aside>
+<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+
 <main>
 
-  <section class="headline-banner" id="accueil">
-    <div class="headline-bg" id="headline-bg"></div>
-    <div class="headline-overlay"></div>
-    <div class="wrap headline-content" id="headline-content">
-      <p class="feed-loading" style="color:rgba(255,255,255,0.85);">Chargement du dernier article...</p>
-    </div>
-  </section>
-
-  <section class="actus-secondary">
+  <section class="journal" id="accueil">
     <div class="wrap">
-      <div class="redac-group">
-        <h2 class="redac-title">La Rédac' du Tarn</h2>
-        <div class="feed-tile-grid" id="feed-tarn">
-          <p class="feed-loading">Chargement des articles...</p>
+      <h1 class="sr-only">Ipsum Média, l'actualité du Tarn</h1>
+      <div class="une-grid">
+        <div>
+          <div class="journal-tete"><h2>À la une</h2></div>
+          <div class="une-main" id="une-main">
+            <p class="feed-loading">Chargement des articles...</p>
+          </div>
         </div>
-      </div>
-      <div class="redac-group" id="group-hautegaronne" hidden>
-        <h2 class="redac-title">La Rédac' d'Haute-Garonne</h2>
-        <div class="feed-tile-grid" id="feed-hautegaronne">
-          <p class="feed-loading">Chargement des articles...</p>
-        </div>
+        <aside class="une-cote" id="une-cote" aria-label="Dernières actus">
+          <div class="journal-tete"><h2>Dernières actus</h2><a href="articles.html">Tout voir</a></div>
+          <ul class="fil" id="une-fil"></ul>
+        </aside>
       </div>
     </div>
   </section>
 
-  <section class="newsletter-bar">
-    <div class="wrap newsletter-bar-inner">
-      <p>L'actu du Tarn dans votre boîte mail, tous les jeudis. Et en plus, c'est gratuit.</p>
-      <button class="btn btn-primary newsletter-open-btn" type="button">Je m'inscris à la newsletter</button>
+  <section class="journal villes" id="villes" hidden>
+    <div class="wrap">
+      <div class="journal-tete"><h2>Près de chez vous</h2><a href="articles.html">Toutes les actus</a></div>
+      <nav class="villes-pastilles" id="villes-pastilles" aria-label="Choisir une commune"></nav>
+      <div class="villes-grille" id="villes-grille"></div>
+    </div>
+  </section>
+
+  <section class="journal-newsletter">
+    <div class="wrap">
+      <div>
+        <span class="eyebrow">Newsletter</span>
+        <h2>L'actu du Tarn dans votre boîte mail, tous les jeudis</h2>
+        <p>Les articles de la semaine, les infos près de chez vous et les coulisses de la rédaction. Et en plus, c'est gratuit.</p>
+        <button class="btn btn-primary newsletter-open-btn" type="button">Je m'inscris à la newsletter</button>
+      </div>
+      <div class="editions" hidden>
+        <h3>Dernières éditions</h3>
+        <ul class="fil" id="editions"></ul>
+      </div>
     </div>
   </section>
 
@@ -109,26 +135,6 @@
       <h2 style="text-align:center;">On vous emmène sur le terrain</h2>
       <div class="reportage-video">
         <iframe src="https://www.youtube.com/embed/P3COBU1jV9g" title="Notre meilleur reportage - Ipsum Média" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>
-      </div>
-    </div>
-  </section>
-
-  <section class="formats">
-    <div class="wrap">
-      <div class="format-card">
-        <div class="format-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 9.5l5.5-3v11l-5.5-3z"/></svg></div>
-        <h3>Reportages</h3>
-        <p>Sur le terrain, on va à la rencontre de celles et ceux qui font vivre le Tarn.</p>
-      </div>
-      <div class="format-card">
-        <div class="format-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="M3 6l9 7 9-7"/></svg></div>
-        <h3>Newsletter hebdo</h3>
-        <p>Notre fameuse newsletter, chaque jeudi, directement dans votre boîte mail.</p>
-      </div>
-      <div class="format-card">
-        <div class="format-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M9 12h6M9 16h6M9 8h3"/></svg></div>
-        <h3>Articles</h3>
-        <p>Interviews, enquêtes et actualités locales publiées tout au long de la semaine.</p>
       </div>
     </div>
   </section>
@@ -402,86 +408,7 @@
   })();
 </script>
 
-<script>
-  (function() {
-    var feedTarn = document.getElementById('feed-tarn');
-    var feedHG = document.getElementById('feed-hautegaronne');
-    var headlineBg = document.getElementById('headline-bg');
-    var headlineContent = document.getElementById('headline-content');
-    var groupHG = document.getElementById('group-hautegaronne');
-
-    function formatDate(iso) {
-      try {
-        return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-      } catch (e) { return ''; }
-    }
-
-    function slugHref(item) {
-      var slugMatch = item.link && item.link.match(/\/p\/([^/?#]+)/);
-      return slugMatch ? '/articles/' + slugMatch[1] : item.link;
-    }
-
-    function renderGroup(el, list) {
-      if (!list.length) {
-        el.innerHTML = '<p class="feed-loading">Les premiers articles arrivent bientôt.</p>';
-        return;
-      }
-      el.innerHTML = list.map(function(item) {
-        var href = slugHref(item);
-        var bg = item.image ? "background-image:url('" + item.image + "')" : '';
-        return '<a class="feed-tile" href="' + href + '">' +
-          '<div class="feed-tile-bg" style="' + bg + '"></div>' +
-          '<div class="feed-tile-overlay"></div>' +
-          '<div class="feed-tile-content">' +
-          '<span class="feed-tile-date">' + formatDate(item.pubDate) + (item.author ? ' · ' + item.author : '') + '</span>' +
-          '<h3>' + item.title + '</h3>' +
-          '</div></a>';
-      }).join('');
-    }
-
-    fetch('/.netlify/functions/substack-feed')
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        var items = (data && data.items) || [];
-        if (!items.length) {
-          renderGroup(feedTarn, []);
-          headlineContent.innerHTML = '<p class="feed-loading" style="color:rgba(255,255,255,0.85);">Aucun article pour le moment.</p>';
-          return;
-        }
-
-        // À la une : le dernier article (pas une newsletter) avec une vraie photo (le logo sert souvent de couverture)
-        var latest = items.filter(function(i) { return i.image && !i.coverGenerique && i.kind !== 'newsletter'; })[0] || items[0];
-        var latestHref = slugHref(latest);
-        if (latest.image) {
-          headlineBg.style.backgroundImage = "url('" + (latest.imageLarge || latest.image) + "')";
-        }
-        var latestRedacLabel = latest.redaction === 'Haute-Garonne' ? "la rédaction d'Haute-Garonne" : 'la rédaction du Tarn';
-        headlineContent.innerHTML =
-          '<span class="eyebrow">À la une</span>' +
-          '<h2><a href="' + latestHref + '" style="color:inherit; text-decoration:none;">' + latest.title + '</a></h2>' +
-          '<p class="headline-excerpt">' + latest.description + '</p>' +
-          '<p class="headline-meta">Par ' + (latest.author || latestRedacLabel) + ' · ' + formatDate(latest.pubDate) + '</p>' +
-          '<a class="btn btn-primary" href="' + latestHref + '">Lire l\'article</a>';
-
-        // Les actus : les 6 plus récentes de chaque rédaction, sans l'article déjà à la une
-        var autres = items.filter(function(i) { return i !== latest; });
-        var itemsTarn = autres.filter(function(i) { return i.redaction === 'Tarn'; }).slice(0, 6);
-        var itemsHG = autres.filter(function(i) { return i.redaction === 'Haute-Garonne'; }).slice(0, 6);
-        renderGroup(feedTarn, itemsTarn);
-        // Haute-Garonne n'apparaît que lorsqu'elle a des articles
-        if (itemsHG.length) {
-          renderGroup(feedHG, itemsHG);
-          groupHG.hidden = false;
-        }
-      })
-      .catch(function() {
-        var msg = '<p class="feed-loading">Impossible de charger les articles pour le moment. <a href="https://ipsummedia.substack.com" target="_blank" rel="noopener">Voir sur Substack</a>.</p>';
-        feedTarn.innerHTML = msg;
-        feedHG.innerHTML = msg;
-        headlineContent.innerHTML = '<p class="feed-loading" style="color:rgba(255,255,255,0.85);">Impossible de charger le dernier article.</p>';
-      });
-  })();
-</script>
+<script src="assets/accueil.js"></script>
 
 <script>
   (function() {
@@ -617,6 +544,7 @@
   })();
 </script>
 
+<script src="assets/pub.js"></script>
 <script src="assets/ticker.js"></script>
 
 </body>

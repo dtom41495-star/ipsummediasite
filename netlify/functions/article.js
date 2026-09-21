@@ -255,15 +255,19 @@ function removeDuplicateImage(html, imageUrl) {
 // Insère un bloc pub après le 2e paragraphe de l'article (ou en fin de
 // contenu s'il y a moins de 2 paragraphes).
 function insertInlineAd(html) {
+  // Le cadre garde sa place, avec le logo en gris, tant qu'il n'y a pas d'annonce (voir assets/pub.js)
   const adBlock = `
-  <div class="ad-slot ad-slot-inline">
+  <div class="ad-slot ad-slot-inline pub-zone">
     <span class="ad-slot-label">Avec cette pub, Ipsum Média reste gratuit</span>
-    <ins class="adsbygoogle"
-         style="display:block"
-         data-ad-client="ca-pub-7695287329907050"
-         data-ad-slot="4713288084"
-         data-ad-format="auto"
-         data-full-width-responsive="true"></ins>
+    <div class="pub-boite">
+      <img class="pub-logo" src="/assets/logo.png" alt="">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-7695287329907050"
+           data-ad-slot="4713288084"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+    </div>
   </div>
   <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>`;
 
@@ -571,6 +575,7 @@ ${bodyHtml}
   })();
 </script>
 
+<script src="/assets/pub.js"></script>
 <script src="/assets/ticker.js"></script>
 </body>
 </html>`;
