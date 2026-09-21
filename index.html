@@ -442,8 +442,8 @@
           return;
         }
 
-        // À la une : le dernier article avec une vraie photo (les newsletters ont le logo en couverture)
-        var latest = items.filter(function(i) { return i.image && !i.coverGenerique; })[0] || items[0];
+        // À la une : le dernier article (pas une newsletter) avec une vraie photo (le logo sert souvent de couverture)
+        var latest = items.filter(function(i) { return i.image && !i.coverGenerique && i.kind !== 'newsletter'; })[0] || items[0];
         var latestHref = slugHref(latest);
         if (latest.image) {
           headlineBg.style.backgroundImage = "url('" + (latest.imageLarge || latest.image) + "')";
