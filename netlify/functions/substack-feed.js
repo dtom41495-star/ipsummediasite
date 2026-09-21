@@ -8,7 +8,13 @@
 // Si l'API ne répond pas, on retombe sur le flux RSS, comme avant (sans étiquettes).
 //
 //   sans paramètre : les 20 plus récents, pour l'accueil
-//   ?tous=1        : jusqu'à 75 par rédaction, pour la page "Nos actus" (filtres par type et par commune)
+//   ?tous=1        : les 75 plus récents de chaque rédaction, plus les articles plus anciens qui portent une
+//                    commune, pour l'accueil et la page "Nos actus" (filtres par type et par commune)
+//
+// Communes : aucune liste à tenir. Toute étiquette qui n'est ni "Newsletter", ni la rédaction (ETIQUETTES_IGNOREES),
+// ni une rubrique (RUBRIQUES) est une commune : dès qu'un article la porte dans Substack, elle apparaît sur l'accueil
+// et sur la page "Nos actus" (environ 2 minutes plus tard). Pour ajouter une commune, il suffit d'étiqueter un article.
+// On ne touche à ce fichier que si le nom s'affiche mal (traits d'union, apostrophes) : voir NOMS_COMMUNES.
 
 const REDACTIONS = [
   { nom: 'Tarn', base: 'https://ipsummedia.substack.com' },
@@ -17,14 +23,25 @@ const REDACTIONS = [
 
 const NB_RECENTS = 20;      // accueil : les 20 plus récents des deux rédactions
 const NB_FLUX_RSS = 20;     // le flux RSS de Substack ne contient que les 20 derniers articles
-const TAILLE_PAGE = 25;     // taille d'une page de l'API d'archive (plafonnée à 25 par Substack)
-const PAGES_TOUS = 3;       // page "Nos actus" : 3 pages de 25, donc les 75 derniers de chaque rédaction
+const TAILLE_PAGE = 25;     // articles demandés par page à l'API d'archive (25 au maximum)
+const PAS_PAGE = 20;        // décalage entre deux pages. Il est plus petit que la page : l'API rend parfois moins d'articles
+                            // que demandé (23 au lieu de 25 sur la première page), et les deux qui manquent auraient disparu
+                            // entre deux pages. Les pages se chevauchent donc, et on retire les doublons.
+const PAGES_PAR_LOT = 8;    // pages demandées en même temps
+const FENETRE_RECENTE = 75; // les 75 articles les plus récents de chaque rédaction sont tous listés
+const LIMITE_ARCHIVE = 600; // sécurité : on ne remonte pas plus loin dans l'archive
+const BUDGET_ARCHIVE_MS = 4000; // passé ce délai, on n'ouvre plus de lot de pages : la fonction s'arrête à 10 s
 const DELAI_API_MS = 5000;  // une réponse trop lente ne doit pas bloquer la fonction (limite de 10 s)
 const DELAI_RSS_MS = 3500;
 const AGENT = 'Mozilla/5.0 (compatible; IpsumMediaSite/1.0; +https://ipsummedia.fr)';
 
 // Étiquettes qui ne sont ni une commune ni une rubrique : la rédaction, le type de publication.
 const ETIQUETTES_IGNOREES = ['newsletter', 'tarn', 'haute-garonne', 'hautegaronne', 'occitanie', 'flash'];
+
+// Communes dont le nom saisi dans Substack ne se met pas en forme tout seul (identifiant de l'étiquette -> nom affiché)
+const NOMS_COMMUNES = {
+  'bout-du-pont-de-larn': "Bout-du-Pont-de-l'Arn",
+};
 
 // Les rubriques (identifiant de l'étiquette -> libellé affiché). Toute autre étiquette
 // est considérée comme une commune : si une rubrique s'affiche par erreur parmi les
@@ -94,16 +111,16 @@ exports.handler = async function (event) {
     const sources = {};
     REDACTIONS.forEach(function (r, i) { sources[r.nom] = resultats[i].source; });
 
-    // Le bandeau "en direct" appelle cette fonction depuis toutes les pages : la réponse est donc gardée
-    // 15 minutes dans le navigateur et 5 minutes dans le cache partagé de Netlify ("durable", puis la
-    // version un peu périmée est servie pendant qu'une nouvelle est récupérée). Ni la fonction ni Substack
-    // ne sont ainsi sollicités à chaque page vue. Une liste vide (panne) n'est presque pas gardée.
+    // Le bandeau "en direct" appelle cette fonction depuis toutes les pages : la réponse est gardée 2 minutes
+    // dans le navigateur et dans le cache partagé de Netlify ("durable"), pour que ni la fonction ni Substack
+    // ne soient sollicités à chaque page vue, tout en faisant apparaître vite un article ou une étiquette
+    // qu'on vient de publier. Une liste vide (panne) n'est presque pas gardée.
     const headers = {
       'Content-Type': 'application/json',
-      'Cache-Control': items.length ? 'public, max-age=900' : 'public, max-age=60',
+      'Cache-Control': items.length ? 'public, max-age=120' : 'public, max-age=30',
       'Access-Control-Allow-Origin': '*',
     };
-    if (items.length) headers['Netlify-CDN-Cache-Control'] = 'public, max-age=300, stale-while-revalidate=600, durable';
+    if (items.length) headers['Netlify-CDN-Cache-Control'] = 'public, max-age=120, stale-while-revalidate=60, durable';
 
     return { statusCode: 200, headers, body: JSON.stringify({ items, sources }) };
   } catch (e) {
@@ -118,7 +135,7 @@ exports.handler = async function (event) {
 // Une rédaction en panne ou vide (ex : Haute-Garonne qui débute) ne doit jamais faire
 // planter l'ensemble : on renvoie juste une liste vide pour celle-là.
 async function chargerRedaction(redac, tous) {
-  const items = await chargerApi(redac, tous ? PAGES_TOUS : 1);
+  const items = await chargerApi(redac, tous);
   if (items && items.length) return { source: 'api', items };
 
   const rss = await chargerRss(redac);
@@ -137,24 +154,43 @@ async function recuperer(url, delaiMs, accept) {
 // ---------- API d'archive ----------
 
 // Renvoie null si l'API ne répond pas (le flux RSS prend alors le relais)
-async function chargerApi(redac, nbPages) {
-  const decalages = [];
-  for (let i = 0; i < nbPages; i++) decalages.push(i * TAILLE_PAGE);
-  const pages = await Promise.all(decalages.map((d) => pageArchive(redac, d)));
-  if (!pages[0]) return null;
+async function chargerApi(redac, tous) {
+  const depart = Date.now();
+  const premiere = await pageArchive(redac, 0);
+  if (!premiere) return null;
+  let bruts = premiere;
+
+  // Accueil et page "Nos actus" : toute l'archive, par lots de pages demandées en même temps.
+  // Si Substack est lent, on s'arrête à ce qu'on a plutôt que de dépasser la limite de la fonction.
+  if (tous && premiere.length >= PAS_PAGE) {
+    for (let debut = PAS_PAGE; debut < LIMITE_ARCHIVE; debut += PAGES_PAR_LOT * PAS_PAGE) {
+      if (Date.now() - depart > BUDGET_ARCHIVE_MS) break;
+      const decalages = [];
+      for (let i = 0; i < PAGES_PAR_LOT; i++) decalages.push(debut + i * PAS_PAGE);
+      const pages = await Promise.all(decalages.map((d) => pageArchive(redac, d)));
+      pages.forEach(function (page) { if (page) bruts = bruts.concat(page); });
+      const derniere = pages[pages.length - 1];
+      if (!derniere || derniere.length < PAS_PAGE) break;   // fin de l'archive (ou page en échec)
+    }
+  }
 
   const vus = new Set();
   const posts = [];
-  pages.forEach(function (page) {
-    (page || []).forEach(function (p) {
-      if (p && p.slug && !vus.has(p.slug)) { vus.add(p.slug); posts.push(p); }
-    });
+  bruts.forEach(function (p) {
+    if (p && p.slug && !vus.has(p.slug)) { vus.add(p.slug); posts.push(p); }
   });
   posts.sort(function (a, b) { return new Date(b.post_date) - new Date(a.post_date); });
 
   // Le rang est compté avant d'écarter les articles réservés aux abonnés payants,
   // pour rester aligné sur le contenu du flux RSS (voir surLeSite plus bas).
-  return posts.map(function (p, rang) { return depuisApi(p, redac, rang); }).filter(Boolean);
+  return posts.map(function (p, rang) {
+    const item = depuisApi(p, redac, rang);
+    // Au-delà des articles récents, on ne garde que ceux qui portent une commune : ils servent aux
+    // listes par commune (pastilles, colonnes), sans faire revenir les vieilles newsletters et
+    // les bulletins météo non étiquetés.
+    if (item && rang >= FENETRE_RECENTE && !item.communes.length) return null;
+    return item;
+  }).filter(Boolean);
 }
 
 async function pageArchive(redac, decalage) {
@@ -216,7 +252,7 @@ function lireEtiquettes(postTags) {
     if (cles.some(function (c) { return ETIQUETTES_IGNOREES.indexOf(c) !== -1; })) return;
     const rubrique = cles.filter(function (c) { return Object.prototype.hasOwnProperty.call(RUBRIQUES, c); })[0];
     if (rubrique) res.rubriques.push({ nom: RUBRIQUES[rubrique], slug: rubrique });
-    else res.communes.push({ nom: echapper(nomCommune(nom)), slug });
+    else res.communes.push({ nom: echapper(NOMS_COMMUNES[slug] || nomCommune(nom)), slug });
   });
   return res;
 }

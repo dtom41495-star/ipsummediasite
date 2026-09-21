@@ -25,7 +25,7 @@
     } catch (e) { return ''; }
   }
 
-  // "09h02" pour un article du jour, "Hier", sinon "16 sept."
+  // "09h02" pour un article du jour, "Hier", sinon "16 sept." (avec l'année pour un article d'une autre année)
   function quand(iso) {
     try {
       var d = new Date(iso);
@@ -36,7 +36,7 @@
         return d.toLocaleTimeString('fr-FR', { timeZone: 'Europe/Paris', hour: '2-digit', minute: '2-digit' }).replace(':', 'h');
       }
       if (j === jour(Date.now() - 86400000)) return 'Hier';
-      return d.toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris', day: 'numeric', month: 'short' });
+      return d.toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris', day: 'numeric', month: 'short', year: j.slice(0, 4) === jour(Date.now()).slice(0, 4) ? undefined : 'numeric' });
     } catch (e) {
       return '';
     }
