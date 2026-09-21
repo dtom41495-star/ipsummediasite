@@ -858,19 +858,44 @@ section { padding: 88px 0; }
 .archive-cta-choices { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; }
 @media (max-width: 640px) { .archive-cta-choices .btn { width: 100%; justify-content: center; } }
 
-/* ---- Soutenir ---- */
+/* ---- Soutenir : un don, ou du temps ; sérieux (sombre, engagements) et associatif (visages, coeur) ---- */
 .support .wrap h2 { font-size: clamp(1.8rem, 3vw, 2.4rem); margin-bottom: 12px; text-align: center; }
 .support .wrap > p.lead { color: var(--ink-soft); max-width: 56ch; margin: 0 auto 40px; text-align: center; }
-.support-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-.support-card {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 32px;
+.support-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 24px; }
+.support-card { position: relative; display: flex; flex-direction: column; align-items: flex-start; padding: 36px; border-radius: 22px; }
+.support-card h3 { margin-bottom: 10px; font-size: 1.45rem; }
+.support-card .btn { margin-top: auto; }
+
+/* Le don : carte sombre */
+.support-don { overflow: hidden; color: var(--white); background: linear-gradient(160deg, #2C2420 0%, #201A17 100%); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 18px 40px rgba(32, 26, 23, 0.18); }
+.support-don::before { content: ''; position: absolute; top: -90px; right: -90px; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgba(238, 128, 47, 0.42), transparent 65%); pointer-events: none; }
+.support-don > * { position: relative; }
+.support-don h3 { color: var(--white); }
+.support-don p { margin-bottom: 16px; color: #D7CEC8; }
+.support-icone { display: flex; align-items: center; justify-content: center; width: 56px; height: 56px; margin-bottom: 18px; color: var(--white); background: var(--grad); border-radius: 50%; box-shadow: 0 8px 20px rgba(231, 67, 110, 0.35); }
+.support-icone .ico { width: 26px; height: 26px; }
+.support-liste { display: grid; gap: 12px; margin: 0 0 28px; }
+.support-liste li { display: flex; align-items: center; gap: 12px; color: var(--white); font-size: 0.98rem; }
+.support-liste .ico { width: 20px; height: 20px; color: #FFB27A; }
+
+/* Le temps : carte claire avec les visages des bénévoles */
+.support-benevole { background: var(--white); border: 1px solid var(--border); box-shadow: var(--shadow); }
+.support-visages { display: flex; margin-bottom: 12px; }
+.support-visages img { width: 56px; height: 56px; margin-left: -14px; object-fit: cover; object-position: center 22%; border: 3px solid var(--white); border-radius: 50%; box-shadow: 0 2px 8px rgba(32, 26, 23, 0.15); }
+.support-visages img:first-child { margin-left: 0; }
+.support-legende { margin-bottom: 20px; color: var(--ink-soft); font-size: 0.84rem; }
+.support-benevole p { margin-bottom: 24px; color: var(--ink-soft); }
+
+/* Ce qui nous engage : statut, indépendance, économie sociale et solidaire */
+.support-garanties { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-top: 32px; padding-top: 26px; border-top: 1px solid var(--border); }
+.support-garanties li { display: flex; align-items: center; gap: 14px; color: var(--ink-soft); font-size: 0.9rem; line-height: 1.4; }
+.support-garanties .ico { width: 26px; height: 26px; color: var(--orange); }
+@media (max-width: 860px) {
+  .support-grid { grid-template-columns: minmax(0, 1fr); }
+  .support-card { padding: 28px; }
+  .support-garanties { grid-template-columns: minmax(0, 1fr); gap: 16px; }
 }
-.support-card h3 { font-size: 1.3rem; margin-bottom: 10px; }
-.support-card p { color: var(--ink-soft); margin-bottom: 22px; }
-@media (max-width: 860px) { .support-grid { grid-template-columns: 1fr; } }
+
 
 /* ---- Collectivités / établissements : carrousel des offres (assets/offres.js) ---- */
 .institutions { background: var(--white); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
