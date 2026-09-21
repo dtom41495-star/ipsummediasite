@@ -278,22 +278,77 @@
       <span class="eyebrow" style="display:block; text-align:center;">Collectivités, lycées, universités</span>
       <h2 style="text-align:center;">On peut aussi travailler avec vous</h2>
       <p class="lead" style="text-align:center; max-width:56ch; margin:0 auto 32px;">Mairies, établissements scolaires et universitaires : on propose plusieurs façons de collaborer avec vous.</p>
-      <div class="institutions-grid">
-        <div class="institution-card">
-          <h3>Couverture de vos événements</h3>
-          <p>Reportages, interviews et articles pour vos événements locaux, institutionnels ou associatifs. Nous sommes votre relais pour transmettre vos informations au plus grand nombre.</p>
+      <!-- Pictogrammes (dessinés une fois, réutilisés dans les onglets et les grands visuels) -->
+      <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+        <symbol id="ico-micro" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3M8.5 21h7"/></symbol>
+        <symbol id="ico-diplome" viewBox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5-10-5z"/><path d="M6 11.2V16c0 1.4 2.7 3 6 3s6-1.6 6-3v-4.8"/><path d="M22 9v6"/></symbol>
+        <symbol id="ico-relais" viewBox="0 0 24 24"><path d="M3 10v4a1 1 0 0 0 1 1h2.5l6 4V5l-6 4H4a1 1 0 0 0-1 1z"/><path d="M16 9.5a4 4 0 0 1 0 5"/><path d="M19 7a8 8 0 0 1 0 10"/></symbol>
+      </svg>
+
+      <div class="offres" id="offres" role="region" aria-roledescription="carrousel" aria-label="Nos façons de collaborer">
+        <div class="offres-onglets" role="tablist" aria-label="Choisir une offre">
+          <button type="button" class="offres-onglet" role="tab" id="offre-onglet-1" aria-controls="offre-1" aria-selected="true">
+            <svg class="ico" aria-hidden="true"><use href="#ico-micro"/></svg>
+            <span class="onglet-long">Couverture de vos événements</span><span class="onglet-court">Événements</span>
+            <span class="offres-progres" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="offres-onglet" role="tab" id="offre-onglet-2" aria-controls="offre-2" aria-selected="false" tabindex="-1">
+            <svg class="ico" aria-hidden="true"><use href="#ico-diplome"/></svg>
+            <span class="onglet-long">Ateliers &amp; formations</span><span class="onglet-court">Ateliers</span>
+            <span class="offres-progres" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="offres-onglet" role="tab" id="offre-onglet-3" aria-controls="offre-3" aria-selected="false" tabindex="-1">
+            <svg class="ico" aria-hidden="true"><use href="#ico-relais"/></svg>
+            <span class="onglet-long">Partenariats éditoriaux</span><span class="onglet-court">Partenariats</span>
+            <span class="offres-progres" aria-hidden="true"></span>
+          </button>
         </div>
-        <div class="institution-card">
-          <h3>Ateliers &amp; formations <span class="soon-badge">Bientôt</span></h3>
-          <p>On prépare des ateliers d'initiation au journalisme pour lycées et universités.</p>
+
+        <div class="offres-cadre">
+          <div class="offres-diapos">
+            <article class="offre is-actif" role="tabpanel" id="offre-1" aria-labelledby="offre-onglet-1">
+              <div class="offre-visuel" aria-hidden="true">
+                <div class="offre-picto"><svg class="ico"><use href="#ico-micro"/></svg></div>
+                <span class="offre-nombre">01</span>
+              </div>
+              <div class="offre-texte">
+                <span class="offre-compteur">01 / 03</span>
+                <h3>Couverture de vos événements</h3>
+                <p>Reportages, interviews et articles pour vos événements locaux, institutionnels ou associatifs. Nous sommes votre relais pour transmettre vos informations au plus grand nombre.</p>
+                <div class="offre-actions"><a class="btn btn-primary" href="#contact">Nous contacter</a></div>
+              </div>
+            </article>
+            <article class="offre" role="tabpanel" id="offre-2" aria-labelledby="offre-onglet-2" aria-hidden="true" inert>
+              <div class="offre-visuel" aria-hidden="true">
+                <div class="offre-picto"><svg class="ico"><use href="#ico-diplome"/></svg></div>
+                <span class="offre-nombre">02</span>
+              </div>
+              <div class="offre-texte">
+                <span class="offre-compteur">02 / 03</span>
+                <h3>Ateliers &amp; formations <span class="soon-badge">Bientôt</span></h3>
+                <p>On prépare des ateliers d'initiation au journalisme pour lycées et universités.</p>
+                <div class="offre-actions"><a class="btn btn-primary" href="#contact">Nous contacter</a></div>
+              </div>
+            </article>
+            <article class="offre" role="tabpanel" id="offre-3" aria-labelledby="offre-onglet-3" aria-hidden="true" inert>
+              <div class="offre-visuel" aria-hidden="true">
+                <div class="offre-picto"><svg class="ico"><use href="#ico-relais"/></svg></div>
+                <span class="offre-nombre">03</span>
+              </div>
+              <div class="offre-texte">
+                <span class="offre-compteur">03 / 03</span>
+                <h3>Partenariats éditoriaux</h3>
+                <p>Relais de vos actualités et communiqués auprès de nos lecteurs et nos abonnés.</p>
+                <div class="offre-actions"><a class="btn btn-primary" href="#contact">Nous contacter</a></div>
+              </div>
+            </article>
+          </div>
+          <div class="offres-commandes">
+            <button type="button" class="offres-btn" id="offres-prec" aria-label="Offre précédente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+            <button type="button" class="offres-btn" id="offres-suiv" aria-label="Offre suivante"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+            <button type="button" class="offres-btn offres-btn-pause" id="offres-pause" aria-label="Mettre en pause le défilement automatique"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg></button>
+          </div>
         </div>
-        <div class="institution-card">
-          <h3>Partenariats éditoriaux</h3>
-          <p>Relais de vos actualités et communiqués auprès de nos lecteurs et nos abonnés.</p>
-        </div>
-      </div>
-      <div style="text-align:center; margin-top:32px;">
-        <a class="btn btn-primary" href="#contact">Nous contacter</a>
       </div>
     </div>
   </section>
@@ -586,6 +641,7 @@
   })();
 </script>
 
+<script src="assets/offres.js"></script>
 <script src="assets/pub.js"></script>
 <script src="assets/ticker.js"></script>
 
