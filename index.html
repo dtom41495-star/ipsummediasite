@@ -154,7 +154,35 @@
   <section class="partners">
     <div class="wrap">
       <span class="eyebrow" style="display:block; text-align:center;">Nos partenaires</span>
-      <h2 style="text-align:center;">We collabore</h2>
+      <div class="partners-titre">
+        <!-- Étoiles de chaque côté du titre, et un trait ondulé dessous (décor) -->
+        <svg class="partners-deco partners-deco-gauche" viewBox="0 0 90 64" aria-hidden="true" focusable="false">
+          <defs>
+            <linearGradient id="partners-degrade" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#EE802F"/>
+              <stop offset="1" stop-color="#E7436E"/>
+            </linearGradient>
+          </defs>
+          <path class="etoile" d="M34 8 C35.6 22 43.6 30.4 58 32 C43.6 33.6 35.6 42 34 56 C32.4 42 24.4 33.6 10 32 C24.4 30.4 32.4 22 34 8 Z" fill="url(#partners-degrade)"/>
+          <path class="etoile" d="M70 4 C70.8 10 73.8 13.2 80 14 C73.8 14.8 70.8 18 70 24 C69.2 18 66.2 14.8 60 14 C66.2 13.2 69.2 10 70 4 Z" fill="#FFB27A"/>
+          <circle cx="78" cy="46" r="3.5" fill="#E7436E" opacity="0.85"/>
+          <circle cx="52" cy="59" r="2.2" fill="#FFB27A" opacity="0.8"/>
+          <path d="M8 6 V20 M1 13 H15" fill="none" stroke="#FFB27A" stroke-width="2.4" stroke-linecap="round"/>
+        </svg>
+        <h2 style="text-align:center;">We collabore</h2>
+        <svg class="partners-deco partners-deco-droite" viewBox="0 0 90 64" aria-hidden="true" focusable="false">
+          <g transform="translate(90 64) scale(-1 -1)">
+            <path class="etoile" d="M34 8 C35.6 22 43.6 30.4 58 32 C43.6 33.6 35.6 42 34 56 C32.4 42 24.4 33.6 10 32 C24.4 30.4 32.4 22 34 8 Z" fill="url(#partners-degrade)"/>
+            <path class="etoile" d="M70 4 C70.8 10 73.8 13.2 80 14 C73.8 14.8 70.8 18 70 24 C69.2 18 66.2 14.8 60 14 C66.2 13.2 69.2 10 70 4 Z" fill="#FFB27A"/>
+            <circle cx="78" cy="46" r="3.5" fill="#E7436E" opacity="0.85"/>
+            <circle cx="52" cy="59" r="2.2" fill="#FFB27A" opacity="0.8"/>
+            <path d="M8 6 V20 M1 13 H15" fill="none" stroke="#FFB27A" stroke-width="2.4" stroke-linecap="round"/>
+          </g>
+        </svg>
+        <svg class="partners-soulignement" viewBox="0 0 220 14" aria-hidden="true" focusable="false">
+          <path d="M4 8 C18 0 32 0 46 8 S74 16 88 8 S116 0 130 8 S158 16 172 8 S200 0 216 8" fill="none" stroke="url(#partners-degrade)" stroke-width="3.2" stroke-linecap="round"/>
+        </svg>
+      </div>
       <div class="partners-grid">
         <div class="partner-card">
           <div class="partner-logo-boite"><img src="assets/partners/miss-tarn-recadre.png" alt="Miss Tarn" class="partner-logo" width="523" height="404" loading="lazy"></div>
