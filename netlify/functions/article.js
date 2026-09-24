@@ -141,6 +141,9 @@ exports.handler = async function (event) {
     let content = cleanSubstackHtml(extractTag(match, 'content:encoded') || stripHtml(description));
     let image = extractAttr(match, 'enclosure', 'url');
 
+    // Avant removeDuplicateImage : sinon son nettoyage des <div> vides emporte aussi les embeds
+    // (eux aussi vides tant qu'ils n'ont pas été transformés en cartes).
+    content = remplacerEmbeds(content, items);
     if (image) {
       content = removeDuplicateImage(content, image);
     }
@@ -250,6 +253,39 @@ function removeDuplicateImage(html, imageUrl) {
     })
     .replace(/<a\b[^>]*>\s*<\/a>/gi, '')
     .replace(/<(figure|div)\b[^>]*>\s*<\/\1>/gi, '');
+}
+
+// Quand on colle le lien d'un article dans l'éditeur Substack, ça crée un "embed" : une carte
+// avec l'aperçu de l'article. Sur Substack, c'est du JavaScript qui la construit à partir d'un
+// <div> vide (data-attrs) ; ce script ne tourne pas ici, donc rien ne s'affichait. On construit
+// la carte nous-mêmes (même carte que "À lire aussi"), vers la page du site si l'article y est
+// déjà, sinon vers Substack.
+function remplacerEmbeds(html, items) {
+  return html.replace(/<div class="digest-post-embed" data-attrs="([^"]*)"[^>]*>[\s\S]*?<\/div>/g, function (bloc, brut) {
+    try {
+      const info = JSON.parse(decodeEntities(brut));
+      const titre = String(info.title || '').replace(/\s+/g, ' ').trim();
+      if (!titre || !info.canonical_url) return '';
+      const slug = slugDuLien(info.canonical_url);
+      const surLeSite = !!slug && items.some((it) => slugDuLien(extractTag(it, 'link')) === slug);
+      const href = surLeSite ? '/articles/' + encodeURIComponent(slug) : info.canonical_url;
+      const cible = surLeSite ? '' : ' target="_blank" rel="noopener"';
+      const auteur = info.publishedBylines && info.publishedBylines[0] ? nomAuteur(info.publishedBylines[0].name) : '';
+      const date = info.post_date ? formatDateFr(info.post_date) : '';
+      const meta = [date, auteur].filter(Boolean).join(' · ');
+      const image = info.cover_image ? redimensionnerImage(info.cover_image, 480) : '';
+      const caption = String(info.caption || '').replace(/\s+/g, ' ').trim();
+      return '\n<a class="feed-card article-embed" href="' + escapeHtml(href) + '"' + cible + '>' +
+        (image ? '<img class="feed-card-img" src="' + escapeHtml(image) + '" alt="" loading="lazy">' : '') +
+        '<div class="feed-card-body">' +
+        (meta ? '<span class="feed-card-date">' + escapeHtml(meta) + '</span>' : '') +
+        '<h3>' + escapeHtml(titre) + '</h3>' +
+        (caption ? '<p>' + escapeHtml(caption) + '</p>' : '') +
+        '</div></a>\n';
+    } catch (e) {
+      return '';   // un embed mal formé disparaît, sans casser le reste de l'article
+    }
+  });
 }
 
 // Insère un bloc pub après le 2e paragraphe de l'article (ou en fin de
@@ -408,6 +444,13 @@ ${headExtra}
   .article-body img { display: block; max-width: 100%; height: auto; margin: 1.2em auto; border-radius: 10px; }
   .article-body img[data-portrait] { max-width: min(100%, 420px); }
   .article-body figcaption { margin-top: -0.4em; margin-bottom: 1.4em; color: var(--ink-soft); font-size: 0.85rem; line-height: 1.5; text-align: center; }
+  /* Carte "embed" (lien vers un autre article, collé dans l'éditeur Substack) */
+  .article-embed { display: flex; flex-direction: row; max-width: 480px; margin: 1.6em auto; border: 1px solid var(--border); }
+  .article-embed .feed-card-img { width: 130px; height: 110px; flex: none; }
+  .article-embed .feed-card-body { padding: 14px 16px; }
+  .article-embed .feed-card-body h3 { font-size: 0.98rem; margin: 4px 0; }
+  .article-embed .feed-card-body p { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin: 0; font-size: 0.85rem; }
+  @media (max-width: 480px) { .article-embed { max-width: 100%; } .article-embed .feed-card-img { width: 96px; } }
   .article-body a { color: var(--orange); text-decoration: underline; }
   .article-body blockquote { border-left: 3px solid var(--orange); padding-left: 16px; color: var(--ink-soft); margin: 1.2em 0; }
   .article-back { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 32px; color: var(--ink); font-size: 0.95rem; font-weight: 600; transition: color 0.15s ease; }
@@ -493,7 +536,7 @@ ${bodyHtml}
     <span><a href="mailto:contact@ipsummedia.fr">contact@ipsummedia.fr</a></span>
   </div>
   <div class="wrap footer-legal">
-    <p>Ipsum Média est une association loi 1901 immatriculée au Registre National des Associations sous le n°W812010251. SIRET 100 238 435 00018, code APE 58.13Y (Édition de revues et périodiques). Nom de domaine : Infomaniak Network SA (infomaniak.com). Hébergement du site : Netlify, Inc. (netlify.com).</p>
+    <p>Ipsum Média est une association loi 1901 immatriculée au Registre National des Associations sous le n°W812010251. SIRET 100 238 435 00018, code APE 58.13Y (Édition de revues et périodiques). Nom de domaine : Infomaniak Network SA (infomaniak.com). Hébergement du site : Netlify, Inc. (netlify.com). <a href="/mentions-legales.html">Mentions légales</a> · <a href="/confidentialite.html">Confidentialité</a></p>
   </div>
 </footer>
 <script>
