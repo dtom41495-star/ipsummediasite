@@ -30,7 +30,13 @@
     <nav class="main-nav" id="main-nav">
       <ul>
         <li><a href="#accueil" class="active">Accueil</a></li>
-        <li><a href="articles.html">Nos actus</a></li>
+        <li class="nav-rubriques">
+          <a href="articles.html">Nos actus</a>
+          <button type="button" class="nav-rubriques-toggle" aria-expanded="false" aria-controls="nav-rubriques-menu" aria-label="Rubriques" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <ul class="nav-rubriques-menu" id="nav-rubriques-menu" hidden></ul>
+        </li>
         <li><a href="nos-valeurs.html">Nos valeurs</a></li>
         <li><a href="#soutenir">Soutenir</a></li>
         <li><a href="nous-rejoindre.html">Nous rejoindre</a></li>
@@ -531,6 +537,7 @@
 
 <script src="assets/accueil.js"></script>
 <script src="assets/videos.js"></script>
+<script src="assets/nav-rubriques.js"></script>
 
 <script>
   (function() {

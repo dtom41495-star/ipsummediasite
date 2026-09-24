@@ -30,7 +30,13 @@
     <nav class="main-nav" id="main-nav">
       <ul>
         <li><a href="index.html#accueil">Accueil</a></li>
-        <li><a href="articles.html" class="active">Nos actus</a></li>
+        <li class="nav-rubriques">
+          <a href="articles.html" class="active">Nos actus</a>
+          <button type="button" class="nav-rubriques-toggle" aria-expanded="false" aria-controls="nav-rubriques-menu" aria-label="Rubriques" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <ul class="nav-rubriques-menu" id="nav-rubriques-menu" hidden></ul>
+        </li>
         <li><a href="nos-valeurs.html">Nos valeurs</a></li>
         <li><a href="nous-rejoindre.html">Nous rejoindre</a></li>
         <li><a href="a-propos.html">À propos</a></li>
@@ -191,7 +197,7 @@
     var deja = 0;   // nombre de cartes déjà affichées
     // La page s'ouvre sur les articles ; les newsletters et le "tout" se choisissent
     var typeDefaut = 'article';
-    var etat = { type: typeDefaut, commune: '', nb: PAS, toutesCommunes: false };
+    var etat = { type: typeDefaut, commune: '', rubrique: '', nb: PAS, toutesCommunes: false };
 
     function formatDate(iso) {
       try {
@@ -205,6 +211,21 @@
 
     function aLaCommune(item, slug) {
       return (item.communes || []).some(function(c) { return c.slug === slug; });
+    }
+
+    // Pour un lien reçu du sous-menu "Rubriques" du menu (?rubrique=culture) : pas de pastilles
+    // ici (Tom : trop de pastilles à la fois avec les communes), juste le filtre et son nom affiché.
+    function aLaRubrique(item, slug) {
+      return (item.rubriques || []).some(function(r) { return r.slug === slug; });
+    }
+
+    // Nom de la rubrique demandée, ou null si elle n'existe pas (ou plus) dans les articles actuels
+    function nomRubrique(slug) {
+      var trouve = null;
+      tous.forEach(function(item) {
+        (item.rubriques || []).forEach(function(r) { if (r.slug === slug) trouve = r.nom; });
+      });
+      return trouve;
     }
 
     // Les articles récents ont leur page sur le site ; les plus anciens renvoient vers Substack
@@ -244,6 +265,7 @@
       return tous.filter(function(item) {
         if (etat.type !== 'tout' && genre(item) !== etat.type) return false;
         if (etat.commune && !aLaCommune(item, etat.commune)) return false;
+        if (etat.rubrique && !aLaRubrique(item, etat.rubrique)) return false;
         return true;
       });
     }
@@ -326,17 +348,22 @@
       if (etat.commune) {
         communesDuType().forEach(function(c) { if (c.slug === etat.commune) texte += ' · ' + c.nom; });
       }
+      if (etat.rubrique) {
+        var nomRub = nomRubrique(etat.rubrique);
+        if (nomRub) texte += ' · ' + nomRub;
+      }
       statut.innerHTML = texte;
       statut.hidden = false;
     }
 
-    // L'adresse garde les filtres choisis (?type=newsletters&commune=castres) : on peut partager la vue.
-    // La vue de départ (les articles) n'ajoute rien à l'adresse.
+    // L'adresse garde les filtres choisis (?type=newsletters&commune=castres&rubrique=culture) : on
+    // peut partager la vue. La vue de départ (les articles) n'ajoute rien à l'adresse.
     function majAdresse() {
       if (!window.history || !history.replaceState) return;
       var q = [];
       if (etat.type !== typeDefaut) q.push('type=' + TYPES_ADRESSE[etat.type]);
       if (etat.commune) q.push('commune=' + encodeURIComponent(etat.commune));
+      if (etat.rubrique) q.push('rubrique=' + encodeURIComponent(etat.rubrique));
       try { history.replaceState(null, '', location.pathname + (q.length ? '?' + q.join('&') : '') + location.hash); } catch (e) {}
     }
 
@@ -349,6 +376,7 @@
     function reinitialiser() {
       etat.type = typeDefaut;
       etat.commune = '';
+      etat.rubrique = '';
       etat.nb = PAS;
       majBoutonsType();
       dessinerCommunes();
@@ -360,7 +388,7 @@
       var b = e.target.closest('.feed-type');
       if (!b) return;
       etat.type = b.getAttribute('data-type');
-      if (etat.type === 'newsletter') etat.commune = '';   // les newsletters n'ont pas de commune
+      if (etat.type === 'newsletter') { etat.commune = ''; etat.rubrique = ''; }   // les newsletters n'ont ni commune ni rubrique
       etat.nb = PAS;
       majBoutonsType();
       dessinerCommunes();
@@ -424,9 +452,11 @@
         var demande = params.get('type');
         var type = Object.prototype.hasOwnProperty.call(TYPES_URL, demande) ? TYPES_URL[demande] : null;
         if (type === 'tout' || (type === 'article' && nbArticles) || (type === 'newsletter' && nbNewsletters)) etat.type = type;
-        var commune = params.get('commune');
-        if (commune && etat.type !== 'newsletter') {
-          communesDuType().forEach(function(c) { if (c.slug === commune) etat.commune = commune; });
+        if (etat.type !== 'newsletter') {
+          var commune = params.get('commune');
+          if (commune) { communesDuType().forEach(function(c) { if (c.slug === commune) etat.commune = commune; }); }
+          var rubrique = params.get('rubrique');
+          if (rubrique && nomRubrique(rubrique)) etat.rubrique = rubrique;
         }
 
         majBoutonsType();
@@ -445,6 +475,7 @@
   })();
 </script>
 
+<script src="assets/nav-rubriques.js"></script>
 <script src="assets/ticker.js"></script>
 
 </body>

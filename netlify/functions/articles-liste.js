@@ -112,7 +112,6 @@ function corpsArticles(items) {
     '<div class="feed-filters" id="feed-filters">' +
     typesHtml +
     '<div class="feed-chips" id="feed-communes" role="group" aria-label="Filtrer par commune" hidden></div>' +
-    '<div class="feed-chips" id="feed-rubriques" role="group" aria-label="Filtrer par rubrique" hidden></div>' +
     '</div>' +
     '<p class="feed-status" id="feed-status" aria-live="polite">' + pluriel(visibles.length, MOTS[typeDefaut]) + '</p>' +
     '<div id="articles-container"><div class="feed-grid">' + premiere.map(carte).join('') + '</div></div>' +
@@ -156,7 +155,13 @@ function rendrePage(items) {
     <nav class="main-nav" id="main-nav">
       <ul>
         <li><a href="/index.html#accueil">Accueil</a></li>
-        <li><a href="/articles.html" class="active">Nos actus</a></li>
+        <li class="nav-rubriques">
+          <a href="/articles.html" class="active">Nos actus</a>
+          <button type="button" class="nav-rubriques-toggle" aria-expanded="false" aria-controls="nav-rubriques-menu" aria-label="Rubriques" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <ul class="nav-rubriques-menu" id="nav-rubriques-menu" hidden></ul>
+        </li>
         <li><a href="/nos-valeurs.html">Nos valeurs</a></li>
         <li><a href="/nous-rejoindre.html">Nous rejoindre</a></li>
         <li><a href="/a-propos.html">À propos</a></li>
@@ -283,13 +288,12 @@ function rendrePage(items) {
 <script>
   (function() {
     var PAS = 12;           // nombre de cartes affichées à chaque fois
-    var MAX_CHIPS = 8;      // pastilles visibles avant le bouton "+ autres" (communes et rubriques)
+    var MAX_COMMUNES = 8;   // pastilles de communes visibles avant le bouton "+ autres"
 
     var container = document.getElementById('articles-container');
     var zoneFiltres = document.getElementById('feed-filters');
     var zoneTypes = document.getElementById('feed-types');
     var zoneCommunes = document.getElementById('feed-communes');
-    var zoneRubriques = document.getElementById('feed-rubriques');
     var statut = document.getElementById('feed-status');
     var zonePlus = document.getElementById('feed-more');
     var boutonPlus = document.getElementById('feed-more-btn');
@@ -304,7 +308,7 @@ function rendrePage(items) {
     var deja = 0;   // nombre de cartes déjà affichées
     // La page s'ouvre sur les articles ; les newsletters et le "tout" se choisissent
     var typeDefaut = 'article';
-    var etat = { type: typeDefaut, commune: '', rubrique: '', nb: PAS, communesOuvertes: false, rubriquesOuvertes: false };
+    var etat = { type: typeDefaut, commune: '', rubrique: '', nb: PAS, toutesCommunes: false };
 
     function formatDate(iso) {
       try {
@@ -320,13 +324,24 @@ function rendrePage(items) {
       return (item.communes || []).some(function(c) { return c.slug === slug; });
     }
 
+    // Pour un lien reçu du sous-menu "Rubriques" du menu (?rubrique=culture) : pas de pastilles
+    // ici (Tom : trop de pastilles à la fois avec les communes), juste le filtre et son nom affiché.
     function aLaRubrique(item, slug) {
       return (item.rubriques || []).some(function(r) { return r.slug === slug; });
     }
 
+    // Nom de la rubrique demandée, ou null si elle n'existe pas (ou plus) dans les articles actuels
+    function nomRubrique(slug) {
+      var trouve = null;
+      tous.forEach(function(item) {
+        (item.rubriques || []).forEach(function(r) { if (r.slug === slug) trouve = r.nom; });
+      });
+      return trouve;
+    }
+
     // Les articles récents ont leur page sur le site ; les plus anciens renvoient vers Substack
     function lien(item) {
-      var m = item.link && item.link.match(/\\/p\\/([^/?#]+)/);
+      var m = item.link && item.link.match(/\/p\/([^/?#]+)/);
       if (!m || item.surLeSite === false) return { href: item.link || '#', externe: true };
       return { href: '/articles/' + m[1], externe: false };
     }
@@ -356,8 +371,7 @@ function rendrePage(items) {
         '</div></a>';
     }
 
-    // Les articles qui passent les filtres choisis. Commune et rubrique se combinent (on peut
-    // vouloir "Culture" à "Castres"), chacun indépendamment de l'autre, comme le type.
+    // Les articles qui passent les filtres choisis
     function filtrer() {
       return tous.filter(function(item) {
         if (etat.type !== 'tout' && genre(item) !== etat.type) return false;
@@ -367,14 +381,13 @@ function rendrePage(items) {
       });
     }
 
-    // Valeurs d'une facette (communes ou rubriques) pour le type choisi, avec leur nombre
-    // d'articles, les plus fournies d'abord.
-    function facette(champ) {
+    // Communes de la liste, avec leur nombre d'articles (selon le type choisi), les plus fournies d'abord
+    function communesDuType() {
       var compte = {};
       var noms = {};
       tous.forEach(function(item) {
         if (etat.type !== 'tout' && genre(item) !== etat.type) return;
-        (item[champ] || []).forEach(function(c) {
+        (item.communes || []).forEach(function(c) {
           compte[c.slug] = (compte[c.slug] || 0) + 1;
           if (!noms[c.slug]) noms[c.slug] = c.nom;
         });
@@ -382,20 +395,10 @@ function rendrePage(items) {
       return Object.keys(compte).map(function(s) { return { slug: s, nom: noms[s], n: compte[s] }; })
         .sort(function(a, b) { return b.n - a.n || (a.slug < b.slug ? -1 : 1); });
     }
-    function communesDuType() { return facette('communes'); }
-    function rubriquesDuType() { return facette('rubriques'); }
 
-    function pastille(attr, valeur, slug, nom, n) {
-      return '<button type="button" class="feed-chip" data-' + attr + '="' + slug + '" aria-pressed="' + (valeur === slug) + '">' +
+    function pastille(slug, nom, n) {
+      return '<button type="button" class="feed-chip" data-commune="' + slug + '" aria-pressed="' + (etat.commune === slug) + '">' +
         nom + (n ? ' <span class="feed-count">' + n + '</span>' : '') + '</button>';
-    }
-
-    // Sur téléphone la ligne défile : on amène la valeur choisie au milieu
-    function centrerChip(zone, attr) {
-      var choisie = zone.querySelector('[data-' + attr + '][aria-pressed="true"]:not([data-' + attr + '=""])');
-      if (choisie && zone.scrollWidth > zone.clientWidth) {
-        zone.scrollLeft = choisie.offsetLeft - (zone.clientWidth - choisie.offsetWidth) / 2;
-      }
     }
 
     function dessinerCommunes() {
@@ -407,45 +410,28 @@ function rendrePage(items) {
       }
       var rang = -1;
       liste.forEach(function(c, i) { if (c.slug === etat.commune) rang = i; });
-      var longue = liste.length > MAX_CHIPS + 2;
-      var depliee = !longue || etat.communesOuvertes || rang >= MAX_CHIPS;
-      var montrees = depliee ? liste : liste.slice(0, MAX_CHIPS);
+      var longue = liste.length > MAX_COMMUNES + 2;
+      var depliee = !longue || etat.toutesCommunes || rang >= MAX_COMMUNES;
+      var montrees = depliee ? liste : liste.slice(0, MAX_COMMUNES);
 
-      var html = '<span class="feed-chips-label">Communes</span>' + pastille('commune', etat.commune, '', 'Toutes', 0);
-      montrees.forEach(function(c) { html += pastille('commune', etat.commune, c.slug, c.nom, c.n); });
+      var html = '<span class="feed-communes-label">Communes</span>' + pastille('', 'Toutes', 0);
+      montrees.forEach(function(c) { html += pastille(c.slug, c.nom, c.n); });
       if (longue && !depliee) {
-        html += '<button type="button" class="feed-chip feed-chip-more" data-action="deplier">+ ' + (liste.length - MAX_CHIPS) + ' autres</button>';
-      } else if (longue && etat.communesOuvertes) {
+        html += '<button type="button" class="feed-chip feed-chip-more" data-action="deplier">+ ' + (liste.length - MAX_COMMUNES) + ' autres</button>';
+      } else if (longue && etat.toutesCommunes) {
         html += '<button type="button" class="feed-chip feed-chip-more" data-action="replier">Moins de communes</button>';
       }
       zoneCommunes.innerHTML = html;
       zoneCommunes.hidden = false;
-      centrerChip(zoneCommunes, 'commune');
+      centrerCommune();
     }
 
-    function dessinerRubriques() {
-      var liste = rubriquesDuType();
-      if (etat.type === 'newsletter' || !liste.length) {
-        zoneRubriques.hidden = true;
-        zoneRubriques.innerHTML = '';
-        return;
+    // Sur téléphone la ligne des communes défile : on amène la commune choisie au milieu
+    function centrerCommune() {
+      var choisie = zoneCommunes.querySelector('[data-commune][aria-pressed="true"]:not([data-commune=""])');
+      if (choisie && zoneCommunes.scrollWidth > zoneCommunes.clientWidth) {
+        zoneCommunes.scrollLeft = choisie.offsetLeft - (zoneCommunes.clientWidth - choisie.offsetWidth) / 2;
       }
-      var rang = -1;
-      liste.forEach(function(r, i) { if (r.slug === etat.rubrique) rang = i; });
-      var longue = liste.length > MAX_CHIPS + 2;
-      var depliee = !longue || etat.rubriquesOuvertes || rang >= MAX_CHIPS;
-      var montrees = depliee ? liste : liste.slice(0, MAX_CHIPS);
-
-      var html = '<span class="feed-chips-label">Rubriques</span>' + pastille('rubrique', etat.rubrique, '', 'Toutes', 0);
-      montrees.forEach(function(r) { html += pastille('rubrique', etat.rubrique, r.slug, r.nom, r.n); });
-      if (longue && !depliee) {
-        html += '<button type="button" class="feed-chip feed-chip-more" data-action="deplier">+ ' + (liste.length - MAX_CHIPS) + ' autres</button>';
-      } else if (longue && etat.rubriquesOuvertes) {
-        html += '<button type="button" class="feed-chip feed-chip-more" data-action="replier">Moins de rubriques</button>';
-      }
-      zoneRubriques.innerHTML = html;
-      zoneRubriques.hidden = false;
-      centrerChip(zoneRubriques, 'rubrique');
     }
 
     function dessiner(ajout) {
@@ -474,14 +460,15 @@ function rendrePage(items) {
         communesDuType().forEach(function(c) { if (c.slug === etat.commune) texte += ' · ' + c.nom; });
       }
       if (etat.rubrique) {
-        rubriquesDuType().forEach(function(r) { if (r.slug === etat.rubrique) texte += ' · ' + r.nom; });
+        var nomRub = nomRubrique(etat.rubrique);
+        if (nomRub) texte += ' · ' + nomRub;
       }
       statut.innerHTML = texte;
       statut.hidden = false;
     }
 
-    // L'adresse garde les filtres choisis (?type=newsletters&commune=castres&rubrique=culture) : on peut
-    // partager la vue. La vue de départ (les articles) n'ajoute rien à l'adresse.
+    // L'adresse garde les filtres choisis (?type=newsletters&commune=castres&rubrique=culture) : on
+    // peut partager la vue. La vue de départ (les articles) n'ajoute rien à l'adresse.
     function majAdresse() {
       if (!window.history || !history.replaceState) return;
       var q = [];
@@ -504,7 +491,6 @@ function rendrePage(items) {
       etat.nb = PAS;
       majBoutonsType();
       dessinerCommunes();
-      dessinerRubriques();
       dessiner(false);
       majAdresse();
     }
@@ -517,7 +503,6 @@ function rendrePage(items) {
       etat.nb = PAS;
       majBoutonsType();
       dessinerCommunes();
-      dessinerRubriques();
       dessiner(false);
       majAdresse();
     });
@@ -527,7 +512,7 @@ function rendrePage(items) {
       if (!b) return;
       var action = b.getAttribute('data-action');
       if (action) {
-        etat.communesOuvertes = (action === 'deplier');
+        etat.toutesCommunes = (action === 'deplier');
         dessinerCommunes();
         var bascule = zoneCommunes.querySelector('[data-action]');
         if (bascule) bascule.focus();
@@ -538,26 +523,6 @@ function rendrePage(items) {
       // Les pastilles sont mises à jour sur place, pour que le clavier garde le focus
       zoneCommunes.querySelectorAll('[data-commune]').forEach(function(p) {
         p.setAttribute('aria-pressed', String(p.getAttribute('data-commune') === etat.commune));
-      });
-      dessiner(false);
-      majAdresse();
-    });
-
-    zoneRubriques.addEventListener('click', function(e) {
-      var b = e.target.closest('button');
-      if (!b) return;
-      var action = b.getAttribute('data-action');
-      if (action) {
-        etat.rubriquesOuvertes = (action === 'deplier');
-        dessinerRubriques();
-        var bascule = zoneRubriques.querySelector('[data-action]');
-        if (bascule) bascule.focus();
-        return;
-      }
-      etat.rubrique = b.getAttribute('data-rubrique') || '';
-      etat.nb = PAS;
-      zoneRubriques.querySelectorAll('[data-rubrique]').forEach(function(p) {
-        p.setAttribute('aria-pressed', String(p.getAttribute('data-rubrique') === etat.rubrique));
       });
       dessiner(false);
       majAdresse();
@@ -602,16 +567,13 @@ function rendrePage(items) {
           var commune = params.get('commune');
           if (commune) { communesDuType().forEach(function(c) { if (c.slug === commune) etat.commune = commune; }); }
           var rubrique = params.get('rubrique');
-          if (rubrique) { rubriquesDuType().forEach(function(r) { if (r.slug === rubrique) etat.rubrique = rubrique; }); }
+          if (rubrique && nomRubrique(rubrique)) etat.rubrique = rubrique;
         }
 
         majBoutonsType();
         dessinerCommunes();
-        dessinerRubriques();
-        zoneFiltres.hidden = zoneTypes.hidden && zoneCommunes.hidden && zoneRubriques.hidden;
-        // À refaire une fois les filtres visibles (sinon les largeurs sont nulles)
-        centrerChip(zoneCommunes, 'commune');
-        centrerChip(zoneRubriques, 'rubrique');
+        zoneFiltres.hidden = zoneTypes.hidden && zoneCommunes.hidden;
+        centrerCommune();   // à refaire une fois les filtres visibles (sinon les largeurs sont nulles)
         dessiner(false);
       })
       .catch(function() {
@@ -624,6 +586,7 @@ function rendrePage(items) {
   })();
 </script>
 
+<script src="/assets/nav-rubriques.js"></script>
 <script src="/assets/ticker.js"></script>
 
 </body>

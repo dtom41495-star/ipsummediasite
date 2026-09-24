@@ -21,7 +21,13 @@
     <nav class="main-nav" id="main-nav">
       <ul>
         <li><a href="index.html#accueil">Accueil</a></li>
-        <li><a href="articles.html">Nos actus</a></li>
+        <li class="nav-rubriques">
+          <a href="articles.html">Nos actus</a>
+          <button type="button" class="nav-rubriques-toggle" aria-expanded="false" aria-controls="nav-rubriques-menu" aria-label="Rubriques" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <ul class="nav-rubriques-menu" id="nav-rubriques-menu" hidden></ul>
+        </li>
         <li><a href="nos-valeurs.html">Nos valeurs</a></li>
         <li><a href="nous-rejoindre.html">Nous rejoindre</a></li>
         <li><a href="a-propos.html">À propos</a></li>
@@ -79,6 +85,7 @@
   toggle.addEventListener('click', () => nav.classList.toggle('open'));
 </script>
 
+<script src="assets/nav-rubriques.js"></script>
 <script src="assets/ticker.js"></script>
 
 </body>
