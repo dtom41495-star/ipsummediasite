@@ -5,3 +5,11 @@
   from = "/articles/*"
   to = "/.netlify/functions/article/:splat"
   status = 200
+
+# Le fichier articles.html existe encore (copie de secours), donc "force" pour que la fonction
+# (cartes déjà écrites dans le HTML, pour les moteurs de recherche) passe devant.
+[[redirects]]
+  from = "/articles.html"
+  to = "/.netlify/functions/articles-liste"
+  status = 200
+  force = true

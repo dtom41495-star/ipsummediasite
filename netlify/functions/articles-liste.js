@@ -1,0 +1,632 @@
+// Rend la page "Nos actus" (/articles.html) avec les 12 premières cartes déjà écrites dans le HTML,
+// pour qu'un moteur de recherche les voie sans exécuter JavaScript (voir article.js, même principe
+// pour une page d'article). Le script de la page prend ensuite le relais pour les filtres, exactement
+// comme avant : cette fonction ne fait que remplacer l'affichage de départ, jamais le mécanisme de
+// filtrage, qui reste écrit une seule fois dans ce fichier.
+//
+// Route (voir netlify.toml, redirection forcée car articles.html existe encore en fichier statique,
+// gardé pour le moment comme copie de secours) : /articles.html -> cette fonction.
+
+const SITE = 'https://ipsummedia.fr';
+const PAS = 12;
+
+const ICONE_MAIL = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>';
+const ICONE_EXTERNE = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M8 7h9v9"/></svg>';
+const MOTS = { tout: ['publication', 'publications'], article: ['article', 'articles'], newsletter: ['newsletter', 'newsletters'] };
+
+exports.handler = async function () {
+  try {
+    const res = await fetch(SITE + '/.netlify/functions/substack-feed?tous=1', { signal: AbortSignal.timeout(8000) });
+    const data = res.ok ? await res.json() : null;
+    const items = (data && data.items) || [];
+    return { statusCode: 200, headers: entetes(items.length > 0), body: rendrePage(items) };
+  } catch (e) {
+    return { statusCode: 200, headers: entetes(false), body: rendrePage([]) };
+  }
+};
+
+function entetes(avecDonnees) {
+  const headers = {
+    'Content-Type': 'text/html; charset=utf-8',
+    'Cache-Control': avecDonnees ? 'public, max-age=120' : 'public, max-age=30',
+  };
+  if (avecDonnees) headers['Netlify-CDN-Cache-Control'] = 'public, max-age=120, stale-while-revalidate=60, durable';
+  return headers;
+}
+
+function pluriel(n, mots) { return n + ' ' + (n > 1 ? mots[1] : mots[0]); }
+function genre(item) { return item.kind === 'newsletter' ? 'newsletter' : 'article'; }
+
+function formatDate(iso) {
+  try {
+    return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  } catch (e) { return ''; }
+}
+
+// Les articles récents ont leur page sur le site ; les plus anciens renvoient vers Substack
+function lien(item) {
+  const m = item.link && item.link.match(/\/p\/([^/?#]+)/);
+  if (!m || item.surLeSite === false) return { href: item.link || '#', externe: true };
+  return { href: '/articles/' + m[1], externe: false };
+}
+
+// Identique à carte() côté client (articles.html) : les champs viennent déjà échappés de substack-feed.
+function carte(item) {
+  const l = lien(item);
+  const newsletter = genre(item) === 'newsletter';
+  let etiquettes = '';
+  if (newsletter) {
+    etiquettes = '<span class="feed-tag feed-tag-newsletter">' + ICONE_MAIL + 'Newsletter</span>';
+  } else {
+    (item.communes || []).slice(0, 2).forEach((c) => { etiquettes += '<span class="feed-tag">' + c.nom + '</span>'; });
+    if (item.rubriques && item.rubriques.length) etiquettes += '<span class="feed-tag feed-tag-rubrique">' + item.rubriques[0].nom + '</span>';
+  }
+  const img = (!newsletter && item.image)
+    ? '<img src="' + item.image + '" alt="" class="feed-card-img" loading="lazy" decoding="async">'
+    : '';
+  return '<a class="feed-card' + (newsletter ? ' feed-card-newsletter' : '') + '" href="' + l.href + '"' + (l.externe ? ' target="_blank" rel="noopener"' : '') + '>' +
+    img +
+    '<div class="feed-card-body">' +
+    (etiquettes ? '<div class="feed-tags">' + etiquettes + '</div>' : '') +
+    '<span class="feed-card-date">' + formatDate(item.pubDate) + (item.author ? ' · ' + item.author : '') + '</span>' +
+    '<h3>' + item.title + '</h3>' +
+    (item.description ? '<p>' + item.description + '</p>' : '') +
+    (l.externe ? '<span class="feed-card-ext">Lire sur Substack ' + ICONE_EXTERNE + '</span>' : '') +
+    '</div></a>';
+}
+
+function boutonType(type, libelle, actif, n) {
+  return '<button type="button" class="feed-type" data-type="' + type + '" aria-pressed="' + actif + '">' + libelle +
+    ' <span class="feed-count">' + n + '</span></button>';
+}
+
+// Le corps de la page (dans <main>) : la vue de départ, exactement ce que le script produirait comme
+// premier rendu (type "article" par défaut, 12 cartes). Communes et rubriques restent au script : ce
+// sont des filtres, pas du contenu à indexer.
+function corpsArticles(items) {
+  if (!items.length) {
+    return '<div id="articles-container"><p class="feed-loading">Impossible de charger les articles pour le moment. ' +
+      '<a href="https://ipsummedia.substack.com" target="_blank" rel="noopener">Voir sur Substack</a>.</p></div>';
+  }
+
+  const nbArticles = items.filter((i) => genre(i) === 'article').length;
+  const nbNewsletters = items.length - nbArticles;
+  const typeDefaut = nbArticles ? 'article' : 'tout';
+  const visibles = items.filter((i) => typeDefaut === 'tout' || genre(i) === typeDefaut);
+  const premiere = visibles.slice(0, PAS);
+  const reste = visibles.length - premiere.length;
+
+  const typesHtml = (nbArticles && nbNewsletters)
+    ? '<div class="feed-types" id="feed-types" role="group" aria-label="Type de publication">' +
+      boutonType('tout', 'Tout', typeDefaut === 'tout', items.length) +
+      boutonType('article', 'Articles', typeDefaut === 'article', nbArticles) +
+      boutonType('newsletter', 'Newsletters', typeDefaut === 'newsletter', nbNewsletters) +
+      '</div>'
+    : '<div class="feed-types" id="feed-types" role="group" aria-label="Type de publication" hidden>' +
+      boutonType('tout', 'Tout', typeDefaut === 'tout', items.length) +
+      boutonType('article', 'Articles', typeDefaut === 'article', nbArticles) +
+      boutonType('newsletter', 'Newsletters', typeDefaut === 'newsletter', nbNewsletters) +
+      '</div>';
+
+  return (
+    '<div class="feed-filters" id="feed-filters">' +
+    typesHtml +
+    '<div class="feed-chips" id="feed-communes" role="group" aria-label="Filtrer par commune" hidden></div>' +
+    '<div class="feed-chips" id="feed-rubriques" role="group" aria-label="Filtrer par rubrique" hidden></div>' +
+    '</div>' +
+    '<p class="feed-status" id="feed-status" aria-live="polite">' + pluriel(visibles.length, MOTS[typeDefaut]) + '</p>' +
+    '<div id="articles-container"><div class="feed-grid">' + premiere.map(carte).join('') + '</div></div>' +
+    '<div class="feed-more" id="feed-more"' + (reste > 0 ? '' : ' hidden') + '>' +
+    '<button type="button" class="btn btn-outline" id="feed-more-btn">Afficher plus (' + pluriel(reste, ['restant', 'restants']) + ')</button>' +
+    '</div>'
+  );
+}
+
+function rendrePage(items) {
+  return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nos articles — Ipsum Média</title>
+<meta name="description" content="Tous les derniers articles d'Ipsum Média : reportages, interviews et actualités du Tarn.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="${SITE}/articles.html">
+<meta property="og:title" content="Nos articles — Ipsum Média">
+<meta property="og:description" content="Tous les derniers articles d'Ipsum Média : reportages, interviews et actualités du Tarn.">
+<meta property="og:image" content="${SITE}/assets/logo-gradient.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Nos articles — Ipsum Média">
+<meta name="twitter:description" content="Tous les derniers articles d'Ipsum Média : reportages, interviews et actualités du Tarn.">
+<meta name="twitter:image" content="${SITE}/assets/logo-gradient.png">
+<link rel="canonical" href="${SITE}/articles.html">
+<link rel="icon" type="image/png" href="/assets/logo-carre.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a href="/index.html#accueil" class="brand">
+      <img src="/assets/logo.png" alt="Ipsum Média">
+    </a>
+    <nav class="main-nav" id="main-nav">
+      <ul>
+        <li><a href="/index.html#accueil">Accueil</a></li>
+        <li><a href="/articles.html" class="active">Nos actus</a></li>
+        <li><a href="/nos-valeurs.html">Nos valeurs</a></li>
+        <li><a href="/nous-rejoindre.html">Nous rejoindre</a></li>
+        <li><a href="/a-propos.html">À propos</a></li>
+        <li><a href="/index.html#contact">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="header-cta">
+      <a class="btn btn-primary" href="https://ipsummedia.substack.com/subscribe" target="_blank" rel="noopener"><span class="long">Je m'inscris</span></a>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+<div class="ticker" id="ticker" role="region" aria-label="Dernières actualités en direct">
+  <div class="ticker-inner">
+    <span class="ticker-label"><span class="ticker-dot" aria-hidden="true"></span>En direct</span>
+    <div class="ticker-viewport"><div class="ticker-track" id="ticker-track"><noscript><a class="ticker-item" href="/articles.html">Toutes nos actus</a></noscript></div></div>
+    <button type="button" class="ticker-pause" id="ticker-pause" aria-label="Mettre en pause le défilement" title="Mettre en pause le défilement" hidden></button>
+  </div>
+</div>
+
+<main>
+
+  <section class="hero" style="min-height:auto; padding: 70px 0 40px; background: var(--cream);">
+    <div class="wrap" style="text-align:center; margin:0 auto;">
+      <span class="eyebrow" style="color:var(--orange);">Nos actus</span>
+      <h1 style="color:var(--ink);">Tous nos articles</h1>
+      <p class="lead" style="color:var(--ink-soft); margin:0 auto;">Reportages, interviews et actualités du Tarn, publiés par la rédaction.</p>
+    </div>
+  </section>
+
+  <section class="articles-list">
+    <div class="wrap">
+      ${corpsArticles(items)}
+      <div class="archive-cta" id="archive-cta">
+        <h2>Voir tous les articles</h2>
+        <p>Le site affiche nos derniers articles. Retrouvez toutes les archives sur Substack, en choisissant votre rédaction.</p>
+        <div class="archive-cta-choices">
+          <a class="btn btn-primary" href="https://ipsummedia.substack.com/archive" target="_blank" rel="noopener">La Rédac' du Tarn &rarr;</a>
+          <a class="btn btn-primary" href="https://ipsummediahautegaronne.substack.com/archive" target="_blank" rel="noopener">La Rédac' d'Haute-Garonne &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-top">
+    <div class="footer-brand">
+      <img src="/assets/logo-white.png" alt="Ipsum Média">
+      <img src="/assets/logo-ess.png" alt="ESS — L'économie en mieux" class="logo-ess">
+    </div>
+    <div class="footer-social-group">
+    <span class="footer-social-label">Suivez-nous</span>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/company/106848404/" target="_blank" rel="noopener" aria-label="LinkedIn">
+        <svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="9" width="4" height="13"/><circle cx="4" cy="4" r="2.5"/><path d="M10 9h4v2c1-1.5 2.5-2.4 4.5-2.4 4 0 5.5 2.5 5.5 6.5V22h-4v-6c0-1.8-.7-3-2.3-3-1.6 0-2.7 1.2-2.7 3v6h-4z"/></svg>
+      </a>
+      <a href="https://www.facebook.com/profile.php?id=61591708070712" target="_blank" rel="noopener" aria-label="Facebook">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V8c0-.9.2-1.5 1.6-1.5H17V3.6C16.6 3.5 15.5 3.4 14.2 3.4c-2.7 0-4.6 1.6-4.6 4.6v2h-3v3.1h3V21z"/></svg>
+      </a>
+      <a href="https://www.instagram.com/ipsum_media_" target="_blank" rel="noopener" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.3" cy="6.7" r="1.1" fill="currentColor" stroke="none"/></svg>
+      </a>
+      <a href="https://www.youtube.com/@ipsummedia-u2g" target="_blank" rel="noopener" aria-label="YouTube">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5.5" width="20" height="13" rx="4"/><path d="M10 9.5l6 2.5-6 2.5z" fill="currentColor" stroke="none"/></svg>
+      </a>
+      <a href="https://www.threads.com/@ipsum_media_" target="_blank" rel="noopener" aria-label="Threads">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.263 11.097c-.03-3.486-1.92-5.586-5.111-5.586-2.13 0-3.922.963-4.863 2.499l2.062 1.438c.535-.843 1.272-1.543 2.628-1.543 1.528 0 2.318.85 2.544 2.431a15 15 0 0 0-2.236-.173c-4.125 0-6.068 1.867-6.068 4.336s1.943 3.99 4.804 3.99c3.139 0 5.013-2.115 5.781-4.735.798.361 1.348 1.204 1.348 2.47 0 3.387-3.907 5.232-7.22 5.232-4.885 0-8.077-3.207-8.077-8.424 0-6.392 4.223-10.487 9.9-10.487 3.808 0 5.69 1.671 6.97 3.914l2.108-1.475C21.44 2.078 18.331 0 13.663 0 6.227 0 1.168 5.277 1.168 12.934c0 7 4.953 11.066 10.856 11.066 4.878 0 9.809-2.846 9.809-7.716 0-2.545-1.46-4.231-3.569-5.187m-6.33 4.855c-1.077 0-2.026-.512-2.026-1.453 0-1.483 1.822-1.934 3.606-1.934.678 0 1.34.045 1.927.173-.422 1.927-1.671 3.215-3.508 3.214Z"/></svg>
+      </a>
+      <a href="https://www.tiktok.com/@ipsum.media" target="_blank" rel="noopener" aria-label="TikTok">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+      </a>
+    </div>
+    </div>
+  </div>
+  <div class="wrap">
+    <span>© <span id="year"></span> Ipsum Média, association loi 1901</span>
+    <span>
+      <a href="/assets/docs/dossier-de-presse-ipsum-media.pdf" target="_blank" rel="noopener">Dossier de presse</a>
+      · <a href="https://compo.ipsummedia.fr/" target="_blank" rel="noopener">Espace bénévole</a>
+      · <a href="mailto:contact@ipsummedia.fr">contact@ipsummedia.fr</a>
+    </span>
+  </div>
+  <div class="wrap footer-legal">
+    <p>Ipsum Média est une association loi 1901 immatriculée au Registre National des Associations sous le n°W812010251. SIRET 100 238 435 00018, code APE 58.13Y (Édition de revues et périodiques). Nom de domaine : Infomaniak Network SA (infomaniak.com). Hébergement du site : Netlify, Inc. (netlify.com). <a href="/mentions-legales.html">Mentions légales</a> · <a href="/confidentialite.html">Confidentialité</a></p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+  const toggle = document.getElementById('nav-toggle');
+  const nav = document.getElementById('main-nav');
+  toggle.addEventListener('click', () => nav.classList.toggle('open'));
+  nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => nav.classList.remove('open')));
+</script>
+
+<script src="/assets/tarteaucitron/tarteaucitron.min.js"></script>
+<script>
+  tarteaucitron.init({
+    privacyUrl: '',
+    orientation: 'bottom',
+    showAlertSmall: false,
+    cookieslist: true,
+    acceptAllCta: true,
+    denyAllCta: true,
+    highPrivacy: true,
+    handleBrowserDNTRequest: false,
+    removeCredit: true,
+    moreInfoLink: false,
+    useExternalCss: false,
+    readmoreLink: ''
+  });
+
+  tarteaucitron.user.gtagUa = 'G-033HT830CF';
+  (tarteaucitron.job = tarteaucitron.job || []).push('gtag');
+
+  tarteaucitron.user.adsensecapub = 'ca-pub-7695287329907050';
+  (tarteaucitron.job = tarteaucitron.job || []).push('adsenseauto');
+</script>
+
+<script>
+  (function() {
+    var PAS = 12;           // nombre de cartes affichées à chaque fois
+    var MAX_CHIPS = 8;      // pastilles visibles avant le bouton "+ autres" (communes et rubriques)
+
+    var container = document.getElementById('articles-container');
+    var zoneFiltres = document.getElementById('feed-filters');
+    var zoneTypes = document.getElementById('feed-types');
+    var zoneCommunes = document.getElementById('feed-communes');
+    var zoneRubriques = document.getElementById('feed-rubriques');
+    var statut = document.getElementById('feed-status');
+    var zonePlus = document.getElementById('feed-more');
+    var boutonPlus = document.getElementById('feed-more-btn');
+
+    var ICONE_MAIL = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>';
+    var ICONE_EXTERNE = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M8 7h9v9"/></svg>';
+    var MOTS = { tout: ['publication', 'publications'], article: ['article', 'articles'], newsletter: ['newsletter', 'newsletters'] };
+    var TYPES_URL = { articles: 'article', newsletters: 'newsletter', tout: 'tout' };
+    var TYPES_ADRESSE = { article: 'articles', newsletter: 'newsletters', tout: 'tout' };
+
+    var tous = [];
+    var deja = 0;   // nombre de cartes déjà affichées
+    // La page s'ouvre sur les articles ; les newsletters et le "tout" se choisissent
+    var typeDefaut = 'article';
+    var etat = { type: typeDefaut, commune: '', rubrique: '', nb: PAS, communesOuvertes: false, rubriquesOuvertes: false };
+
+    function formatDate(iso) {
+      try {
+        return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+      } catch (e) { return ''; }
+    }
+
+    function pluriel(n, mots) { return n + ' ' + (n > 1 ? mots[1] : mots[0]); }
+
+    function genre(item) { return item.kind === 'newsletter' ? 'newsletter' : 'article'; }
+
+    function aLaCommune(item, slug) {
+      return (item.communes || []).some(function(c) { return c.slug === slug; });
+    }
+
+    function aLaRubrique(item, slug) {
+      return (item.rubriques || []).some(function(r) { return r.slug === slug; });
+    }
+
+    // Les articles récents ont leur page sur le site ; les plus anciens renvoient vers Substack
+    function lien(item) {
+      var m = item.link && item.link.match(/\\/p\\/([^/?#]+)/);
+      if (!m || item.surLeSite === false) return { href: item.link || '#', externe: true };
+      return { href: '/articles/' + m[1], externe: false };
+    }
+
+    function carte(item) {
+      var l = lien(item);
+      var newsletter = genre(item) === 'newsletter';
+      var etiquettes = '';
+      if (newsletter) {
+        etiquettes = '<span class="feed-tag feed-tag-newsletter">' + ICONE_MAIL + 'Newsletter</span>';
+      } else {
+        (item.communes || []).slice(0, 2).forEach(function(c) { etiquettes += '<span class="feed-tag">' + c.nom + '</span>'; });
+        if (item.rubriques && item.rubriques.length) etiquettes += '<span class="feed-tag feed-tag-rubrique">' + item.rubriques[0].nom + '</span>';
+      }
+      // Une newsletter a le logo (ou une photo au hasard) en couverture : on n'affiche pas d'image
+      var img = (!newsletter && item.image)
+        ? '<img src="' + item.image + '" alt="" class="feed-card-img" loading="lazy" decoding="async">'
+        : '';
+      return '<a class="feed-card' + (newsletter ? ' feed-card-newsletter' : '') + '" href="' + l.href + '"' + (l.externe ? ' target="_blank" rel="noopener"' : '') + '>' +
+        img +
+        '<div class="feed-card-body">' +
+        (etiquettes ? '<div class="feed-tags">' + etiquettes + '</div>' : '') +
+        '<span class="feed-card-date">' + formatDate(item.pubDate) + (item.author ? ' · ' + item.author : '') + '</span>' +
+        '<h3>' + item.title + '</h3>' +
+        (item.description ? '<p>' + item.description + '</p>' : '') +
+        (l.externe ? '<span class="feed-card-ext">Lire sur Substack ' + ICONE_EXTERNE + '</span>' : '') +
+        '</div></a>';
+    }
+
+    // Les articles qui passent les filtres choisis. Commune et rubrique se combinent (on peut
+    // vouloir "Culture" à "Castres"), chacun indépendamment de l'autre, comme le type.
+    function filtrer() {
+      return tous.filter(function(item) {
+        if (etat.type !== 'tout' && genre(item) !== etat.type) return false;
+        if (etat.commune && !aLaCommune(item, etat.commune)) return false;
+        if (etat.rubrique && !aLaRubrique(item, etat.rubrique)) return false;
+        return true;
+      });
+    }
+
+    // Valeurs d'une facette (communes ou rubriques) pour le type choisi, avec leur nombre
+    // d'articles, les plus fournies d'abord.
+    function facette(champ) {
+      var compte = {};
+      var noms = {};
+      tous.forEach(function(item) {
+        if (etat.type !== 'tout' && genre(item) !== etat.type) return;
+        (item[champ] || []).forEach(function(c) {
+          compte[c.slug] = (compte[c.slug] || 0) + 1;
+          if (!noms[c.slug]) noms[c.slug] = c.nom;
+        });
+      });
+      return Object.keys(compte).map(function(s) { return { slug: s, nom: noms[s], n: compte[s] }; })
+        .sort(function(a, b) { return b.n - a.n || (a.slug < b.slug ? -1 : 1); });
+    }
+    function communesDuType() { return facette('communes'); }
+    function rubriquesDuType() { return facette('rubriques'); }
+
+    function pastille(attr, valeur, slug, nom, n) {
+      return '<button type="button" class="feed-chip" data-' + attr + '="' + slug + '" aria-pressed="' + (valeur === slug) + '">' +
+        nom + (n ? ' <span class="feed-count">' + n + '</span>' : '') + '</button>';
+    }
+
+    // Sur téléphone la ligne défile : on amène la valeur choisie au milieu
+    function centrerChip(zone, attr) {
+      var choisie = zone.querySelector('[data-' + attr + '][aria-pressed="true"]:not([data-' + attr + '=""])');
+      if (choisie && zone.scrollWidth > zone.clientWidth) {
+        zone.scrollLeft = choisie.offsetLeft - (zone.clientWidth - choisie.offsetWidth) / 2;
+      }
+    }
+
+    function dessinerCommunes() {
+      var liste = communesDuType();
+      if (etat.type === 'newsletter' || !liste.length) {
+        zoneCommunes.hidden = true;
+        zoneCommunes.innerHTML = '';
+        return;
+      }
+      var rang = -1;
+      liste.forEach(function(c, i) { if (c.slug === etat.commune) rang = i; });
+      var longue = liste.length > MAX_CHIPS + 2;
+      var depliee = !longue || etat.communesOuvertes || rang >= MAX_CHIPS;
+      var montrees = depliee ? liste : liste.slice(0, MAX_CHIPS);
+
+      var html = '<span class="feed-chips-label">Communes</span>' + pastille('commune', etat.commune, '', 'Toutes', 0);
+      montrees.forEach(function(c) { html += pastille('commune', etat.commune, c.slug, c.nom, c.n); });
+      if (longue && !depliee) {
+        html += '<button type="button" class="feed-chip feed-chip-more" data-action="deplier">+ ' + (liste.length - MAX_CHIPS) + ' autres</button>';
+      } else if (longue && etat.communesOuvertes) {
+        html += '<button type="button" class="feed-chip feed-chip-more" data-action="replier">Moins de communes</button>';
+      }
+      zoneCommunes.innerHTML = html;
+      zoneCommunes.hidden = false;
+      centrerChip(zoneCommunes, 'commune');
+    }
+
+    function dessinerRubriques() {
+      var liste = rubriquesDuType();
+      if (etat.type === 'newsletter' || !liste.length) {
+        zoneRubriques.hidden = true;
+        zoneRubriques.innerHTML = '';
+        return;
+      }
+      var rang = -1;
+      liste.forEach(function(r, i) { if (r.slug === etat.rubrique) rang = i; });
+      var longue = liste.length > MAX_CHIPS + 2;
+      var depliee = !longue || etat.rubriquesOuvertes || rang >= MAX_CHIPS;
+      var montrees = depliee ? liste : liste.slice(0, MAX_CHIPS);
+
+      var html = '<span class="feed-chips-label">Rubriques</span>' + pastille('rubrique', etat.rubrique, '', 'Toutes', 0);
+      montrees.forEach(function(r) { html += pastille('rubrique', etat.rubrique, r.slug, r.nom, r.n); });
+      if (longue && !depliee) {
+        html += '<button type="button" class="feed-chip feed-chip-more" data-action="deplier">+ ' + (liste.length - MAX_CHIPS) + ' autres</button>';
+      } else if (longue && etat.rubriquesOuvertes) {
+        html += '<button type="button" class="feed-chip feed-chip-more" data-action="replier">Moins de rubriques</button>';
+      }
+      zoneRubriques.innerHTML = html;
+      zoneRubriques.hidden = false;
+      centrerChip(zoneRubriques, 'rubrique');
+    }
+
+    function dessiner(ajout) {
+      var liste = filtrer();
+      var grille = container.querySelector('.feed-grid');
+
+      if (!liste.length) {
+        container.innerHTML = '<div class="feed-empty"><p>Aucun résultat pour ce filtre.</p>' +
+          '<button type="button" class="btn btn-outline" data-action="reinit">Réinitialiser les filtres</button></div>';
+        zonePlus.hidden = true;
+        deja = 0;
+      } else {
+        var visibles = liste.slice(0, etat.nb);
+        if (ajout && grille) {
+          grille.insertAdjacentHTML('beforeend', visibles.slice(deja).map(carte).join(''));
+        } else {
+          container.innerHTML = '<div class="feed-grid">' + visibles.map(carte).join('') + '</div>';
+        }
+        deja = visibles.length;
+        zonePlus.hidden = liste.length <= visibles.length;
+        boutonPlus.textContent = 'Afficher plus (' + pluriel(liste.length - visibles.length, ['restant', 'restants']) + ')';
+      }
+
+      var texte = pluriel(liste.length, MOTS[etat.type]);
+      if (etat.commune) {
+        communesDuType().forEach(function(c) { if (c.slug === etat.commune) texte += ' · ' + c.nom; });
+      }
+      if (etat.rubrique) {
+        rubriquesDuType().forEach(function(r) { if (r.slug === etat.rubrique) texte += ' · ' + r.nom; });
+      }
+      statut.innerHTML = texte;
+      statut.hidden = false;
+    }
+
+    // L'adresse garde les filtres choisis (?type=newsletters&commune=castres&rubrique=culture) : on peut
+    // partager la vue. La vue de départ (les articles) n'ajoute rien à l'adresse.
+    function majAdresse() {
+      if (!window.history || !history.replaceState) return;
+      var q = [];
+      if (etat.type !== typeDefaut) q.push('type=' + TYPES_ADRESSE[etat.type]);
+      if (etat.commune) q.push('commune=' + encodeURIComponent(etat.commune));
+      if (etat.rubrique) q.push('rubrique=' + encodeURIComponent(etat.rubrique));
+      try { history.replaceState(null, '', location.pathname + (q.length ? '?' + q.join('&') : '') + location.hash); } catch (e) {}
+    }
+
+    function majBoutonsType() {
+      zoneTypes.querySelectorAll('.feed-type').forEach(function(b) {
+        b.setAttribute('aria-pressed', String(b.getAttribute('data-type') === etat.type));
+      });
+    }
+
+    function reinitialiser() {
+      etat.type = typeDefaut;
+      etat.commune = '';
+      etat.rubrique = '';
+      etat.nb = PAS;
+      majBoutonsType();
+      dessinerCommunes();
+      dessinerRubriques();
+      dessiner(false);
+      majAdresse();
+    }
+
+    zoneTypes.addEventListener('click', function(e) {
+      var b = e.target.closest('.feed-type');
+      if (!b) return;
+      etat.type = b.getAttribute('data-type');
+      if (etat.type === 'newsletter') { etat.commune = ''; etat.rubrique = ''; }   // les newsletters n'ont ni commune ni rubrique
+      etat.nb = PAS;
+      majBoutonsType();
+      dessinerCommunes();
+      dessinerRubriques();
+      dessiner(false);
+      majAdresse();
+    });
+
+    zoneCommunes.addEventListener('click', function(e) {
+      var b = e.target.closest('button');
+      if (!b) return;
+      var action = b.getAttribute('data-action');
+      if (action) {
+        etat.communesOuvertes = (action === 'deplier');
+        dessinerCommunes();
+        var bascule = zoneCommunes.querySelector('[data-action]');
+        if (bascule) bascule.focus();
+        return;
+      }
+      etat.commune = b.getAttribute('data-commune') || '';
+      etat.nb = PAS;
+      // Les pastilles sont mises à jour sur place, pour que le clavier garde le focus
+      zoneCommunes.querySelectorAll('[data-commune]').forEach(function(p) {
+        p.setAttribute('aria-pressed', String(p.getAttribute('data-commune') === etat.commune));
+      });
+      dessiner(false);
+      majAdresse();
+    });
+
+    zoneRubriques.addEventListener('click', function(e) {
+      var b = e.target.closest('button');
+      if (!b) return;
+      var action = b.getAttribute('data-action');
+      if (action) {
+        etat.rubriquesOuvertes = (action === 'deplier');
+        dessinerRubriques();
+        var bascule = zoneRubriques.querySelector('[data-action]');
+        if (bascule) bascule.focus();
+        return;
+      }
+      etat.rubrique = b.getAttribute('data-rubrique') || '';
+      etat.nb = PAS;
+      zoneRubriques.querySelectorAll('[data-rubrique]').forEach(function(p) {
+        p.setAttribute('aria-pressed', String(p.getAttribute('data-rubrique') === etat.rubrique));
+      });
+      dessiner(false);
+      majAdresse();
+    });
+
+    boutonPlus.addEventListener('click', function() {
+      etat.nb += PAS;
+      dessiner(true);
+    });
+
+    container.addEventListener('click', function(e) {
+      if (e.target.closest('[data-action="reinit"]')) reinitialiser();
+    });
+
+    fetch('/.netlify/functions/substack-feed?tous=1')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        tous = (data && data.items) || [];
+        if (!tous.length) {
+          container.innerHTML = '<p class="feed-loading">Aucun article pour le moment.</p>';
+          return;
+        }
+
+        var nbArticles = tous.filter(function(i) { return genre(i) === 'article'; }).length;
+        var nbNewsletters = tous.length - nbArticles;
+        zoneTypes.querySelector('[data-type="tout"] .feed-count').textContent = tous.length;
+        zoneTypes.querySelector('[data-type="article"] .feed-count').textContent = nbArticles;
+        zoneTypes.querySelector('[data-type="newsletter"] .feed-count').textContent = nbNewsletters;
+        // Le choix du type n'a d'intérêt que s'il y a des articles ET des newsletters
+        zoneTypes.hidden = !(nbArticles && nbNewsletters);
+
+        // Vue de départ : les articles (le "tout" seulement s'il n'y a que des newsletters)
+        typeDefaut = nbArticles ? 'article' : 'tout';
+        etat.type = typeDefaut;
+
+        // Filtres demandés dans l'adresse (liens partagés)
+        var params = new URLSearchParams(location.search);
+        var demande = params.get('type');
+        var type = Object.prototype.hasOwnProperty.call(TYPES_URL, demande) ? TYPES_URL[demande] : null;
+        if (type === 'tout' || (type === 'article' && nbArticles) || (type === 'newsletter' && nbNewsletters)) etat.type = type;
+        if (etat.type !== 'newsletter') {
+          var commune = params.get('commune');
+          if (commune) { communesDuType().forEach(function(c) { if (c.slug === commune) etat.commune = commune; }); }
+          var rubrique = params.get('rubrique');
+          if (rubrique) { rubriquesDuType().forEach(function(r) { if (r.slug === rubrique) etat.rubrique = rubrique; }); }
+        }
+
+        majBoutonsType();
+        dessinerCommunes();
+        dessinerRubriques();
+        zoneFiltres.hidden = zoneTypes.hidden && zoneCommunes.hidden && zoneRubriques.hidden;
+        // À refaire une fois les filtres visibles (sinon les largeurs sont nulles)
+        centrerChip(zoneCommunes, 'commune');
+        centrerChip(zoneRubriques, 'rubrique');
+        dessiner(false);
+      })
+      .catch(function() {
+        container.innerHTML = '<p class="feed-loading">Impossible de charger les articles pour le moment. <a href="https://ipsummedia.substack.com" target="_blank" rel="noopener">Voir sur Substack</a>.</p>';
+      })
+      .then(function() {
+        // Dans tous les cas (liste affichée, vide ou en erreur) : lien vers les archives
+        document.getElementById('archive-cta').hidden = false;
+      });
+  })();
+</script>
+
+<script src="/assets/ticker.js"></script>
+
+</body>
+</html>
+`;
+}
