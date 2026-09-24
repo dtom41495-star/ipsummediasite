@@ -133,6 +133,7 @@
     var newsletters = items.filter(function (i) { return i.kind === 'newsletter'; });
     if (!articles.length) {
       zoneUne.innerHTML = '<p class="feed-loading">Aucun article pour le moment.</p>';
+      fil.innerHTML = '';   // efface le squelette de chargement, sinon il reste figé
       return;
     }
 
@@ -201,5 +202,6 @@
     .then(function (data) { afficher((data && data.items) || []); })
     .catch(function () {
       zoneUne.innerHTML = '<p class="feed-loading">Impossible de charger les articles pour le moment. <a href="https://ipsummedia.substack.com" target="_blank" rel="noopener">Voir sur Substack</a>.</p>';
+      fil.innerHTML = '';   // efface le squelette de chargement, sinon il reste figé
     });
 })();

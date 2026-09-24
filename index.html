@@ -103,12 +103,25 @@
         <div>
           <div class="journal-tete"><h2>À la une</h2></div>
           <div class="une-main" id="une-main">
-            <p class="feed-loading">Chargement des articles...</p>
+            <div class="skeleton-une" aria-hidden="true">
+              <div class="skeleton skeleton-hero"></div>
+              <div class="skeleton-tuiles">
+                <div class="skeleton skeleton-tuile"></div>
+                <div class="skeleton skeleton-tuile"></div>
+              </div>
+            </div>
+            <p class="feed-loading sr-only" role="status">Chargement des articles...</p>
           </div>
         </div>
         <aside class="une-cote" id="une-cote" aria-label="Dernières actus">
           <div class="journal-tete"><h2>Dernières actus</h2><a href="articles.html">Tout voir</a></div>
-          <ul class="fil" id="une-fil"></ul>
+          <ul class="fil" id="une-fil" aria-hidden="true">
+            <li class="skeleton-ligne"><span class="skeleton skeleton-ligne-meta"></span><span class="skeleton skeleton-ligne-titre"></span></li>
+            <li class="skeleton-ligne"><span class="skeleton skeleton-ligne-meta"></span><span class="skeleton skeleton-ligne-titre court"></span></li>
+            <li class="skeleton-ligne"><span class="skeleton skeleton-ligne-meta"></span><span class="skeleton skeleton-ligne-titre"></span></li>
+            <li class="skeleton-ligne"><span class="skeleton skeleton-ligne-meta"></span><span class="skeleton skeleton-ligne-titre"></span></li>
+            <li class="skeleton-ligne"><span class="skeleton skeleton-ligne-meta"></span><span class="skeleton skeleton-ligne-titre court"></span></li>
+          </ul>
         </aside>
       </div>
     </div>
