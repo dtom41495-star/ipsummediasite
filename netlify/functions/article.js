@@ -79,6 +79,57 @@ async function chargerFlux(redac) {
   }
 }
 
+// La liste étiquetée (communes, rubriques) que connaît déjà substack-feed : plutôt que de refaire
+// ici la reconnaissance commune/rubrique (et risquer que les deux se désaccordent avec le temps),
+// on la lui redemande. Liste vide si elle ne répond pas : la page reste alors comme avant.
+async function chargerEtiquettes() {
+  try {
+    const res = await fetch(SITE + '/.netlify/functions/substack-feed?tous=1', { signal: AbortSignal.timeout(6000) });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data && data.items) || [];
+  } catch (e) {
+    return [];
+  }
+}
+
+// "À lire aussi" : les articles qui partagent une commune ou une rubrique avec celui-ci passent
+// devant (une commune commune compte plus qu'une rubrique commune : un article de la même ville
+// est en général plus pertinent qu'un article du même thème ailleurs), à recence égale sinon.
+function calculerSuggestions(etiquettesTous, items, slug, communes, rubriques) {
+  if (etiquettesTous.length) {
+    const communesSlugs = communes.map((c) => c.slug);
+    const rubriquesSlugs = rubriques.map((r) => r.slug);
+    const score = (it) => {
+      let n = 0;
+      (it.communes || []).forEach((c) => { if (communesSlugs.indexOf(c.slug) !== -1) n += 2; });
+      (it.rubriques || []).forEach((r) => { if (rubriquesSlugs.indexOf(r.slug) !== -1) n += 1; });
+      return n;
+    };
+    return etiquettesTous
+      .filter((it) => it.kind !== 'newsletter' && slugDuLien(it.link) !== slug)
+      .map((it, i) => ({ it, s: score(it), i }))   // substack-feed rend déjà les articles triés par date décroissante
+      .sort((a, b) => b.s - a.s || a.i - b.i)       // le tri par score garde cet ordre entre articles à égalité
+      .slice(0, 3)
+      .map((x) => ({
+        title: decodeEntities(x.it.title),
+        slug: slugDuLien(x.it.link),
+        image: x.it.image,
+        date: formatDateFr(x.it.pubDate),
+      }));
+  }
+  // Repli : les 3 articles les plus récents de la même rédaction (comportement d'avant cette fonction)
+  return items
+    .filter((it) => slugDuLien(extractTag(it, 'link')) !== slug)
+    .slice(0, 3)
+    .map((it) => ({
+      title: extractTag(it, 'title'),
+      slug: slugDuLien(extractTag(it, 'link')),
+      image: redimensionnerImage(extractAttr(it, 'enclosure', 'url'), 480),
+      date: formatDateFr(extractTag(it, 'pubDate')),
+    }));
+}
+
 // Le flux RSS ne garde que les 20 derniers articles. Pour un article plus ancien,
 // on regarde s'il existe sur Substack (une page existante répond 200, une page
 // inconnue renvoie une redirection) et on renvoie son adresse.
@@ -110,7 +161,13 @@ exports.handler = async function (event) {
   }
 
   try {
-    const flux = await Promise.all(REDACTIONS.map(chargerFlux));
+    // En parallèle du flux RSS (qui donne le texte) : la liste déjà étiquetée par substack-feed
+    // (qui, elle, sait reconnaître communes et rubriques), pour retrouver les étiquettes de cet
+    // article et proposer un "À lire aussi" par sujet plutôt que par simple récence.
+    const [flux, etiquettesTous] = await Promise.all([
+      Promise.all(REDACTIONS.map(chargerFlux)),
+      chargerEtiquettes(),
+    ]);
 
     let trouve = null;
     for (const f of flux) {
@@ -148,21 +205,20 @@ exports.handler = async function (event) {
       content = removeDuplicateImage(content, image);
     }
 
-    // "À lire aussi" : les 3 articles les plus récents de la même rédaction, sans celui-ci
-    const suggestions = items
-      .filter((it) => slugDuLien(extractTag(it, 'link')) !== slug)
-      .slice(0, 3)
-      .map((it) => ({
-        title: extractTag(it, 'title'),
-        slug: slugDuLien(extractTag(it, 'link')),
-        image: redimensionnerImage(extractAttr(it, 'enclosure', 'url'), 480),
-        date: formatDateFr(extractTag(it, 'pubDate')),
-      }));
+    // Étiquettes de cet article (vide si substack-feed n'a pas répondu, ou si l'article est trop
+    // ancien pour figurer dans ses ~600 derniers) : pas d'erreur dans ce cas, juste rien à afficher.
+    const etiquetteArticle = etiquettesTous.find((it) => slugDuLien(it.link) === slug);
+    const communes = (etiquetteArticle && etiquetteArticle.communes) || [];
+    const rubriques = (etiquetteArticle && etiquetteArticle.rubriques) || [];
+
+    // "À lire aussi" : en priorité les articles qui partagent une commune ou une rubrique avec
+    // celui-ci, sinon les plus récents (même comportement qu'avant si substack-feed est indisponible).
+    const suggestions = calculerSuggestions(etiquettesTous, items, slug, communes, rubriques);
 
     return {
       statusCode: 200,
       headers: { ...entetesHtml, 'Cache-Control': 'public, max-age=900' },
-      body: renderArticle({ title, link, pubDate, author, description, content, image, slug, redac, suggestions }),
+      body: renderArticle({ title, link, pubDate, author, description, content, image, slug, redac, communes, rubriques, suggestions }),
     };
   } catch (e) {
     return {
@@ -418,6 +474,11 @@ ${headExtra}
   .article-page h1 { font-size: clamp(1.5rem, 3.4vw, 2.1rem); line-height: 1.2; margin-bottom: 14px; }
   .article-meta { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 28px; }
   .article-chapo { margin: 0 0 22px; color: var(--ink-soft); font-size: 1.2rem; line-height: 1.5; }
+  /* Communes et rubriques de l'article, vers la page "Nos actus" filtrée sur ce sujet */
+  .article-etiquettes { display: flex; flex-wrap: wrap; gap: 8px; margin: -8px 0 22px; }
+  .article-etiquettes .feed-tag { transition: background 0.15s ease, color 0.15s ease; }
+  .article-etiquettes .feed-tag:hover, .article-etiquettes .feed-tag:focus-visible { background: var(--orange); color: var(--white); outline: none; }
+  .article-etiquettes .feed-tag-rubrique:hover, .article-etiquettes .feed-tag-rubrique:focus-visible { background: var(--ink); color: var(--white); }
   /* Signature (auteur, date et heure, temps de lecture), puis les boutons
      "Sources préférées" et "Partager" côte à côte */
   .article-meta-row { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; margin-bottom: 28px; }
@@ -505,7 +566,13 @@ ${headExtra}
     <nav class="main-nav" id="main-nav">
       <ul>
         <li><a href="/index.html#accueil">Accueil</a></li>
-        <li><a href="/articles.html">Nos actus</a></li>
+        <li class="nav-rubriques">
+          <a href="/articles.html">Nos actus</a>
+          <button type="button" class="nav-rubriques-toggle" aria-expanded="false" aria-controls="nav-rubriques-menu" aria-label="Rubriques" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <ul class="nav-rubriques-menu" id="nav-rubriques-menu" hidden></ul>
+        </li>
         <li><a href="/nos-valeurs.html">Nos valeurs</a></li>
         <li><a href="/nous-rejoindre.html">Nous rejoindre</a></li>
         <li><a href="/a-propos.html">À propos</a></li>
@@ -619,6 +686,7 @@ ${bodyHtml}
 </script>
 
 <script src="/assets/pub.js"></script>
+<script src="/assets/nav-rubriques.js"></script>
 <script src="/assets/ticker.js"></script>
 </body>
 </html>`;
@@ -742,6 +810,10 @@ function renderArticle(a) {
     <span class="eyebrow">${escapeHtml(redac.libelle)}</span>
     <h1>${titleSafe}</h1>
     ${chapo ? `<p class="article-chapo">${escapeHtml(chapo)}</p>` : ''}
+    ${(a.communes.length || a.rubriques.length) ? `<div class="article-etiquettes">` +
+      a.communes.map((c) => `<a class="feed-tag" href="/articles.html?commune=${c.slug}">${c.nom}</a>`).join('') +
+      a.rubriques.map((r) => `<a class="feed-tag feed-tag-rubrique" href="/articles.html?rubrique=${r.slug}">${r.nom}</a>`).join('') +
+      `</div>` : ''}
     <div class="article-meta-row">
       <div class="article-signature">
         <p class="article-byline">Par <strong>${escapeHtml(a.author)}</strong></p>
