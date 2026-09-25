@@ -40,6 +40,16 @@
   .verif-infos div + div { border-left: 1px solid var(--border); }
   .verif-infos b { display: block; margin-top: 3px; font-size: 1rem; letter-spacing: 0; text-transform: none; color: var(--ink); font-variant-numeric: tabular-nums; }
 
+  .verif-accred { border-top: 1px solid var(--border); padding: 22px 26px; background: #F6F0FB; }
+  .verif-accred-tete { display: flex; align-items: center; gap: 10px; color: #6B2F8A; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+  .verif-accred-tete svg { width: 22px; height: 22px; flex-shrink: 0; }
+  .verif-accred-ev { margin-top: 14px; background: var(--white); border: 1px solid #E4D3EF; border-radius: 14px; padding: 16px 18px; }
+  .verif-accred-ev + .verif-accred-ev { margin-top: 10px; }
+  .verif-accred-titre { font-family: 'Bitter', Georgia, serif; font-weight: 800; font-size: 1.15rem; line-height: 1.25; }
+  .verif-accred-org { color: var(--ink-soft); font-size: 0.9rem; margin-top: 3px; }
+  .verif-accred-infos { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; margin-top: 12px; font-size: 0.95rem; }
+  .verif-accred-infos > span { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); padding-top: 3px; }
+  .verif-accred-texte { margin-top: 14px; font-size: 0.9rem; line-height: 1.6; }
   .verif-ko-texte { padding: 22px 26px 26px; color: var(--ink-soft); line-height: 1.6; }
   .verif-horodatage { padding: 12px 26px; font-size: 0.8rem; color: var(--ink-soft); background: var(--cream); border-top: 1px solid var(--border); }
   .verif-note { margin-top: 18px; font-size: 0.88rem; color: var(--ink-soft); line-height: 1.6; text-align: center; }
@@ -170,6 +180,7 @@
     var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0bWVrdWZxYXhkZWxnZnlqd2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMDI1OTksImV4cCI6MjA5MDg3ODU5OX0.32wkp9NsqNTktvuC2Pb3S5EnAPPipt06DYLxfeyf5xE';
     var zone = document.getElementById('verif-carte');
     var ICONE_OK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.7 2.7L16 9.8"/></svg>';
+    var ICONE_PRESSE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 3v3h6V3"/><circle cx="12" cy="11" r="2.5"/><path d="M8 17c.6-1.8 2.2-3 4-3s3.4 1.2 4 3"/></svg>';
     var ICONE_KO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M9 9l6 6M15 9l-6 6"/></svg>';
 
     function esc(s) {
@@ -202,6 +213,23 @@
       }).join('');
       var depuis = m.depuis ? new Date(m.depuis).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : '';
       var s = r.saison || {};
+      // Accréditation presse : seulement le jour de l'événement, pour une invitation
+      // presse où la personne a été choisie pour couvrir
+      var accred = (r.accreditations || []).map(function (a) {
+        var d = a.date ? new Date(a.date) : null;
+        var jour = d ? d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Paris' }) : '';
+        var heure = d ? d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Paris' }) : '';
+        return '<div class="verif-accred-ev">'
+          + '<div class="verif-accred-titre">' + esc(a.titre) + '</div>'
+          + (a.organisateur ? '<div class="verif-accred-org">Sur invitation de ' + esc(a.organisateur) + '</div>' : '')
+          + '<div class="verif-accred-infos">'
+          + (a.redaction ? '<span>Pour</span><div><span class="verif-redac"><i style="background:' + couleurSure(a.redaction.couleur) + ';"></i>Rédaction ' + esc(a.redaction.nom) + '</span></div>' : '')
+          + (jour ? '<span>Date</span><div>' + esc(jour.charAt(0).toUpperCase() + jour.slice(1)) + (heure ? ', ' + esc(heure) : '') + '</div>' : '')
+          + (a.lieu ? '<span>Lieu</span><div>' + esc(a.lieu) + '</div>' : '')
+          + '</div>'
+          + '<p class="verif-accred-texte">Ipsum Média atteste que <strong>' + esc(nom) + '</strong> couvre cet événement pour l\'association, à la suite de l\'invitation presse reçue.</p>'
+          + '</div>';
+      }).join('');
       document.title = nom + ', membre vérifié | Ipsum Média';
       zone.innerHTML =
         '<div class="verif-statut ok">' + ICONE_OK + '<div><div class="verif-statut-titre">Membre de l\'association</div>'
@@ -215,6 +243,7 @@
         + (depuis ? '<div>Membre depuis<b>' + esc(depuis) + '</b></div>' : '')
         + '<div>Valable jusqu\'en<b>juin ' + esc(s.fin) + '</b></div>'
         + '</div>'
+        + (accred ? '<div class="verif-accred"><div class="verif-accred-tete">' + ICONE_PRESSE + 'Accréditation presse du jour</div>' + accred + '</div>' : '')
         + '<div class="verif-horodatage">' + horodatage() + '</div>';
     }
 

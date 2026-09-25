@@ -7,7 +7,11 @@
 // perdue, sans toucher au compte.
 //
 // Ne renvoie que ce qui est imprimé sur la carte : prénom, nom, fonction, rédaction(s),
-// date d'arrivée, saison. Jamais l'email, le téléphone ni aucune autre donnée. Pour une
+// date d'arrivée, saison. En plus, les accréditations presse DU JOUR : les invitations
+// presse (communiqués) pour lesquelles le membre a été choisi pour couvrir l'événement
+// (invitations_disponibilites.statut = 'selectionne'), et seulement celles qui ont lieu
+// aujourd'hui (heure de Paris). Rien sur les jours suivants : la page est publique pour
+// qui a la carte en main, elle ne doit pas dire où la personne sera plus tard. Jamais l'email, le téléphone ni aucune autre donnée. Pour une
 // carte non valable (code inconnu, compte désactivé ou restreint), ne renvoie AUCUNE
 // donnée personnelle, seulement { valide: false }.
 //
@@ -53,6 +57,11 @@ function fonctions(val: unknown): string[] {
   }
   if (!Array.isArray(liste)) liste = liste ? [liste] : [];
   return (liste as unknown[]).map((f) => FONCTIONS[String(f)] || "").filter(Boolean);
+}
+
+// Date du jour à Paris, au format AAAA-MM-JJ
+function jourParis(d: Date) {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Paris", year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
 }
 
 // Saison associative : de juin à juin (même règle que Compo)
@@ -108,8 +117,51 @@ Deno.serve(async (req) => {
       }).filter(Boolean) as { nom: string; couleur: string | null; role: string }[];
     }
 
+    // Accréditations presse du jour. Fenêtre large côté requête (hier à demain), puis
+    // filtre exact sur le jour de Paris.
+    let accreditations: { titre: string; organisateur: string; date: string; lieu: string; redaction: { nom: string; couleur: string | null } | null }[] = [];
+    const { data: choix } = await supabase
+      .from("invitations_disponibilites")
+      .select("communique_id")
+      .eq("membre_id", m.id)
+      .eq("statut", "selectionne");
+    const cpIds = (choix || []).map((c) => c.communique_id);
+    if (cpIds.length) {
+      const maintenant = new Date();
+      const { data: cps } = await supabase
+        .from("communiques")
+        .select("titre, source, organisation, date_evenement, lieu_evenement, type, redaction_id")
+        .in("id", cpIds)
+        .eq("type", "invitation_presse")
+        .gte("date_evenement", new Date(maintenant.getTime() - 36 * 3600e3).toISOString())
+        .lte("date_evenement", new Date(maintenant.getTime() + 36 * 3600e3).toISOString())
+        .order("date_evenement");
+      const aujourdhui = jourParis(maintenant);
+      const duJour = (cps || []).filter((cp) => cp.date_evenement && jourParis(new Date(cp.date_evenement)) === aujourdhui);
+      // Rédaction pour laquelle la personne couvre (celle du communiqué ; aucune pour un
+      // communiqué adressé à toutes les rédactions)
+      const redacIds = [...new Set(duJour.map((cp) => cp.redaction_id).filter(Boolean))];
+      let redacsCp: { id: string; nom: string; couleur: string | null }[] = [];
+      if (redacIds.length) {
+        const { data } = await supabase.from("redactions").select("id, nom, couleur").in("id", redacIds);
+        redacsCp = data || [];
+      }
+      accreditations = duJour
+        .map((cp) => ({
+          titre: cp.titre || "Invitation presse",
+          organisateur: cp.source || cp.organisation || "",
+          date: cp.date_evenement,
+          lieu: cp.lieu_evenement || "",
+          redaction: (() => {
+            const r = redacsCp.find((x) => x.id === cp.redaction_id);
+            return r ? { nom: r.nom, couleur: r.couleur || null } : null;
+          })(),
+        }));
+    }
+
     return reponse({
       valide: true,
+      accreditations,
       membre: {
         prenom: m.prenom || "",
         nom: m.nom || "",
