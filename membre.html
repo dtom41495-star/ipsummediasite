@@ -240,6 +240,7 @@
         + (redacs ? '<div class="verif-redacs">' + redacs + '</div>' : '')
         + '</div></div>'
         + '<div class="verif-infos">'
+        + (m.identifiant ? '<div>Identifiant<b>' + esc(m.identifiant) + '</b></div>' : '')
         + (depuis ? '<div>Membre depuis<b>' + esc(depuis) + '</b></div>' : '')
         + '<div>Valable jusqu\'en<b>juin ' + esc(s.fin) + '</b></div>'
         + '</div>'
