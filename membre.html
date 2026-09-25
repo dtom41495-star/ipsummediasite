@@ -48,7 +48,7 @@
   .verif-accred-titre { font-family: 'Bitter', Georgia, serif; font-weight: 800; font-size: 1.15rem; line-height: 1.25; }
   .verif-accred-org { color: var(--ink-soft); font-size: 0.9rem; margin-top: 3px; }
   .verif-accred-infos { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; margin-top: 12px; font-size: 0.95rem; }
-  .verif-accred-infos span { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); padding-top: 3px; }
+  .verif-accred-infos > span { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); padding-top: 3px; }
   .verif-accred-texte { margin-top: 14px; font-size: 0.9rem; line-height: 1.6; }
   .verif-ko-texte { padding: 22px 26px 26px; color: var(--ink-soft); line-height: 1.6; }
   .verif-horodatage { padding: 12px 26px; font-size: 0.8rem; color: var(--ink-soft); background: var(--cream); border-top: 1px solid var(--border); }
@@ -223,6 +223,7 @@
           + '<div class="verif-accred-titre">' + esc(a.titre) + '</div>'
           + (a.organisateur ? '<div class="verif-accred-org">Sur invitation de ' + esc(a.organisateur) + '</div>' : '')
           + '<div class="verif-accred-infos">'
+          + (a.redaction ? '<span>Pour</span><div><span class="verif-redac"><i style="background:' + couleurSure(a.redaction.couleur) + ';"></i>Rédaction ' + esc(a.redaction.nom) + '</span></div>' : '')
           + (jour ? '<span>Date</span><div>' + esc(jour.charAt(0).toUpperCase() + jour.slice(1)) + (heure ? ', ' + esc(heure) : '') + '</div>' : '')
           + (a.lieu ? '<span>Lieu</span><div>' + esc(a.lieu) + '</div>' : '')
           + '</div>'
