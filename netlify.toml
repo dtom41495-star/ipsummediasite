@@ -13,3 +13,10 @@
   to = "/.netlify/functions/articles-liste"
   status = 200
   force = true
+
+# Page publique de vérification des cartes de membre (QR code de la carte d'adhérent
+# générée par Compo) : ipsummedia.fr/membre?c=<code>
+[[redirects]]
+  from = "/membre"
+  to = "/membre.html"
+  status = 200
