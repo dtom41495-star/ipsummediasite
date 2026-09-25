@@ -20,3 +20,10 @@
   from = "/membre"
   to = "/membre.html"
   status = 200
+
+# Page publique de vérification des documents signés dans Compo (certificat de
+# signature, QR code) : ipsummedia.fr/document?code=<code>
+[[redirects]]
+  from = "/document"
+  to = "/document.html"
+  status = 200
