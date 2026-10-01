@@ -165,17 +165,21 @@
     }
   }
 
-  // L'actu de chaque commune : les communes les plus fournies, un article en photo puis des titres
+  // L'actu de chaque commune : un article en photo puis des titres, pour les communes où l'on a publié
+  // le plus récemment. On classe par date du dernier article et non par nombre d'articles : sinon les
+  // mêmes communes, les plus fournies depuis toujours, gardent leur place et une commune qui vient de
+  // faire l'actu n'apparaît jamais.
   function afficherCommunes(articles, utilises) {
     var parCommune = Object.create(null);
     articles.forEach(function (a) {
       (a.communes || []).forEach(function (c) {
-        var e = parCommune[c.slug] || (parCommune[c.slug] = { slug: c.slug, nom: c.nom, articles: [] });
+        var e = parCommune[c.slug] || (parCommune[c.slug] = { slug: c.slug, nom: c.nom, articles: [], derniere: 0 });
         e.articles.push(a);
+        e.derniere = Math.max(e.derniere, new Date(a.pubDate).getTime() || 0);
       });
     });
     var liste = Object.keys(parCommune).map(function (k) { return parCommune[k]; })
-      .sort(function (x, y) { return y.articles.length - x.articles.length || (x.slug < y.slug ? -1 : 1); });
+      .sort(function (x, y) { return y.derniere - x.derniere || y.articles.length - x.articles.length || (x.slug < y.slug ? -1 : 1); });
     if (!liste.length) return;   // pas d'étiquettes de commune (flux de secours) : on ne montre pas cette partie
 
     var colonnes = liste.map(function (c) {

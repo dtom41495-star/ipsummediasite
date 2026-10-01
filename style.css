@@ -457,6 +457,8 @@ section { padding: 88px 0; }
 .stage-hero .btn-outline { color: var(--white); border-color: rgba(255,255,255,0.55); }
 .stage-hero .btn-outline:hover { border-color: var(--white); color: var(--white); background: rgba(255,255,255,0.14); }
 .stage-deadline { color: var(--white); font-size: 0.92rem; opacity: 0.85; }
+.stage-eyebrow-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.stage-complet { display: inline-flex; padding: 4px 12px; border-radius: 100px; background: var(--ink); color: var(--white); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
 
 .stage-details-head { display: flex; flex-direction: column; gap: 12px; margin-bottom: clamp(24px, 3vw, 36px); }
 .stage-details-head h3 { font-family: 'Bitter', serif; font-weight: 700; font-size: clamp(1.5rem, 3vw, 2.25rem); line-height: 1.15; max-width: 24ch; }
