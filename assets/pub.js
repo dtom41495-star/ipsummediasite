@@ -5,8 +5,8 @@
 // une proposition d'Ipsum Média (don, newsletter, bénévolat) ou l'« Espace partenaire »
 // pour les commerces locaux. Ce n'est PAS de la publicité et ça ne se présente pas comme telle.
 //
-// Dès que Google remplit l'emplacement (data-ad-status="filled"), l'encart disparaît tout seul
-// et l'annonce prend sa place : rien à retirer le jour où AdSense valide.
+// Dès qu'une vraie annonce s'affiche dans l'emplacement (remplie et visible), l'encart disparaît
+// tout seul et l'annonce prend sa place : rien à retirer le jour où AdSense valide.
 // Pour couper les encarts avant : mettre ENCARTS_MAISON à false.
 (function () {
   var ENCARTS_MAISON = true;
@@ -61,7 +61,7 @@
     div.innerHTML =
       '<svg class="encart-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + e.icone + '</svg>' +
       '<div class="encart-texte"><span class="encart-etiquette"></span><strong class="encart-titre"></strong><span class="encart-corps"></span></div>' +
-      '<a class="btn btn-primary encart-bouton"></a>';
+      '<a class="btn btn-outline encart-bouton"></a>';
     div.querySelector('.encart-etiquette').textContent = e.etiquette;
     div.querySelector('.encart-titre').textContent = e.titre;
     div.querySelector('.encart-corps').textContent = e.texte;
@@ -84,15 +84,29 @@
       boite.insertBefore(encart, boite.firstChild);
     }
 
+    // Une annonce n'est « là » que si Google l'a marquée remplie ET qu'elle occupe vraiment de la
+    // place avec un contenu visible. Un compte non validé peut recevoir « filled » sans rien afficher :
+    // l'encart disparaissait alors, laissant un trou vide.
+    function annonceVisible() {
+      if (!ins || ins.getAttribute('data-ad-status') !== 'filled') return false;
+      var cadre = ins.querySelector('iframe');
+      var cible = cadre || ins;
+      return cible.offsetHeight >= 40 && cible.offsetWidth >= 120 && ins.offsetHeight >= 40;
+    }
+
     function maj() {
-      var rempli = !!ins && ins.getAttribute('data-ad-status') === 'filled';
+      var rempli = annonceVisible();
       zone.classList.toggle('is-filled', rempli);
       zone.classList.toggle('a-encart', !!encart && !rempli);
     }
 
     maj();
     if (ins && window.MutationObserver) {
-      new MutationObserver(maj).observe(ins, { attributes: true, attributeFilter: ['data-ad-status'] });
+      // L'annonce se construit sur plusieurs secondes : on réévalue à chaque changement de l'emplacement
+      new MutationObserver(maj).observe(ins, { attributes: true, childList: true, subtree: true });
     }
+    // Filet de sécurité : l'état est revérifié régulièrement, au cas où l'annonce se vide ou se replie plus tard
+    setInterval(maj, 2000);
+    window.addEventListener('resize', maj);
   }
 })();
