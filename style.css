@@ -600,6 +600,22 @@ section { padding: 88px 0; }
 /* En haut de l'accueil, sous le bandeau "en direct" : pleine largeur du contenu */
 .pub-haut { padding: 20px 0 0; text-align: center; }
 @media (max-width: 640px) { .pub-boite { min-height: 100px; } .pub-haut { padding-top: 16px; } }
+/* ---- Encarts maison : à la place des pubs tant qu'AdSense n'a rien affiché (voir assets/pub.js) ---- */
+.pub-zone.a-encart .pub-boite { background: var(--orange-light); border: 1px solid var(--border); flex-direction: column; align-items: stretch; }
+.pub-zone.a-encart .pub-logo, .pub-zone.a-encart .ad-slot-label { display: none; }
+.pub-zone:not(.a-encart) .encart-maison { display: none; }
+.encart-maison { position: relative; z-index: 1; display: flex; align-items: center; gap: 16px; width: 100%; box-sizing: border-box; padding: 14px 20px; text-align: left; }
+.encart-ico { flex: 0 0 auto; width: 38px; height: 38px; padding: 8px; box-sizing: border-box; border-radius: 50%; background: var(--white); color: var(--orange); }
+.encart-texte { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.encart-etiquette { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); }
+.encart-titre { font-family: 'Bitter', serif; font-size: 1.05rem; color: var(--ink); }
+.encart-corps { font-size: 0.86rem; line-height: 1.45; color: var(--ink-soft); }
+.encart-bouton { flex: 0 0 auto; white-space: nowrap; }
+@media (max-width: 640px) {
+  .encart-maison { flex-wrap: wrap; align-items: flex-start; gap: 10px 12px; padding: 14px 16px; }
+  .encart-texte { flex-basis: calc(100% - 52px); }
+  .encart-bouton { width: 100%; text-align: center; box-sizing: border-box; }
+}
 .ad-slot-inline {
   margin: 1.6em 0;
   padding: 16px 0;
