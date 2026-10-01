@@ -610,11 +610,13 @@ section { padding: 88px 0; }
 .encart-etiquette { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); }
 .encart-titre { font-family: 'Bitter', serif; font-size: 1.05rem; color: var(--ink); }
 .encart-corps { font-size: 0.86rem; line-height: 1.45; color: var(--ink-soft); }
-.encart-bouton { flex: 0 0 auto; white-space: nowrap; }
+/* Bouton discret : un simple contour, pas un gros bouton plein, pour ne pas tirer l'œil plus que le contenu de la page */
+.encart-maison .encart-bouton { flex: 0 0 auto; white-space: nowrap; padding: 6px 15px; font-size: 0.8rem; font-weight: 600; background: transparent; box-shadow: none; color: var(--ink-soft); border: 1px solid var(--border); }
+.encart-maison .encart-bouton:hover { color: var(--orange); border-color: var(--orange); background: transparent; box-shadow: none; transform: none; }
 @media (max-width: 640px) {
   .encart-maison { flex-wrap: wrap; align-items: flex-start; gap: 10px 12px; padding: 14px 16px; }
   .encart-texte { flex-basis: calc(100% - 52px); }
-  .encart-bouton { width: 100%; text-align: center; box-sizing: border-box; }
+  .encart-maison .encart-bouton { margin-left: 50px; }
 }
 .ad-slot-inline {
   margin: 1.6em 0;

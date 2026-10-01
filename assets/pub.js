@@ -61,7 +61,7 @@
     div.innerHTML =
       '<svg class="encart-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + e.icone + '</svg>' +
       '<div class="encart-texte"><span class="encart-etiquette"></span><strong class="encart-titre"></strong><span class="encart-corps"></span></div>' +
-      '<a class="btn btn-primary encart-bouton"></a>';
+      '<a class="btn btn-outline encart-bouton"></a>';
     div.querySelector('.encart-etiquette').textContent = e.etiquette;
     div.querySelector('.encart-titre').textContent = e.titre;
     div.querySelector('.encart-corps').textContent = e.texte;
