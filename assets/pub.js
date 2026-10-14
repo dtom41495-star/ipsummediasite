@@ -84,14 +84,18 @@
       boite.insertBefore(encart, boite.firstChild);
     }
 
-    // Une annonce n'est « là » que si Google l'a marquée remplie ET qu'elle occupe vraiment de la
-    // place avec un contenu visible. Un compte non validé peut recevoir « filled » sans rien afficher :
-    // l'encart disparaissait alors, laissant un trou vide.
+    // Une annonce n'est « là » que si Google l'a marquée remplie ET que son cadre occupe vraiment de la
+    // place. Un compte non validé peut recevoir « filled » sans rien afficher : l'encart disparaissait
+    // alors, laissant un trou vide. On mesure le cadre de l'annonce (l'iframe), pas l'emplacement : tant
+    // que l'encart est affiché, l'emplacement est replié à zéro hauteur (voir style.css) et ne se mesure pas.
     function annonceVisible() {
       if (!ins || ins.getAttribute('data-ad-status') !== 'filled') return false;
-      var cadre = ins.querySelector('iframe');
-      var cible = cadre || ins;
-      return cible.offsetHeight >= 40 && cible.offsetWidth >= 120 && ins.offsetHeight >= 40;
+      var cadres = ins.querySelectorAll('iframe');
+      for (var k = 0; k < cadres.length; k++) {
+        var c = cadres[k];
+        if (c.offsetHeight >= 40 && c.offsetWidth >= 120 && c.getClientRects().length) return true;
+      }
+      return false;
     }
 
     function maj() {
