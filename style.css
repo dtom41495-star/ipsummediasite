@@ -603,6 +603,11 @@ section { padding: 88px 0; }
 /* ---- Encarts maison : à la place des pubs tant qu'AdSense n'a rien affiché (voir assets/pub.js) ---- */
 .pub-zone.a-encart .pub-boite { background: var(--orange-light); border: 1px solid var(--border); flex-direction: column; align-items: stretch; border-radius: 0; }
 .pub-zone.a-encart .pub-logo, .pub-zone.a-encart .ad-slot-label { display: none; }
+/* Tant que l'encart est affiché, l'emplacement AdSense reste monté (Google a besoin de sa largeur pour s'y construire)
+   mais sort du flux et ne prend aucune hauteur : sinon, sur téléphone, il garde la hauteur réservée par Google
+   (inline !important, parfois plusieurs centaines de pixels) et prolonge le cadre en vide sous l'encart.
+   On borne max-height (propriété que Google ne touche pas) plutôt que height, qu'il impose en inline. */
+.pub-zone.a-encart .pub-boite ins.adsbygoogle { position: absolute !important; top: 0; left: 0; width: 100%; max-height: 0 !important; margin: 0 !important; padding: 0 !important; overflow: hidden; visibility: hidden; pointer-events: none; }
 .pub-zone:not(.a-encart) .encart-maison { display: none; }
 .encart-maison { position: relative; z-index: 1; display: flex; align-items: center; gap: 16px; width: 100%; box-sizing: border-box; padding: 14px 20px; text-align: left; }
 .encart-ico { flex: 0 0 auto; width: 38px; height: 38px; padding: 8px; box-sizing: border-box; border-radius: 0; background: var(--white); color: var(--orange); }
