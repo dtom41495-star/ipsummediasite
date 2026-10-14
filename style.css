@@ -770,6 +770,7 @@ section { padding: 88px 0; }
 .partners::before { content: ''; position: absolute; top: 0; right: 0; left: 0; height: 4px; background: var(--grad); }
 .partners .eyebrow { color: #FFB27A; }
 .partners h2 { color: var(--white); font-size: clamp(1.8rem, 3vw, 2.4rem); }
+.partners-sous-titre { display: block; margin-top: 4px; font-family: 'Inter', sans-serif; font-size: 0.5em; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #FFB27A; }
 
 /* Titre décoré : étoiles qui scintillent de chaque côté et trait ondulé dessous */
 .partners-titre { position: relative; width: fit-content; margin: 0 auto; padding: 0 6px 20px; }
