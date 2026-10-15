@@ -1246,3 +1246,6 @@ footer.site-footer .wrap.footer-legal {
 #tarteaucitron-logo { position: absolute; top: 18px; left: 18px; width: auto; height: 40px; margin: 0; }
 #tarteaucitronDisclaimerAlert { display: block; margin-top: 48px; }
 @media (max-width: 640px) { .footer-top { flex-direction: column; gap: 14px; text-align: center; } }
+
+.pub-milieu { padding: 8px 0 20px; }
+.rubriques-grille { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
