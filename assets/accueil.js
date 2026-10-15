@@ -18,6 +18,10 @@
   var villesGrille = document.getElementById('villes-grille');
   var villesPastilles = document.getElementById('villes-pastilles');
   var editions = document.getElementById('editions');
+  var rubriques = document.getElementById('rubriques');
+  var rubriquesGrille = document.getElementById('rubriques-grille');
+  var NB_RUBRIQUES = 3;     // blocs "rubrique"
+  var PAR_RUBRIQUE = 4;     // articles par rubrique
 
   function formatDate(iso) {
     try {
@@ -156,6 +160,8 @@
       cote.parentNode.classList.add('sans-cote');
     }
 
+    // Les blocs rubrique ne reprennent pas ce que la une et la colonne « Dernières actus » montrent déjà
+    afficherRubriques(articles, utilises.concat(suite));
     afficherCommunes(articles, utilises);
 
     // Dernières newsletters
@@ -163,6 +169,33 @@
       editions.innerHTML = newsletters.slice(0, NB_EDITIONS).map(function (n) { return htmlLigne(n, true); }).join('');
       editions.parentNode.hidden = false;
     }
+  }
+
+
+  // Un bloc par rubrique (les plus récemment alimentées) : un article en photo puis des titres
+  function afficherRubriques(articles, utilises) {
+    var par = Object.create(null);
+    articles.forEach(function (a) {
+      if (utilises.indexOf(a) !== -1 || !a.rubriques || !a.rubriques.length) return;
+      var r = a.rubriques[0];
+      var e = par[r.slug] || (par[r.slug] = { slug: r.slug, nom: r.nom, articles: [], derniere: 0 });
+      e.articles.push(a);
+      e.derniere = Math.max(e.derniere, new Date(a.pubDate).getTime() || 0);
+    });
+    var blocs = Object.keys(par).map(function (k) { return par[k]; })
+      .filter(function (r) { return r.articles.length >= 3; })
+      .sort(function (x, y) { return y.derniere - x.derniere; })
+      .slice(0, NB_RUBRIQUES);
+    if (!blocs.length) return;
+    rubriquesGrille.innerHTML = blocs.map(function (r) {
+      var liste = r.articles.slice(0, PAR_RUBRIQUE);
+      return '<div class="ville rubrique">' +
+        '<div class="ville-tete"><h3>' + r.nom + '</h3><a href="articles.html?rubrique=' + r.slug + '">Tout voir</a></div>' +
+        htmlCarte(liste[0], 'h4') +
+        '<ul class="fil">' + liste.slice(1).map(function (a) { return htmlLigne(a); }).join('') + '</ul>' +
+        '</div>';
+    }).join('');
+    rubriques.hidden = false;
   }
 
   // L'actu de chaque commune : un article en photo puis des titres, pour les communes où l'on a publié

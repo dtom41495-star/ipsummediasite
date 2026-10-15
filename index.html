@@ -18,7 +18,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=20261014">
 </head>
 <body>
 
@@ -62,23 +62,6 @@
     <button type="button" class="ticker-pause" id="ticker-pause" aria-label="Mettre en pause le défilement" title="Mettre en pause le défilement" hidden></button>
   </div>
 </div>
-
-<!-- Publicité pleine largeur : le cadre garde sa place (logo en gris) tant qu'il n'y a pas d'annonce -->
-<aside class="pub-zone pub-haut" data-encart="partenaire" aria-label="Publicité">
-  <div class="wrap">
-    <span class="ad-slot-label">Avec cette pub, Ipsum Média reste gratuit</span>
-    <div class="pub-boite">
-      <img class="pub-logo" src="assets/logo.png" alt="">
-      <ins class="adsbygoogle"
-           style="display:block"
-           data-ad-client="ca-pub-7695287329907050"
-           data-ad-slot="4713288084"
-           data-ad-format="horizontal"
-           data-full-width-responsive="true"></ins>
-    </div>
-  </div>
-</aside>
-<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
 
 <main>
 
@@ -124,6 +107,30 @@
           </ul>
         </aside>
       </div>
+    </div>
+  </section>
+
+  <!-- Publicité pleine largeur : le cadre garde sa place (logo en gris) tant qu'il n'y a pas d'annonce -->
+  <aside class="pub-zone pub-haut pub-milieu" data-encart="partenaire" aria-label="Publicité">
+    <div class="wrap">
+      <span class="ad-slot-label">Avec cette pub, Ipsum Média reste gratuit</span>
+      <div class="pub-boite">
+        <img class="pub-logo" src="assets/logo.png" alt="">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-7695287329907050"
+             data-ad-slot="4713288084"
+             data-ad-format="horizontal"
+             data-full-width-responsive="true"></ins>
+      </div>
+    </div>
+  </aside>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+
+  <section class="journal rubriques" id="rubriques" hidden>
+    <div class="wrap">
+      <div class="journal-tete"><h2>Par rubrique</h2><a href="articles.html">Toutes les actus</a></div>
+      <div class="villes-grille rubriques-grille" id="rubriques-grille"></div>
     </div>
   </section>
 
@@ -199,7 +206,7 @@
           <circle cx="52" cy="59" r="2.2" fill="#FFB27A" opacity="0.8"/>
           <path d="M8 6 V20 M1 13 H15" fill="none" stroke="#FFB27A" stroke-width="2.4" stroke-linecap="round"/>
         </svg>
-        <h2 style="text-align:center;">We collabore</h2>
+        <h2 style="text-align:center;">We collabore<span class="partners-sous-titre">Nos collaborations</span></h2>
         <svg class="partners-deco partners-deco-droite" viewBox="0 0 90 64" aria-hidden="true" focusable="false">
           <g transform="translate(90 64) scale(-1 -1)">
             <path class="etoile" d="M34 8 C35.6 22 43.6 30.4 58 32 C43.6 33.6 35.6 42 34 56 C32.4 42 24.4 33.6 10 32 C24.4 30.4 32.4 22 34 8 Z" fill="url(#partners-degrade)"/>
@@ -230,57 +237,6 @@
         </div>
       </div>
       <p class="team-note">Ipsum Média est membre du Club de la presse Occitanie et d'Animafac.</p>
-    </div>
-  </section>
-
-  <section class="stage-section">
-    <div class="wrap stage-stack">
-
-      <div class="stage-hero">
-        <img src="assets/stage-hero.jpg" alt="" class="stage-hero-img">
-        <div class="stage-hero-gradient"></div>
-        <svg viewBox="283.5 217.5 65 50" class="stage-hero-deco" aria-hidden="true"><g transform="translate(22.54324,-205.37902)"><path d="m 288.86667,423.33333 -3.6,0.2 -2.43334,2.43334 -0.76666,-1.7 -1.7,0.96666 -0.16667,-0.4 -0.96667,0.96667 -3,1.13333 -2.46666,1.5 -6.4,0.76667 -0.76667,3.2 h 2.46667 l -2.46667,2.26667 -1.13333,2.06666 H 261.9 l 1.86667,2.06667 -1.06667,1.76667 0.33333,0.13333 0.93334,2.8 2.26666,2.66667 0.56667,0.36666 0.16667,2.63334 1.9,3.03333 1.5,1.7 v 2.06667 l -1.5,0.56666 1.13333,1.7 4.9,2.06667 0.93333,1.33333 2.46667,3 L 281.13333,465.4 283.4,465 v 2.66667 l -0.0667,1.36666 1.23334,-0.16666 -0.3,1.46666 H 288.4 l 3.83333,1.2 0.3,-3.83333 H 294.3 l 6.46667,1.16667 h 6.2 l 4.7,-1.46667 1.2,-3.83333 -3.23334,-2.96667 0.86667,-2.93333 1.76667,-2.63334 2.93333,2.03334 7.66667,-2.63334 1.2,-2.36666 -3.9,-2.5 -1.7,-0.4 -1.13334,1.5 -2.26666,0.56666 -3.6,-1.86666 -3.76667,-4.9 V 442.4 l -2.06667,-3.8 0.2,-1.7 -1.7,-4.33333 -3.2,-1.5 -2.26666,-3.96667 -6.23334,-1.13333 z" fill="none" stroke="#FFFFFF" stroke-width="0.9" stroke-linejoin="round"></path></g></svg>
-        <div class="stage-hero-content">
-          <div class="stage-eyebrow-row">
-            <span class="stage-eyebrow-light">Offre de stage · Décembre 2026</span>
-            <span class="stage-complet">Complet</span>
-          </div>
-          <h2>Faites votre stage en journalisme chez nous</h2>
-          <p>Un mois dans une rédaction tenue par des bénévoles de 18 à 45 ans, en remote ou sur le terrain. Terrain, écriture, interviews. Réservé aux étudiants en école ou en université.</p>
-          <div class="stage-hero-actions">
-            <button type="button" class="btn btn-outline" id="stage-toggle">Lire le descriptif</button>
-            <span class="stage-deadline">Toutes les places sont prises, les candidatures sont closes.</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="stage-details" id="stage-details" hidden>
-        <div class="stage-details-head">
-          <span class="eyebrow">Ce que vous faites</span>
-          <h3>Vous écrivez, vous publiez, vous signez</h3>
-        </div>
-        <div class="stage-steps">
-          <div class="stage-step">
-            <span class="why-num">01</span>
-            <h4>Écrire des articles</h4>
-            <p>Vous suivez un sujet du premier message jusqu'à la publication.</p>
-          </div>
-          <div class="stage-step">
-            <span class="why-num">02</span>
-            <h4>Interviews et portraits</h4>
-            <p>Préparation, enregistrement, retranscription, relecture.</p>
-          </div>
-          <div class="stage-step">
-            <span class="why-num">03</span>
-            <h4>Le développement du média</h4>
-            <p>Newsletter du jeudi, nouveaux formats, audience : vous construisez avec nous.</p>
-          </div>
-        </div>
-        <div class="stage-apply">
-          <span>Ce stage est complet : toutes les places sont prises et les candidatures sont closes.</span>
-        </div>
-      </div>
-
     </div>
   </section>
 
@@ -536,20 +492,7 @@
   })();
 </script>
 
-<script>
-  (function() {
-    var toggleBtn = document.getElementById('stage-toggle');
-    var details = document.getElementById('stage-details');
-    if (!toggleBtn || !details) return;
-    toggleBtn.addEventListener('click', function() {
-      details.hidden = !details.hidden;
-      toggleBtn.textContent = details.hidden ? 'Lire le descriptif' : 'Masquer le descriptif';
-      if (!details.hidden) details.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  })();
-</script>
-
-<script src="assets/accueil.js"></script>
+<script src="assets/accueil.js?v=20261015"></script>
 <script src="assets/videos.js"></script>
 <script src="assets/nav-rubriques.js"></script>
 
@@ -688,7 +631,7 @@
 </script>
 
 <script src="assets/offres.js"></script>
-<script src="assets/pub.js"></script>
+<script src="assets/pub.js?v=20261014"></script>
 <script src="assets/ticker.js"></script>
 
 </body>
