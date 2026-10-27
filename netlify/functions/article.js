@@ -944,7 +944,7 @@ function renderArticle(a) {
   const imgPartage = a.image ? redimensionnerImage(a.image, 1200) : null;
   const descSafe = escapeHtml(resume);
   const ld = donneesStructurees(a, { url: ownUrl, resume, iso, mots, section: redac.libelle, image: imgPartage });
-  const head = `<title>${titleSafe} — Ipsum Média</title>
+  const head = `<title>${titleSafe} | Ipsum Média</title>
 <meta name="description" content="${descSafe}">
 <link rel="canonical" href="${escapeHtml(ownUrl)}">
 <meta property="og:type" content="article">
@@ -978,5 +978,5 @@ function renderNotFound() {
       ${boutons}
     </div>
   </div>`;
-  return pageShell(body, '<title>Article introuvable — Ipsum Média</title>\n<meta name="robots" content="noindex">');
+  return pageShell(body, '<title>Article introuvable | Ipsum Média</title>\n<meta name="robots" content="noindex">');
 }
