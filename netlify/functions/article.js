@@ -197,12 +197,15 @@ exports.handler = async function (event) {
     const description = extractTag(match, 'description');
     let content = cleanSubstackHtml(extractTag(match, 'content:encoded') || stripHtml(description));
     let image = extractAttr(match, 'enclosure', 'url');
+    let legende = '';
 
     // Avant removeDuplicateImage : sinon son nettoyage des <div> vides emporte aussi les embeds
     // (eux aussi vides tant qu'ils n'ont pas été transformés en cartes).
     content = remplacerEmbeds(content, items);
     if (image) {
-      content = removeDuplicateImage(content, image);
+      const sansCouverture = removeDuplicateImage(content, image);
+      content = sansCouverture.html;
+      legende = sansCouverture.legende;
     }
 
     // Étiquettes de cet article (vide si substack-feed n'a pas répondu, ou si l'article est trop
@@ -218,7 +221,7 @@ exports.handler = async function (event) {
     return {
       statusCode: 200,
       headers: { ...entetesHtml, 'Cache-Control': 'public, max-age=900' },
-      body: renderArticle({ title, link, pubDate, author, description, content, image, slug, redac, communes, rubriques, suggestions }),
+      body: renderArticle({ title, link, pubDate, author, description, content, image, legende, slug, redac, communes, rubriques, suggestions }),
     };
   } catch (e) {
     return {
@@ -300,15 +303,30 @@ function cleanSubstackHtml(html) {
 // Retire du corps de l'article les <img> qui correspondent à l'image de
 // couverture déjà affichée en haut de page (Substack la réinsère parfois
 // dans le contenu, souvent en fin d'article dans le bloc "s'abonner").
+//
+// Renvoie { html, legende } : la légende (<figcaption>) de la première image de couverture
+// trouvée est récupérée pour être affichée sous la couverture en haut de page. Sans ça, la
+// légende restait seule dans le texte, à l'endroit où se trouvait l'image retirée.
 function removeDuplicateImage(html, imageUrl) {
   var idMatch = imageUrl.match(/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i);
   var needle = idMatch ? idMatch[1] : imageUrl;
-  return html
+  var legende = '';
+  // Les <figure> qui contiennent l'image de couverture partent en entier, légende comprise
+  html = html.replace(/<figure\b[\s\S]*?<\/figure>/gi, function (bloc) {
+    if (bloc.indexOf(needle) === -1) return bloc;
+    if (!legende) {
+      var cap = /<figcaption\b[^>]*>([\s\S]*?)<\/figcaption>/i.exec(bloc);
+      if (cap) legende = decodeEntities(cap[1].replace(/<[^>]*>/g, '')).replace(/\s+/g, ' ').trim();
+    }
+    return '';
+  });
+  html = html
     .replace(/<img\b[^>]*>/gi, function (tag) {
       return tag.indexOf(needle) !== -1 ? '' : tag;
     })
     .replace(/<a\b[^>]*>\s*<\/a>/gi, '')
     .replace(/<(figure|div)\b[^>]*>\s*<\/\1>/gi, '');
+  return { html: html, legende: legende };
 }
 
 // Quand on colle le lien d'un article dans l'éditeur Substack, ça crée un "embed" : une carte
@@ -496,7 +514,10 @@ ${headExtra}
      height:auto, réduire la largeur étirait les photos (surtout les portraits).
      Les photos portrait (data-portrait, posé par cleanSubstackHtml) sont en
      plus plafonnées en largeur pour ne pas occuper tout l'écran en hauteur. */
+  .article-cover-fig { margin: 0 0 32px; }
   .article-cover { display: block; width: auto; height: auto; max-width: 100%; max-height: 75vh; margin: 0 auto 32px; border-radius: var(--radius); }
+  .article-cover-fig .article-cover { margin-bottom: 0; }
+  .article-cover-legende { margin-top: 10px; color: var(--ink-soft); font-size: 0.85rem; line-height: 1.5; text-align: center; }
   .article-body { font-size: 1.05rem; line-height: 1.75; color: var(--ink); }
   .article-body p { margin-bottom: 1.2em; }
   .article-body .article-lead { font-size: 1.2rem; line-height: 1.6; font-weight: 500; }
@@ -827,7 +848,7 @@ function renderArticle(a) {
         ${share}
       </div>
     </div>
-    ${a.image ? `<img class="article-cover" src="${escapeHtml(redimensionnerImage(a.image, 1400))}" alt="">` : ''}
+    ${a.image ? `<figure class="article-cover-fig"><img class="article-cover" src="${escapeHtml(redimensionnerImage(a.image, 1400))}" alt="${escapeHtml(a.legende || '')}">${a.legende ? `<figcaption class="article-cover-legende">${escapeHtml(a.legende)}</figcaption>` : ''}</figure>` : ''}
     <div class="article-body">${insertInlineAd(contenu)}</div>
     <div class="article-share-end">
       <p>Cet article vous a plu ? Partagez-le.</p>
