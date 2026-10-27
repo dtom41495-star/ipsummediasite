@@ -127,16 +127,16 @@ function rendrePage(items) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nos articles — Ipsum Média</title>
-<meta name="description" content="Tous les derniers articles d'Ipsum Média : reportages, interviews et actualités du Tarn.">
+<title>Actualités du Tarn et de la Haute-Garonne | Ipsum Média</title>
+<meta name="description" content="Tous les derniers articles d'Ipsum Média : reportages, interviews et actualités du Tarn et de la Haute-Garonne.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="${SITE}/articles.html">
-<meta property="og:title" content="Nos articles — Ipsum Média">
-<meta property="og:description" content="Tous les derniers articles d'Ipsum Média : reportages, interviews et actualités du Tarn.">
+<meta property="og:title" content="Actualités du Tarn et de la Haute-Garonne | Ipsum Média">
+<meta property="og:description" content="Tous les derniers articles d'Ipsum Média : reportages, interviews et actualités du Tarn et de la Haute-Garonne.">
 <meta property="og:image" content="${SITE}/assets/logo-gradient.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Nos articles — Ipsum Média">
-<meta name="twitter:description" content="Tous les derniers articles d'Ipsum Média : reportages, interviews et actualités du Tarn.">
+<meta name="twitter:title" content="Actualités du Tarn et de la Haute-Garonne | Ipsum Média">
+<meta name="twitter:description" content="Tous les derniers articles d'Ipsum Média : reportages, interviews et actualités du Tarn et de la Haute-Garonne.">
 <meta name="twitter:image" content="${SITE}/assets/logo-gradient.png">
 <link rel="canonical" href="${SITE}/articles.html">
 <link rel="icon" type="image/png" href="/assets/logo-carre.png">
@@ -243,8 +243,7 @@ function rendrePage(items) {
   <div class="wrap">
     <span>© <span id="year"></span> Ipsum Média, association loi 1901</span>
     <span>
-      <a href="/assets/docs/dossier-de-presse-ipsum-media.pdf" target="_blank" rel="noopener">Dossier de presse</a>
-      · <a href="https://compo.ipsummedia.fr/" target="_blank" rel="noopener">Espace bénévole</a>
+      <a href="https://compo.ipsummedia.fr/" target="_blank" rel="noopener">Espace bénévole</a>
       · <a href="mailto:contact@ipsummedia.fr">contact@ipsummedia.fr</a>
     </span>
   </div>
