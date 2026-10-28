@@ -381,11 +381,20 @@ function insertInlineAd(html) {
   </div>
   <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>`;
 
+  // Jamais dans une carte « article intégré » (article-embed) : elle contient elle-même un <p> (le chapô de l'article cité),
+  // et la pub se retrouvait alors à l'intérieur de la carte, soulignée comme un lien.
+  const cartes = [];
+  const reCarte = /<a class="feed-card article-embed"[\s\S]*?<\/a>/g;
+  let c;
+  while ((c = reCarte.exec(html)) !== null) cartes.push([c.index, c.index + c[0].length]);
+  const dansCarte = (i) => cartes.some((r) => i > r[0] && i < r[1]);
+
   const re = /<\/p>/gi;
   let count = 0;
   let insertIndex = -1;
   let m;
   while ((m = re.exec(html)) !== null) {
+    if (dansCarte(m.index)) continue;
     count++;
     if (count === 2) {
       insertIndex = m.index + m[0].length;
