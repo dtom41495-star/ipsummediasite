@@ -870,10 +870,9 @@ function renderArticle(a) {
     </div>
     <div class="article-appli">
       <span class="article-appli-pic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M22.5 5.3H1.5V8h21zM1.5 10.4V24L12 18.200 22.500 24V10.400zM22.500 0H1.500v2.700h21z"/></svg></span>
-      <div class="article-appli-t"><h3>Ne ratez pas le prochain</h3><p>Suivez Ipsum Média dans l'appli Substack : une notification à chaque article, et vous pouvez commenter, liker et discuter avec nos journalistes, en message privé ou dans le chat des abonnés.</p></div>
+      <div class="article-appli-t"><h3>Ne ratez pas le prochain</h3><p>Suivez Ipsum Média dans l'appli Substack : une notification à chaque article, et vous pouvez commenter, liker et discuter avec nos journalistes, en message privé ou dans le chat des abonnés. Une fois l'appli téléchargée, tapez <b>Ipsum Média</b> et abonnez-vous à la rédaction de votre choix.</p></div>
       <div class="article-appli-btns">
-        <a class="btn btn-primary" href="${escapeHtml(redac.base)}" target="_blank" rel="noopener">Suivre dans l'appli</a>
-        <a class="btn btn-outline" href="https://substack.com/app/app-store-redirect?utm_campaign=app-marketing&amp;utm_content=author-post-insert&amp;utm_source=ipsummedia" target="_blank" rel="noopener">Télécharger Substack</a>
+        <a class="btn btn-primary" href="https://substack.com/app/app-store-redirect?utm_campaign=app-marketing&amp;utm_content=author-post-insert&amp;utm_source=ipsummedia" target="_blank" rel="noopener">Télécharger l'appli Substack</a>
       </div>
     </div>
     <p style="text-align:center; margin-top:20px;"><a href="${escapeHtml(redac.archiveUrl)}" target="_blank" rel="noopener" style="color:var(--ink-soft); font-size:0.85rem;">Voir tous nos articles (archives complètes sur Substack) →</a></p>
