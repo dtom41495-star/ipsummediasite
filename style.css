@@ -547,8 +547,7 @@ section { padding: 88px 0; }
 .suivre-app-liste .ic { flex: 0 0 30px; height: 30px; border-radius: 9px; background: var(--orange-light); color: var(--orange); display: inline-flex; align-items: center; justify-content: center; }
 .suivre-app svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .suivre-app .btn-ico { width: 18px; height: 18px; margin-right: 6px; vertical-align: -3px; }
-.suivre-app-suivre { margin-top: 14px; max-width: 52ch; font-size: .9rem; color: var(--ink-soft); }
-.suivre-app-suivre a { color: var(--orange-dark); font-weight: 600; text-decoration: underline; }
+.suivre-app-boutons { display: flex; flex-wrap: wrap; gap: 10px; }
 .suivre-app-note { margin-top: 8px; max-width: 52ch; font-size: .78rem; color: var(--ink-soft); }
 .suivre-app-tel { display: flex; justify-content: center; }
 .suivre-app-cadre { width: 268px; padding: 11px; background: #15121A; border-radius: 34px; box-shadow: 0 20px 40px rgba(32, 26, 23, .25); transform: rotate(3deg); }
