@@ -586,6 +586,7 @@ function rendrePage(items) {
 </script>
 
 <script src="/assets/nav-rubriques.js"></script>
+<script src="/assets/utm-substack.js"></script>
 <script src="/assets/ticker.js"></script>
 
 </body>
