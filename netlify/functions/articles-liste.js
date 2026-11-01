@@ -307,7 +307,9 @@ function rendrePage(items) {
     var deja = 0;   // nombre de cartes déjà affichées
     // La page s'ouvre sur les articles ; les newsletters et le "tout" se choisissent
     var typeDefaut = 'article';
-    var etat = { type: typeDefaut, commune: '', rubrique: '', nb: PAS, toutesCommunes: false };
+    var etat = { type: typeDefaut, commune: '', rubrique: '', edition: '', nb: PAS, toutesCommunes: false };
+    // Éditions connues (?edition=national) : sert au filtre et au nom affiché
+    var NOMS_EDITIONS = { 'tarn': 'Tarn', 'haute-garonne': 'Haute-Garonne', 'national': 'National' };
 
     function formatDate(iso) {
       try {
@@ -374,6 +376,7 @@ function rendrePage(items) {
     function filtrer() {
       return tous.filter(function(item) {
         if (etat.type !== 'tout' && genre(item) !== etat.type) return false;
+        if (etat.edition && item.edition !== etat.edition) return false;
         if (etat.commune && !aLaCommune(item, etat.commune)) return false;
         if (etat.rubrique && !aLaRubrique(item, etat.rubrique)) return false;
         return true;
@@ -455,6 +458,7 @@ function rendrePage(items) {
       }
 
       var texte = pluriel(liste.length, MOTS[etat.type]);
+      if (etat.edition) texte += ' · ' + NOMS_EDITIONS[etat.edition];
       if (etat.commune) {
         communesDuType().forEach(function(c) { if (c.slug === etat.commune) texte += ' · ' + c.nom; });
       }
@@ -472,6 +476,7 @@ function rendrePage(items) {
       if (!window.history || !history.replaceState) return;
       var q = [];
       if (etat.type !== typeDefaut) q.push('type=' + TYPES_ADRESSE[etat.type]);
+      if (etat.edition) q.push('edition=' + encodeURIComponent(etat.edition));
       if (etat.commune) q.push('commune=' + encodeURIComponent(etat.commune));
       if (etat.rubrique) q.push('rubrique=' + encodeURIComponent(etat.rubrique));
       try { history.replaceState(null, '', location.pathname + (q.length ? '?' + q.join('&') : '') + location.hash); } catch (e) {}
@@ -561,6 +566,8 @@ function rendrePage(items) {
         var params = new URLSearchParams(location.search);
         var demande = params.get('type');
         var type = Object.prototype.hasOwnProperty.call(TYPES_URL, demande) ? TYPES_URL[demande] : null;
+        var edition = params.get('edition');
+        if (edition && Object.prototype.hasOwnProperty.call(NOMS_EDITIONS, edition)) etat.edition = edition;
         if (type === 'tout' || (type === 'article' && nbArticles) || (type === 'newsletter' && nbNewsletters)) etat.type = type;
         if (etat.type !== 'newsletter') {
           var commune = params.get('commune');

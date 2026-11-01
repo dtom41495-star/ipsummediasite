@@ -8,8 +8,9 @@ const SITE = 'https://ipsummedia.fr';
 const REDACTIONS = [
   { nom: 'Tarn', base: 'https://ipsummedia.substack.com' },
   { nom: 'Haute-Garonne', base: 'https://ipsummediahautegaronne.substack.com' },
+  { nom: 'National', base: 'https://ipsummedianational.substack.com' },
 ];
-const LIBELLES = { 'Tarn': "La Rédac' du Tarn", 'Haute-Garonne': "La Rédac' d'Haute-Garonne" };
+const LIBELLES = { 'Tarn': "La Rédac' du Tarn", 'Haute-Garonne': "La Rédac' d'Haute-Garonne", 'National': "La Rédac' nationale" };
 const DE_LA_REDAC = { 'Tarn': 'du Tarn', 'Haute-Garonne': "d'Haute-Garonne" };
 
 // Compo (base de données de la rédaction). Clé publique (anon) : la même que dans le JS de la page d'accueil.

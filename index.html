@@ -18,7 +18,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261014">
+<link rel="stylesheet" href="style.css?v=20261102">
 </head>
 <body>
 
@@ -48,7 +48,7 @@
       <a class="whatsapp-btn" href="https://wa.me/33782218117" target="_blank" rel="noopener" aria-label="Nous écrire sur WhatsApp">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.35 5.08L2 22l5.05-1.32A9.94 9.94 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm5.2 14.2c-.22.62-1.28 1.18-1.77 1.24-.45.06-1.02.08-1.65-.1-.38-.11-.87-.28-1.5-.55-2.63-1.14-4.35-3.8-4.48-3.98-.13-.18-1.07-1.42-1.07-2.7 0-1.28.67-1.9.9-2.16.24-.26.52-.32.7-.32.18 0 .35 0 .5.01.16.01.38-.06.6.46.22.53.75 1.82.82 1.95.07.13.11.29.02.47-.09.18-.14.29-.27.45-.13.16-.28.35-.4.47-.13.13-.27.27-.12.53.16.26.7 1.15 1.5 1.86 1.03.92 1.9 1.21 2.16 1.35.26.13.41.11.56-.07.16-.18.66-.77.84-1.04.18-.26.36-.22.6-.13.24.09 1.53.72 1.8.85.26.13.44.2.5.31.06.12.06.68-.16 1.3z"/></svg>
       </a>
-      <button class="btn btn-primary newsletter-open-btn" type="button"><span class="long">Je m'inscris</span></button>
+      <button class="btn btn-primary newsletter-open-btn" type="button"><span class="long">Recevoir la newsletter</span><span class="court">Newsletter</span></button>
       <button class="nav-toggle" id="nav-toggle" aria-label="Menu">
         <span></span><span></span><span></span>
       </button>
@@ -78,6 +78,16 @@
     <symbol id="ico-bouclier" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.3 8.2-8 9-4.7-.8-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></symbol>
     <symbol id="ico-solidaire" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20v-1a5 5 0 0 1 5-5h2a5 5 0 0 1 5 5v1"/><circle cx="17.5" cy="9" r="2.5"/><path d="M17 14a4 4 0 0 1 4 4v2"/></symbol>
   </svg>
+
+  <!-- Onglets d'édition : apparaissent dès que la rédaction nationale a publié (voir assets/accueil.js) -->
+  <nav class="editions-onglets" id="editions-onglets" aria-label="Choisir une édition" hidden>
+    <div class="wrap">
+      <a href="articles.html" class="actif" aria-current="page">Toutes</a>
+      <a href="articles.html?edition=tarn">Tarn</a>
+      <a href="articles.html?edition=haute-garonne">Haute-Garonne</a>
+      <a href="articles.html?edition=national">National</a>
+    </div>
+  </nav>
 
   <section class="journal" id="accueil">
     <div class="wrap">
@@ -142,6 +152,14 @@
     </div>
   </section>
 
+  <section class="journal villes national" id="national" hidden>
+    <div class="wrap">
+      <div class="journal-tete"><h2>L'actu nationale</h2><a href="articles.html?edition=national">Toute l'actu nationale</a></div>
+      <nav class="villes-pastilles" id="national-pastilles" aria-label="Choisir une rubrique nationale"></nav>
+      <div class="villes-grille" id="national-grille"></div>
+    </div>
+  </section>
+
   <section class="journal-newsletter" id="newsletter">
     <div class="wrap">
       <!-- Grande enveloppe penchée en décor de fond -->
@@ -158,10 +176,11 @@
       </svg>
       <div>
         <span class="eyebrow">Newsletter</span>
-        <h2>L'actu du Tarn dans votre boîte mail, tous les jeudis</h2>
-        <p>Les articles de la semaine, les infos près de chez vous et les coulisses de la rédaction. Et en plus, c'est gratuit.</p>
-        <button class="btn btn-primary newsletter-open-btn" type="button">Je m'inscris à la newsletter</button>
+        <h2 id="newsletter-titre">L'actu du Tarn dans votre boîte mail, tous les jeudis</h2>
+        <p id="newsletter-texte">Les articles de la semaine, les infos près de chez vous et les coulisses de la rédaction. Et en plus, c'est gratuit.</p>
+        <button class="btn btn-primary newsletter-open-btn" type="button">Recevoir la newsletter</button>
       </div>
+      <div class="editions-cartes" id="editions-cartes" hidden></div>
       <div class="editions" hidden>
         <h3>Dernières éditions</h3>
         <ul class="fil" id="editions"></ul>

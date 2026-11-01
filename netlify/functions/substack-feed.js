@@ -19,7 +19,13 @@
 const REDACTIONS = [
   { nom: 'Tarn', base: 'https://ipsummedia.substack.com' },
   { nom: 'Haute-Garonne', base: 'https://ipsummediahautegaronne.substack.com' },
+  { nom: 'National', base: 'https://ipsummedianational.substack.com' },
 ];
+
+// Identifiant de l'édition (Tarn, Haute-Garonne, National) : sert aux onglets, aux filtres et aux pastilles du site.
+function slugEdition(nom) {
+  return String(nom || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
 
 const NB_RECENTS = 20;      // accueil : les 20 plus récents des deux rédactions
 const NB_FLUX_RSS = 20;     // le flux RSS de Substack ne contient que les 20 derniers articles
@@ -36,7 +42,7 @@ const DELAI_RSS_MS = 3500;
 const AGENT = 'Mozilla/5.0 (compatible; IpsumMediaSite/1.0; +https://ipsummedia.fr)';
 
 // Étiquettes qui ne sont ni une commune ni une rubrique : la rédaction, le type de publication.
-const ETIQUETTES_IGNOREES = ['newsletter', 'tarn', 'haute-garonne', 'hautegaronne', 'occitanie', 'flash'];
+const ETIQUETTES_IGNOREES = ['newsletter', 'tarn', 'haute-garonne', 'hautegaronne', 'national', 'occitanie', 'flash'];
 
 // Communes dont le nom saisi dans Substack ne se met pas en forme tout seul (identifiant de l'étiquette -> nom affiché)
 const NOMS_COMMUNES = {
@@ -229,6 +235,7 @@ function depuisApi(p, redac, rang) {
     imageLarge: redimensionnerImage(couverture, 1600),
     author: auteur ? echapper(auteur) : null,
     redaction: redac.nom,
+    edition: slugEdition(redac.nom),
     kind: etiquettes.newsletter || ressembleAUneNewsletter(titre, description) ? 'newsletter' : 'article',
     communes: etiquettes.communes,
     rubriques: etiquettes.rubriques,
@@ -308,6 +315,7 @@ async function chargerRss(redac) {
         imageLarge: redimensionnerImage(image, 1600),
         author,
         redaction: redac.nom,
+        edition: slugEdition(redac.nom),
         kind: ressembleAUneNewsletter(decoderEntites(title), decoderEntites(description)) ? 'newsletter' : 'article',
         communes: [],
         rubriques: [],
