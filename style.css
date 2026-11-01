@@ -1274,3 +1274,39 @@ footer.site-footer .wrap.footer-legal {
 
 .pub-milieu { padding: 8px 0 20px; }
 .rubriques-grille { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+
+/* ===== Éditions (Tarn, Haute-Garonne, National) : onglets, bloc national, newsletters par édition ===== */
+.editions-onglets { background: var(--white); border-bottom: 1px solid var(--border); }
+.editions-onglets[hidden] { display: none; }
+.editions-onglets .wrap { display: flex; gap: 28px; overflow-x: auto; scrollbar-width: none; }
+.editions-onglets .wrap::-webkit-scrollbar { display: none; }
+.editions-onglets a { flex: none; padding: 14px 0 10px; border-bottom: 4px solid transparent; color: var(--ink); font-size: 0.95rem; font-weight: 700; }
+.editions-onglets a:hover { color: var(--orange); }
+.editions-onglets a.actif { border-bottom-color: var(--ink); }
+.villes.national .ville-tete { border-left-color: #2748E0; }
+.villes.national .villes-pastilles a:hover { border-color: #2748E0; color: #2748E0; }
+
+.editions-cartes { display: flex; flex-direction: column; gap: 14px; }
+.editions-cartes[hidden] { display: none; }
+.edition-carte { display: flex; align-items: center; gap: 14px; padding: 16px 18px; border: 1px solid var(--bord, #F5C7AE); border-radius: 16px; background: var(--teinte, #FFE3D4); }
+.edition-carte[data-edition="haute-garonne"] { --teinte: #FDE0DD; --bord: #F3BDB7; --couleur: #A82219; }
+.edition-carte[data-edition="national"] { --teinte: #E3EAFD; --bord: #B9C8F4; --couleur: #1F3CBB; }
+.edition-carte[data-edition="tarn"] { --couleur: #B03F0E; }
+.edition-pastille { display: flex; flex: none; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 50%; background: var(--couleur); }
+.edition-pastille svg { width: 21px; height: 21px; fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.edition-carte-texte { flex: 1; min-width: 0; }
+.edition-carte-texte strong { display: block; font-family: 'Bitter', Georgia, serif; font-size: 1.2rem; line-height: 1.15; }
+.edition-carte-texte span { display: block; color: #4A413B; font-size: 0.85rem; }
+.edition-carte .btn { flex: none; padding: 9px 18px; background: var(--couleur); box-shadow: none; font-size: 0.85rem; }
+@media (max-width: 640px) {
+  .edition-carte { padding: 13px 14px; }
+  .edition-pastille { width: 34px; height: 34px; }
+  .edition-carte .btn { padding: 11px 14px; }
+}
+
+/* Bouton de l'en-tête : « Recevoir la newsletter » ; le mot « Newsletter » seul sur petit écran */
+.newsletter-open-btn .court { display: none; }
+@media (max-width: 640px) {
+  .newsletter-open-btn .long { display: none; }
+  .newsletter-open-btn .court { display: inline; }
+}

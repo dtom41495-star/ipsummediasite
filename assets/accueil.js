@@ -19,8 +19,21 @@
   var villesPastilles = document.getElementById('villes-pastilles');
   var editions = document.getElementById('editions');
   var rubriques = document.getElementById('rubriques');
+  var ongletsEditions = document.getElementById('editions-onglets');
+  var national = document.getElementById('national');
+  var nationalGrille = document.getElementById('national-grille');
+  var nationalPastilles = document.getElementById('national-pastilles');
+  var cartesEditions = document.getElementById('editions-cartes');
   var rubriquesGrille = document.getElementById('rubriques-grille');
   var NB_RUBRIQUES = 3;     // blocs "rubrique"
+  var NB_NATIONAL = 4;      // colonnes (rubriques) du bloc « L'actu nationale »
+  // Les éditions : l'identifiant vient de la fonction substack-feed (item.edition). Le jour d'envoi
+  // n'est affiché que quand il est connu (null : pas encore décidé).
+  var EDITIONS = [
+    { slug: 'tarn', nom: 'Tarn', base: 'https://ipsummedia.substack.com', jour: 'Chaque jeudi' },
+    { slug: 'haute-garonne', nom: 'Haute-Garonne', base: 'https://ipsummediahautegaronne.substack.com', jour: null },
+    { slug: 'national', nom: 'National', base: 'https://ipsummedianational.substack.com', jour: null }
+  ];
   var PAR_RUBRIQUE = 4;     // articles par rubrique
 
   function formatDate(iso) {
@@ -57,6 +70,7 @@
   // "Castres · Culture", ou la rédaction quand l'article n'a ni commune ni rubrique
   function surtitre(item, sansCommune) {
     var parts = [];
+    if (!sansCommune && item.edition === 'national') parts.push('National');
     if (!sansCommune && item.communes && item.communes.length) parts.push(item.communes[0].nom);
     if (item.rubriques && item.rubriques.length) parts.push(item.rubriques[0].nom);
     if (!parts.length && !sansCommune) parts.push(item.redaction || '');
@@ -160,17 +174,81 @@
       cote.parentNode.classList.add('sans-cote');
     }
 
+    // Le national a son propre bloc : « Par rubrique » et « Près de chez vous » restent locaux
+    var locaux = articles.filter(function (i) { return i.edition !== 'national'; });
+    var nationaux = articles.filter(function (i) { return i.edition === 'national'; });
+
     // Les blocs rubrique ne reprennent pas ce que la une et la colonne « Dernières actus » montrent déjà
-    afficherRubriques(articles, utilises.concat(suite));
-    afficherCommunes(articles, utilises);
+    afficherRubriques(locaux, utilises.concat(suite));
+    afficherCommunes(locaux, utilises);
+    afficherNational(nationaux, utilises.concat(suite));
+    afficherEditions(items, nationaux.length > 0);
 
     // Dernières newsletters
     if (newsletters.length) {
       editions.innerHTML = newsletters.slice(0, NB_EDITIONS).map(function (n) { return htmlLigne(n, true); }).join('');
-      editions.parentNode.hidden = false;
+      editions.parentNode.hidden = !!(cartesEditions && !cartesEditions.hidden);   // remplacé par les cartes quand il y a plusieurs éditions
     }
   }
 
+
+  // L'actu nationale : même présentation que « Près de chez vous », avec les rubriques à la place des communes.
+  // Le bloc n'apparaît qu'une fois la rédaction nationale lancée (au moins un article).
+  function afficherNational(nationaux, utilises) {
+    if (!national || !nationaux.length) return;
+    var par = Object.create(null);
+    nationaux.forEach(function (a) {
+      var r = (a.rubriques && a.rubriques[0]) || { slug: 'actu', nom: 'Actualité' };
+      var e = par[r.slug] || (par[r.slug] = { slug: r.slug, nom: r.nom, articles: [], derniere: 0 });
+      e.articles.push(a);
+      e.derniere = Math.max(e.derniere, new Date(a.pubDate).getTime() || 0);
+    });
+    var liste = Object.keys(par).map(function (k) { return par[k]; })
+      .sort(function (x, y) { return y.derniere - x.derniere || y.articles.length - x.articles.length; });
+    // On évite de répéter ce que la une et « Dernières actus » montrent déjà, sauf s'il n'y a presque rien d'autre
+    var colonnes = liste.map(function (r) {
+      var neufs = r.articles.filter(function (a) { return utilises.indexOf(a) === -1; });
+      return { rubrique: r, dispo: (neufs.length ? neufs : r.articles).slice(0, PAR_VILLE) };
+    }).slice(0, NB_NATIONAL);
+    if (!colonnes.length) return;
+
+    nationalPastilles.innerHTML = liste.map(function (r) {
+      return '<a href="articles.html?edition=national&rubrique=' + r.slug + '">' + r.nom + '</a>';
+    }).join('');
+    nationalGrille.innerHTML = colonnes.map(function (c) {
+      return '<div class="ville">' +
+        '<div class="ville-tete"><h3>' + c.rubrique.nom + '</h3><a href="articles.html?edition=national&rubrique=' + c.rubrique.slug + '">Tout voir</a></div>' +
+        htmlCarte(c.dispo[0], 'h4', true) +
+        '<ul class="fil">' + c.dispo.slice(1).map(function (a) { return htmlLigne(a, true); }).join('') + '</ul>' +
+        '</div>';
+    }).join('');
+    national.hidden = false;
+  }
+
+  // Onglets d'édition et newsletters par édition : seulement quand il y a plusieurs éditions à choisir,
+  // donc dès que la rédaction nationale a publié. Avant, l'accueil reste exactement comme il était.
+  function afficherEditions(items, plusieurs) {
+    if (!plusieurs) return;
+    if (ongletsEditions) ongletsEditions.hidden = false;
+    if (!cartesEditions) return;
+    var titre = document.getElementById('newsletter-titre');
+    var texte = document.getElementById('newsletter-texte');
+    if (titre) titre.textContent = 'Une newsletter par édition, dans votre boîte mail';
+    if (texte) texte.textContent = 'Les articles de la semaine, les infos près de chez vous et les coulisses de la rédaction. Choisissez les éditions qui vous intéressent : elles ne partent pas le même jour. Et en plus, c\'est gratuit.';
+    var icone = '<svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="4.5" width="15" height="11" rx="2"/><path d="M3 6l7 5 7-5"/></svg>';
+    cartesEditions.innerHTML = EDITIONS.filter(function (e) {
+      return e.slug === 'tarn' || items.some(function (i) { return i.edition === e.slug; });
+    }).map(function (e) {
+      return '<div class="edition-carte" data-edition="' + e.slug + '">' +
+        '<span class="edition-pastille">' + icone + '</span>' +
+        '<div class="edition-carte-texte"><strong>' + e.nom + '</strong>' + (e.jour ? '<span>' + e.jour + '</span>' : '') + '</div>' +
+        '<a class="btn btn-primary" href="' + e.base + '/subscribe" target="_blank" rel="noopener">S\'abonner</a>' +
+        '</div>';
+    }).join('');
+    cartesEditions.hidden = false;
+    var dernieres = editions && editions.parentNode;
+    if (dernieres) dernieres.hidden = true;
+  }
 
   // Un bloc par rubrique (les plus récemment alimentées) : un article en photo puis des titres
   function afficherRubriques(articles, utilises) {
