@@ -29,7 +29,7 @@ function slugEdition(nom) {
 
 const NB_RECENTS = 20;      // accueil : les 20 plus récents des deux rédactions
 const NB_FLUX_RSS = 20;     // le flux RSS de Substack ne contient que les 20 derniers articles
-const TAILLES_PAGE = [50, 25]; // articles demandés par page à l'API d'archive : on essaie 50 (moins de pages à suivre), puis 25 si Substack refuse
+const TAILLES_PAGE = [25];  // articles demandés par page à l'API d'archive : 25 au maximum (limit=50 est refusé, testé le 11/11/2026)
 const FENETRE_RECENTE = 75; // les 75 articles les plus récents de chaque rédaction sont tous listés
 const LIMITE_ARCHIVE = 600; // sécurité : on ne remonte pas plus loin dans l'archive
 const BUDGET_ARCHIVE_MS = 4000; // passé ce délai, on n'ouvre plus de lot de pages : la fonction s'arrête à 10 s
