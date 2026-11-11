@@ -29,7 +29,7 @@ function slugEdition(nom) {
 
 const NB_RECENTS = 20;      // accueil : les 20 plus récents des deux rédactions
 const NB_FLUX_RSS = 20;     // le flux RSS de Substack ne contient que les 20 derniers articles
-const TAILLE_PAGE = 25;     // articles demandés par page à l'API d'archive (25 au maximum)
+const TAILLES_PAGE = [50, 25]; // articles demandés par page à l'API d'archive : on essaie 50 (moins de pages à suivre), puis 25 si Substack refuse
 const FENETRE_RECENTE = 75; // les 75 articles les plus récents de chaque rédaction sont tous listés
 const LIMITE_ARCHIVE = 600; // sécurité : on ne remonte pas plus loin dans l'archive
 const BUDGET_ARCHIVE_MS = 4000; // passé ce délai, on n'ouvre plus de lot de pages : la fonction s'arrête à 10 s
@@ -111,10 +111,19 @@ exports.handler = async function (event) {
 
     // Pour le suivi : d'où viennent les données de chaque rédaction ('api', 'rss' ou 'vide')
     const sources = {};
-    REDACTIONS.forEach(function (r, i) { sources[r.nom] = resultats[i].source; });
+    const alertes = [];
+    REDACTIONS.forEach(function (r, i) {
+      sources[r.nom] = resultats[i].source;
+      // Le flux RSS prend le relais en silence : on le signale (réponse + journaux Netlify) pour ne pas
+      // découvrir la panne par hasard. "vide" n'est pas une alerte : une rédaction qui débute n'a rien à lister.
+      if (resultats[i].source === 'rss') {
+        alertes.push(r.nom + ' : API d\'archive Substack indisponible, secours RSS (20 articles, sans étiquettes)');
+        console.error('[substack-feed] ' + alertes[alertes.length - 1]);
+      }
+    });
 
     // Le bandeau "en direct" appelle cette fonction depuis toutes les pages : la réponse est gardée 2 minutes
-    // dans le navigateur et dans le cache partagé de Netlify ("durable"), pour que ni la fonction ni Substack
+    // dans le navigateur et dans le cache partagé de Netlify ("durable", et servie encore 10 minutes pendant qu'elle se recharge, pour que le chargement page par page ne se voie jamais), pour que ni la fonction ni Substack
     // ne soient sollicités à chaque page vue, tout en faisant apparaître vite un article ou une étiquette
     // qu'on vient de publier. Une liste vide (panne) n'est presque pas gardée.
     const headers = {
@@ -122,9 +131,9 @@ exports.handler = async function (event) {
       'Cache-Control': items.length ? 'public, max-age=120' : 'public, max-age=30',
       'Access-Control-Allow-Origin': '*',
     };
-    if (items.length) headers['Netlify-CDN-Cache-Control'] = 'public, max-age=120, stale-while-revalidate=60, durable';
+    if (items.length) headers['Netlify-CDN-Cache-Control'] = 'public, max-age=120, stale-while-revalidate=600, durable';
 
-    return { statusCode: 200, headers, body: JSON.stringify({ items, sources }) };
+    return { statusCode: 200, headers, body: JSON.stringify(alertes.length ? { items, sources, alertes } : { items, sources }) };
   } catch (e) {
     return {
       statusCode: 500,
@@ -158,7 +167,11 @@ async function recuperer(url, delaiMs, accept) {
 // Renvoie null si l'API ne répond pas (le flux RSS prend alors le relais)
 async function chargerApi(redac, tous) {
   const depart = Date.now();
-  const premiere = await pageArchive(redac, null);
+  let taille = TAILLES_PAGE[0], premiere = null;
+  for (let i = 0; i < TAILLES_PAGE.length && !premiere; i++) {
+    taille = TAILLES_PAGE[i];
+    premiere = await pageArchive(redac, null, taille);
+  }
   if (!premiere) return null;
   let bruts = premiere.posts;
 
@@ -168,7 +181,7 @@ async function chargerApi(redac, tous) {
   if (tous) {
     let curseur = premiere.suivant;
     while (curseur && bruts.length < LIMITE_ARCHIVE && Date.now() - depart <= BUDGET_ARCHIVE_MS) {
-      const page = await pageArchive(redac, curseur);
+      const page = await pageArchive(redac, curseur, taille);
       if (!page || !page.posts.length) break;
       bruts = bruts.concat(page.posts);
       curseur = page.suivant;
@@ -196,9 +209,9 @@ async function chargerApi(redac, tous) {
 
 // Une page de l'archive : { posts, suivant } (suivant = curseur de la page d'après, absent à la fin), ou null en cas d'échec.
 // Le curseur est renvoyé tel quel par Substack ; sans curseur, c'est la première page (pas de paramètre offset : refusé).
-async function pageArchive(redac, curseur) {
+async function pageArchive(redac, curseur, taille) {
   try {
-    let url = redac.base + '/api/v1/archive?sort=new&limit=' + TAILLE_PAGE;
+    let url = redac.base + '/api/v1/archive?sort=new&limit=' + taille;
     if (curseur) url += '&cursor=' + encodeURIComponent(curseur);
     const res = await recuperer(url, DELAI_API_MS, 'application/json');
     const data = await res.json();
@@ -234,6 +247,10 @@ function depuisApi(p, redac, rang) {
     image: redimensionnerImage(couverture, 720),
     imageLarge: redimensionnerImage(couverture, 1600),
     author: auteur ? echapper(auteur) : null,
+    // temps de lecture (environ 200 mots par minute), mentions "j'aime" et rubrique Substack (ex : "Ipsum Média Flash")
+    minutes: p.wordcount > 0 ? Math.max(1, Math.round(p.wordcount / 200)) : null,
+    likes: p.reaction_count > 0 ? p.reaction_count : 0,
+    section: p.section_name ? echapper(nettoyer(p.section_name)) : null,
     redaction: redac.nom,
     edition: slugEdition(redac.nom),
     kind: etiquettes.newsletter || ressembleAUneNewsletter(titre, description) ? 'newsletter' : 'article',

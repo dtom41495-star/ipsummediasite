@@ -68,7 +68,7 @@ function carte(item) {
     img +
     '<div class="feed-card-body">' +
     (etiquettes ? '<div class="feed-tags">' + etiquettes + '</div>' : '') +
-    '<span class="feed-card-date">' + formatDate(item.pubDate) + (item.author ? ' · ' + item.author : '') + '</span>' +
+    '<span class="feed-card-date">' + formatDate(item.pubDate) + (item.author ? ' · ' + item.author : '') + (item.minutes ? ' · ' + item.minutes + ' min' : '') + (item.likes ? ' · ♥ ' + item.likes : '') + '</span>' +
     '<h3>' + item.title + '</h3>' +
     (item.description ? '<p>' + item.description + '</p>' : '') +
     (l.externe ? '<span class="feed-card-ext">Lire sur Substack ' + ICONE_EXTERNE + '</span>' : '') +
@@ -365,7 +365,7 @@ function rendrePage(items) {
         img +
         '<div class="feed-card-body">' +
         (etiquettes ? '<div class="feed-tags">' + etiquettes + '</div>' : '') +
-        '<span class="feed-card-date">' + formatDate(item.pubDate) + (item.author ? ' · ' + item.author : '') + '</span>' +
+        '<span class="feed-card-date">' + formatDate(item.pubDate) + (item.author ? ' · ' + item.author : '') + (item.minutes ? ' · ' + item.minutes + ' min' : '') + (item.likes ? ' · ♥ ' + item.likes : '') + '</span>' +
         '<h3>' + item.title + '</h3>' +
         (item.description ? '<p>' + item.description + '</p>' : '') +
         (l.externe ? '<span class="feed-card-ext">Lire sur Substack ' + ICONE_EXTERNE + '</span>' : '') +
