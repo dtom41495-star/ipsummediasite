@@ -30,10 +30,6 @@ function slugEdition(nom) {
 const NB_RECENTS = 20;      // accueil : les 20 plus récents des deux rédactions
 const NB_FLUX_RSS = 20;     // le flux RSS de Substack ne contient que les 20 derniers articles
 const TAILLE_PAGE = 25;     // articles demandés par page à l'API d'archive (25 au maximum)
-const PAS_PAGE = 20;        // décalage entre deux pages. Il est plus petit que la page : l'API rend parfois moins d'articles
-                            // que demandé (23 au lieu de 25 sur la première page), et les deux qui manquent auraient disparu
-                            // entre deux pages. Les pages se chevauchent donc, et on retire les doublons.
-const PAGES_PAR_LOT = 8;    // pages demandées en même temps
 const FENETRE_RECENTE = 75; // les 75 articles les plus récents de chaque rédaction sont tous listés
 const LIMITE_ARCHIVE = 600; // sécurité : on ne remonte pas plus loin dans l'archive
 const BUDGET_ARCHIVE_MS = 4000; // passé ce délai, on n'ouvre plus de lot de pages : la fonction s'arrête à 10 s
@@ -162,21 +158,20 @@ async function recuperer(url, delaiMs, accept) {
 // Renvoie null si l'API ne répond pas (le flux RSS prend alors le relais)
 async function chargerApi(redac, tous) {
   const depart = Date.now();
-  const premiere = await pageArchive(redac, 0);
+  const premiere = await pageArchive(redac, null);
   if (!premiere) return null;
-  let bruts = premiere;
+  let bruts = premiere.posts;
 
-  // Accueil et page "Nos actus" : toute l'archive, par lots de pages demandées en même temps.
+  // Accueil et page "Nos actus" : toute l'archive. Substack ne pagine plus par décalage (offset est refusé) mais
+  // par curseur : chaque réponse donne le curseur de la page suivante, donc les pages se suivent une à une.
   // Si Substack est lent, on s'arrête à ce qu'on a plutôt que de dépasser la limite de la fonction.
-  if (tous && premiere.length >= PAS_PAGE) {
-    for (let debut = PAS_PAGE; debut < LIMITE_ARCHIVE; debut += PAGES_PAR_LOT * PAS_PAGE) {
-      if (Date.now() - depart > BUDGET_ARCHIVE_MS) break;
-      const decalages = [];
-      for (let i = 0; i < PAGES_PAR_LOT; i++) decalages.push(debut + i * PAS_PAGE);
-      const pages = await Promise.all(decalages.map((d) => pageArchive(redac, d)));
-      pages.forEach(function (page) { if (page) bruts = bruts.concat(page); });
-      const derniere = pages[pages.length - 1];
-      if (!derniere || derniere.length < PAS_PAGE) break;   // fin de l'archive (ou page en échec)
+  if (tous) {
+    let curseur = premiere.suivant;
+    while (curseur && bruts.length < LIMITE_ARCHIVE && Date.now() - depart <= BUDGET_ARCHIVE_MS) {
+      const page = await pageArchive(redac, curseur);
+      if (!page || !page.posts.length) break;
+      bruts = bruts.concat(page.posts);
+      curseur = page.suivant;
     }
   }
 
@@ -199,12 +194,17 @@ async function chargerApi(redac, tous) {
   }).filter(Boolean);
 }
 
-async function pageArchive(redac, decalage) {
+// Une page de l'archive : { posts, suivant } (suivant = curseur de la page d'après, absent à la fin), ou null en cas d'échec.
+// Le curseur est renvoyé tel quel par Substack ; sans curseur, c'est la première page (pas de paramètre offset : refusé).
+async function pageArchive(redac, curseur) {
   try {
-    const url = redac.base + '/api/v1/archive?sort=new&limit=' + TAILLE_PAGE + '&offset=' + decalage;
+    let url = redac.base + '/api/v1/archive?sort=new&limit=' + TAILLE_PAGE;
+    if (curseur) url += '&cursor=' + encodeURIComponent(curseur);
     const res = await recuperer(url, DELAI_API_MS, 'application/json');
     const data = await res.json();
-    return Array.isArray(data) ? data : null;
+    const posts = Array.isArray(data) ? data : (data && Array.isArray(data.posts) ? data.posts : null);
+    if (!posts) return null;
+    return { posts: posts, suivant: (data && !Array.isArray(data) && data.nextCursor) || null };
   } catch (e) {
     return null;
   }
