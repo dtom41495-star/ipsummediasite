@@ -568,6 +568,10 @@ ${headExtra}
   /* Bouton "Partager" : <details> pour que le menu s'ouvre même sans JS */
   .article-share { position: relative; display: inline-block; flex: none; }
   .article-share summary { display: inline-flex; align-items: center; gap: 7px; padding: 8px 15px; list-style: none; background: var(--white); border: 1px solid var(--border); border-radius: 100px; color: var(--ink); font-size: 0.85rem; font-weight: 500; cursor: pointer; user-select: none; transition: border-color 0.15s ease, color 0.15s ease; }
+  .article-comment-btn { display: inline-flex; align-items: center; gap: 7px; padding: 8px 15px; background: var(--white); border: 1px solid var(--border); border-radius: 100px; color: var(--ink); font-size: 0.85rem; font-weight: 500; transition: border-color 0.15s ease, color 0.15s ease; }
+  .article-comment-btn:hover { border-color: var(--orange); color: var(--orange); }
+  .article-comment-btn:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+  .article-comment-btn svg { width: 18px; height: 18px; flex: none; }
   .article-share summary::-webkit-details-marker { display: none; }
   .article-share summary:hover, .article-share[open] summary { border-color: var(--orange); color: var(--orange); }
   .article-share summary:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
@@ -584,6 +588,7 @@ ${headExtra}
   }
   .article-share-end { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 40px; text-align: center; }
   .article-share-end p { margin: 0; color: var(--ink-soft); }
+  .article-share-end-actions { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; }
   /* "À lire aussi" : cartes de la liste des articles, en 3 colonnes */
   .related { margin-top: 56px; }
   .related h2 { margin-bottom: 18px; font-size: 1.35rem; }
@@ -773,6 +778,7 @@ const ICONS = {
   x: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14.234 10.162 22.977 0h-2.072l-7.591 8.824L7.251 0H.258l9.168 13.343L.258 24H2.33l8.016-9.318L16.749 24h6.993zm-2.837 3.299-.929-1.329L3.076 1.56h3.182l5.965 8.532.929 1.329 7.754 11.09h-3.182z"/></svg>',
   linkedin: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>',
   mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>',
+  comment: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.6 8.6 0 0 1-3.600-.8L3 21l1.900-4.900A8.300 8.300 0 0 1 3 11.500 8.500 8.500 0 0 1 12 3a8.500 8.500 0 0 1 9 8.500z"/></svg>',
   link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
 };
 
@@ -800,6 +806,13 @@ function renderShare(a) {
         <summary aria-label="Partager">${ICONS.share}<span>Partager</span></summary>
         <div class="share-menu">${links}<button type="button" class="share-copy" hidden>${ICONS.link}<span>Copier le lien</span></button></div>
       </details>`;
+}
+
+// Bouton "Commenter". Les commentaires vivent sur Substack (compte gratuit nécessaire) : on ouvre la page
+// de commentaires de l'article sur la rédaction qui l'a publié.
+function renderCommenter(a) {
+  const url = a.redac.base + '/p/' + encodeURIComponent(a.slug) + '/comments';
+  return `<a class="article-comment-btn" href="${escapeHtml(url)}" target="_blank" rel="noopener" title="Commenter cet article sur Substack">${ICONS.comment}<span>Commenter</span></a>`;
 }
 
 // Cartes "À lire aussi" (mêmes cartes que la liste des articles)
@@ -867,6 +880,7 @@ function renderArticle(a) {
   const ownUrl = SITE + '/articles/' + encodeURIComponent(a.slug);
   const redac = infosRedac(a.redac);
   const share = renderShare(a);
+  const commenter = renderCommenter(a);
   const texte = decodeEntities(stripHtml(a.content));
   const mots = texte ? texte.split(/\s+/).length : 0;
   const lecture = Math.max(1, Math.round(mots / 230));
@@ -897,14 +911,15 @@ function renderArticle(a) {
           ${ICONS.google}<span>Ajouter aux Sources préférées</span>
         </a>
         <div id="google-sources-official" google-add-preferred-source-btn data-lang="fr" data-theme="light" style="display:none"></div>
+        ${commenter}
         ${share}
       </div>
     </div>
     ${a.image ? `<figure class="article-cover-fig"><img class="article-cover" src="${escapeHtml(redimensionnerImage(a.image, 1400))}" alt="${escapeHtml(a.legende || '')}">${a.legende ? `<figcaption class="article-cover-legende">${escapeHtml(a.legende)}</figcaption>` : ''}</figure>` : ''}
     <div class="article-body">${insertInlineAd(contenu)}</div>
     <div class="article-share-end">
-      <p>Cet article vous a plu ? Partagez-le.</p>
-      ${share}
+      <p>Cet article vous a plu ? Partagez-le, ou dites-nous ce que vous en pensez.</p>
+      <div class="article-share-end-actions">${commenter}${share}</div>
     </div>${renderSuggestions(a.suggestions)}
     <div class="article-subscribe">
       <h3>Envie de ne rater aucun article ?</h3>
