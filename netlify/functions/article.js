@@ -601,6 +601,8 @@ ${headExtra}
     .related .feed-card-img { height: 160px; }
   }
 </style>
+<!-- Statistiques d'audience sans cookies (Umami, hébergé par Ipsum Média) -->
+<script defer src="https://stats.ipsummedia.fr/script.js" data-website-id="02190f37-9db9-421b-b0c2-f71b803e2ccb"></script>
 </head>
 <body>
 <header class="site-header">
