@@ -601,6 +601,8 @@ ${headExtra}
     .related .feed-card-img { height: 160px; }
   }
 </style>
+<!-- Statistiques d'audience sans cookies (Umami, hébergé par Ipsum Média) -->
+<script defer src="https://stats.ipsummedia.fr/script.js" data-website-id="02190f37-9db9-421b-b0c2-f71b803e2ccb"></script>
 </head>
 <body>
 <header class="site-header">
@@ -709,6 +711,11 @@ ${bodyHtml}
 
   tarteaucitron.user.gtagUa = 'G-033HT830CF';
   (tarteaucitron.job = tarteaucitron.job || []).push('gtag');
+
+  // Cartes de chaleur Umami (recorder.js) : enregistrent les clics et le défilement de chaque visite, donc seulement avec accord
+  tarteaucitron.services.umamicartes = { key:'umamicartes', type:'analytic', name:'Umami (cartes de chaleur)', uri:'https://ipsummedia.fr/confidentialite.html', needConsent:true, cookies:[],
+    js:function(){ 'use strict'; tarteaucitron.addScript('https://stats.ipsummedia.fr/recorder.js', '', null, null, 'data-website-id', '02190f37-9db9-421b-b0c2-f71b803e2ccb'); } };
+  (tarteaucitron.job = tarteaucitron.job || []).push('umamicartes');
 
   tarteaucitron.user.adsensecapub = 'ca-pub-7695287329907050';
   (tarteaucitron.job = tarteaucitron.job || []).push('adsenseauto');
