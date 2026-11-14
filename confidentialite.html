@@ -106,9 +106,10 @@
         <p>À votre première visite, un bandeau vous demande votre accord avant de déposer des cookies non indispensables. Avec votre accord, nous utilisons :</p>
         <ul>
           <li><strong>Google Analytics</strong>, pour savoir combien de personnes visitent le site et quelles pages elles lisent ;</li>
+          <li><strong>Umami (cartes de chaleur)</strong>, qui enregistre où vous cliquez et jusqu'où vous faites défiler les pages, pour améliorer leur présentation ;</li>
           <li><strong>Google AdSense</strong>, pour afficher les publicités qui financent en partie le site.</li>
         </ul>
-        <p>Sans votre accord, ces deux services restent désactivés. Vous pouvez changer d'avis à tout moment :</p>
+        <p>Sans votre accord, ces services restent désactivés. Vous pouvez changer d'avis à tout moment :</p>
         <button type="button" class="legal-cookies-btn" onclick="if (window.tarteaucitron) tarteaucitron.userInterface.openPanel();">Gérer mes cookies</button>
         <p>Pour mesurer l'audience, nous utilisons aussi <strong>Umami</strong>, un outil libre hébergé sur un serveur géré par Ipsum Média. Il ne dépose aucun cookie et ne conserve pas votre adresse IP : il compte les pages vues, la page d'où vous venez, le pays et le type d'appareil, sous forme de statistiques globales qui ne permettent pas de vous identifier. Il fonctionne indépendamment du bandeau.</p>
       </div>
@@ -207,6 +208,11 @@
 
   tarteaucitron.user.gtagUa = 'G-033HT830CF';
   (tarteaucitron.job = tarteaucitron.job || []).push('gtag');
+
+  // Cartes de chaleur Umami (recorder.js) : enregistrent les clics et le défilement de chaque visite, donc seulement avec accord
+  tarteaucitron.services.umamicartes = { key:'umamicartes', type:'analytic', name:'Umami (cartes de chaleur)', uri:'https://ipsummedia.fr/confidentialite.html', needConsent:true, cookies:[],
+    js:function(){ 'use strict'; tarteaucitron.addScript('https://stats.ipsummedia.fr/recorder.js', '', null, null, 'data-website-id', '02190f37-9db9-421b-b0c2-f71b803e2ccb'); } };
+  (tarteaucitron.job = tarteaucitron.job || []).push('umamicartes');
 
   tarteaucitron.user.adsensecapub = 'ca-pub-7695287329907050';
   (tarteaucitron.job = tarteaucitron.job || []).push('adsenseauto');
