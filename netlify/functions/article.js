@@ -169,10 +169,11 @@ exports.handler = async function (event) {
     // (qui, elle, sait reconnaître communes et rubriques), pour retrouver les étiquettes de cet
     // article et proposer un "À lire aussi" par sujet plutôt que par simple récence.
     // Et, en même temps, l'article dans Compo (null s'il n'y est pas ou si la base ne répond pas).
-    const [publication, flux, etiquettesTous] = await Promise.all([
+    const [publication, flux, etiquettesTous, likes] = await Promise.all([
       compo.unePublication(slug, 3000),
       Promise.all(REDACTIONS.map(chargerFlux)),
       chargerEtiquettes(),
+      compo.nbLikes(slug),
     ]);
 
     if (publication) {
@@ -180,7 +181,7 @@ exports.handler = async function (event) {
       return {
         statusCode: 200,
         headers: { ...entetesHtml, 'Cache-Control': 'public, max-age=900' },
-        body: renderArticle(depuisPublication(publication, etiquettesTous, tousLesItems)),
+        body: renderArticle({ ...depuisPublication(publication, etiquettesTous, tousLesItems), likes }),
       };
     }
 
@@ -619,6 +620,13 @@ ${headExtra}
   .article-share { position: relative; display: inline-block; flex: none; }
   .article-share summary { display: inline-flex; align-items: center; gap: 7px; padding: 8px 15px; list-style: none; background: var(--white); border: 1px solid var(--border); border-radius: 100px; color: var(--ink); font-size: 0.85rem; font-weight: 500; cursor: pointer; user-select: none; transition: border-color 0.15s ease, color 0.15s ease; }
   .article-comment-btn { display: inline-flex; align-items: center; gap: 7px; padding: 8px 15px; background: var(--white); border: 1px solid var(--border); border-radius: 100px; color: var(--ink); font-size: 0.85rem; font-weight: 500; transition: border-color 0.15s ease, color 0.15s ease; }
+  .article-like-btn { display: inline-flex; align-items: center; gap: 7px; padding: 8px 15px; background: var(--white); border: 1px solid var(--border); border-radius: 100px; color: var(--ink); font-size: 0.85rem; font-weight: 500; font-family: inherit; cursor: pointer; transition: border-color 0.15s ease, color 0.15s ease; }
+  .article-like-btn:hover { border-color: var(--orange); color: var(--orange); }
+  .article-like-btn:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+  .article-like-btn svg { width: 18px; height: 18px; flex: none; }
+  .article-like-btn[aria-pressed="true"] { border-color: var(--orange); color: var(--orange); }
+  .article-like-btn[aria-pressed="true"] svg { fill: currentColor; }
+  .article-like-nb:not(:empty)::before { content: "· "; }
   .article-comment-btn:hover { border-color: var(--orange); color: var(--orange); }
   .article-comment-btn:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
   .article-comment-btn svg { width: 18px; height: 18px; flex: none; }
@@ -826,6 +834,7 @@ ${bodyHtml}
 
 const ICONS = {
   google: '<svg viewBox="0 0 256 262" aria-hidden="true"><path d="M255.878,133.451 C255.878,122.717 255.007,114.884 253.122,106.761 L130.55,106.761 L130.55,155.209 L202.497,155.209 C201.047,167.249 193.214,185.381 175.807,197.565 L175.563,199.187 L214.318,229.21 L217.003,229.478 C241.662,206.704 255.878,173.196 255.878,133.451" fill="#4285F4"/><path d="M130.55,261.1 C165.798,261.1 195.389,249.495 217.003,229.478 L175.807,197.565 C164.783,205.253 149.987,210.62 130.55,210.62 C96.027,210.62 66.726,187.847 56.281,156.37 L54.75,156.5 L14.452,187.687 L13.925,189.152 C35.393,231.798 79.49,261.1 130.55,261.1" fill="#34A853"/><path d="M56.281,156.37 C53.525,148.247 51.93,139.543 51.93,130.55 C51.93,121.556 53.525,112.853 56.136,104.73 L56.063,103 L15.26,71.312 L13.925,71.947 C5.077,89.644 0,109.517 0,130.55 C0,151.583 5.077,171.455 13.925,189.152 L56.281,156.37" fill="#FBBC05"/><path d="M130.55,50.479 C155.064,50.479 171.6,61.068 181.029,69.917 L217.873,33.943 C195.245,12.91 165.798,0 130.55,0 C79.49,0 35.393,29.301 13.925,71.947 L56.136,104.73 C66.726,73.253 96.027,50.479 130.55,50.479" fill="#EB4335"/></svg>',
+  heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21.2l7.8-7.7 1-1.1a5.5 5.5 0 0 0 0-7.8z"/></svg>',
   share:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4"/></svg>',
   whatsapp: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>',
   facebook: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z"/></svg>',
@@ -868,6 +877,14 @@ function renderCommenter(a) {
   if (!a.commentairesUrl) return '';
   const url = a.commentairesUrl;
   return `<a class="article-comment-btn" href="${escapeHtml(url)}" target="_blank" rel="noopener" title="Commenter cet article sur Substack">${ICONS.comment}<span>Commenter</span></a>`;
+}
+
+// Bouton « J'aime » : seulement pour les articles du site (a.likes est un nombre ; null si la base ne répond pas, et
+// absent pour les copies du flux Substack, qui ne sont pas dans la base). Le clic part vers la fonction site-like.
+function renderLike(a) {
+  if (typeof a.likes !== 'number') return '';
+  const api = compo.COMPO_URL + '/functions/v1/site-like';
+  return `<button type="button" class="article-like-btn" data-slug="${escapeHtml(a.slug)}" data-nb="${a.likes}" data-api="${escapeHtml(api)}" aria-pressed="false" title="J'aime cet article (cliquez à nouveau pour retirer)">${ICONS.heart}<span class="article-like-txt">J'aime</span><span class="article-like-nb">${a.likes > 0 ? a.likes : ''}</span></button>`;
 }
 
 // Cartes "À lire aussi" (mêmes cartes que la liste des articles)
@@ -974,7 +991,7 @@ function renderArticle(a) {
     <div class="article-body">${insertInlineAd(contenu)}</div>
     <div class="article-share-end">
       <p>Cet article vous a plu ? Partagez-le, ou dites-nous ce que vous en pensez.</p>
-      <div class="article-share-end-actions">${commenter}${share}</div>
+      <div class="article-share-end-actions">${renderLike(a)}${commenter}${share}</div>
     </div>${renderSuggestions(a.suggestions)}
     <div class="article-subscribe">
       <h3>Envie de ne rater aucun article ?</h3>
@@ -992,6 +1009,45 @@ function renderArticle(a) {
   </div>
   <script>
   (function () {
+    // « J'aime » : un seul par navigateur (mémorisé dans ce navigateur, sans cookie) ; le total vient du serveur.
+    var boutons = document.querySelectorAll('.article-like-btn');
+    boutons.forEach(function (b) {
+      var cle = 'ipsum_like_' + b.getAttribute('data-slug');
+      var dejaFait = false;
+      try { dejaFait = localStorage.getItem(cle) === '1'; } catch (e) {}
+      var nb = parseInt(b.getAttribute('data-nb'), 10) || 0;
+      function afficher(n, aime) {
+        document.querySelectorAll('.article-like-btn').forEach(function (x) {
+          x.setAttribute('aria-pressed', aime ? 'true' : 'false');
+          x.querySelector('.article-like-nb').textContent = n > 0 ? String(n) : '';
+        });
+      }
+      if (dejaFait) afficher(nb, true);
+      // Un clic aime, un second clic retire son « J’aime » (le cœur se vide, le total baisse de 1)
+      b.addEventListener('click', function () {
+        if (b.dataset.envoi) return;
+        var retire = b.getAttribute('aria-pressed') === 'true';
+        var avant = nb;
+        b.dataset.envoi = '1';
+        afficher(retire ? Math.max(avant - 1, 0) : avant + 1, !retire);   // tout de suite, sans attendre le serveur
+        var corps = { slug: b.getAttribute('data-slug') };
+        if (retire) corps.action = 'retirer';
+        fetch(b.getAttribute('data-api'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(corps) })
+          .then(function (r) { return r.json().catch(function () { return {}; }); })
+          .then(function (d) {
+            delete b.dataset.envoi;
+            if (d && d.ok) {
+              nb = d.nb; afficher(nb, !retire);
+              try { if (retire) localStorage.removeItem(cle); else localStorage.setItem(cle, '1'); } catch (e) {}
+            } else {
+              afficher(avant, retire);   // refus : retour à l’état d’avant
+              b.title = d && d.raison === 'trop_de_likes' ? 'Trop de « J’aime » à la suite, réessayez dans un moment' : 'Le « J’aime » n’a pas pu être enregistré';
+            }
+          })
+          .catch(function () { delete b.dataset.envoi; afficher(avant, retire); b.title = 'Le « J’aime » n’a pas pu être enregistré'; });
+      });
+    });
+
     var boxes = document.querySelectorAll('.article-share');
     if (!boxes.length) return;
     // Menu natif du système seulement sur écran tactile (téléphone, tablette)
