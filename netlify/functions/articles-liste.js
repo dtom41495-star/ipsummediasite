@@ -265,7 +265,7 @@ function rendrePage(items) {
 <script src="/assets/tarteaucitron/tarteaucitron.min.js"></script>
 <script>
   tarteaucitron.init({
-    privacyUrl: '',
+    privacyUrl: '/confidentialite.html',
     orientation: 'bottom',
     showAlertSmall: false,
     cookieslist: true,
@@ -278,9 +278,6 @@ function rendrePage(items) {
     useExternalCss: false,
     readmoreLink: ''
   });
-
-  tarteaucitron.user.gtagUa = 'G-033HT830CF';
-  (tarteaucitron.job = tarteaucitron.job || []).push('gtag');
 
   // Cartes de chaleur Umami (recorder.js) : enregistrent les clics et le défilement de chaque visite, donc seulement avec accord
   tarteaucitron.services.umamicartes = { key:'umamicartes', type:'analytic', name:'Umami (cartes de chaleur)', uri:'https://ipsummedia.fr/confidentialite.html', needConsent:true, cookies:[],
