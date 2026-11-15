@@ -105,7 +105,6 @@
         <h2>Cookies et mesure d'audience</h2>
         <p>À votre première visite, un bandeau vous demande votre accord avant de déposer des cookies non indispensables. Avec votre accord, nous utilisons :</p>
         <ul>
-          <li><strong>Google Analytics</strong>, pour savoir combien de personnes visitent le site et quelles pages elles lisent ;</li>
           <li><strong>Umami (cartes de chaleur)</strong>, qui enregistre où vous cliquez et jusqu'où vous faites défiler les pages, pour améliorer leur présentation ;</li>
           <li><strong>Google AdSense</strong>, pour afficher les publicités qui financent en partie le site.</li>
         </ul>
@@ -127,11 +126,6 @@
       <div class="legal-section">
         <h2>Vos droits</h2>
         <p>Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, d'effacement et d'opposition sur vos données. Pour l'exercer, écrivez à <a href="mailto:contact@ipsummedia.fr" style="color:var(--orange);">contact@ipsummedia.fr</a>. Vous pouvez aussi déposer une réclamation auprès de la CNIL (<a href="https://www.cnil.fr" target="_blank" rel="noopener" style="color:var(--orange);">cnil.fr</a>).</p>
-      </div>
-
-      <div class="legal-section">
-        <h3>Postiz, notre outil interne de gestion des réseaux sociaux</h3>
-        <p style="font-size:0.95rem;">Ipsum Média utilise aussi Postiz, un outil auto-hébergé, pour programmer et publier du contenu sur ses comptes de réseaux sociaux officiels. Seuls les membres autorisés de l'association y ont accès via un compte protégé par mot de passe. Les données traitées sont : les identifiants de connexion des membres autorisés, les jetons d'autorisation des comptes de réseaux sociaux de l'association (obtenus via OAuth), et le contenu programmé pour publication. Ces données sont stockées sur une infrastructure gérée par l'association et ne sont partagées avec aucun tiers, hormis les plateformes de réseaux sociaux concernées, dans le seul but de publier le contenu programmé.</p>
       </div>
 
     </div>
@@ -192,7 +186,7 @@
 <script src="assets/tarteaucitron/tarteaucitron.min.js"></script>
 <script>
   tarteaucitron.init({
-    privacyUrl: '',
+    privacyUrl: '/confidentialite.html',
     orientation: 'middle',
     showAlertSmall: false,
     cookieslist: true,
@@ -205,9 +199,6 @@
     useExternalCss: false,
     readmoreLink: ''
   });
-
-  tarteaucitron.user.gtagUa = 'G-033HT830CF';
-  (tarteaucitron.job = tarteaucitron.job || []).push('gtag');
 
   // Cartes de chaleur Umami (recorder.js) : enregistrent les clics et le défilement de chaque visite, donc seulement avec accord
   tarteaucitron.services.umamicartes = { key:'umamicartes', type:'analytic', name:'Umami (cartes de chaleur)', uri:'https://ipsummedia.fr/confidentialite.html', needConsent:true, cookies:[],
