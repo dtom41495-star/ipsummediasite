@@ -27,3 +27,11 @@
   from = "/document"
   to = "/document.html"
   status = 200
+
+# Plan du site fabriqué à chaque demande (articles publiés depuis Compo). Le fichier sitemap.xml reste en secours :
+# "force" pour que la fonction passe devant.
+[[redirects]]
+  from = "/sitemap.xml"
+  to = "/.netlify/functions/sitemap"
+  status = 200
+  force = true

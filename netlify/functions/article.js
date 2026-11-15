@@ -1,6 +1,9 @@
-// Génère une page article complète à partir des flux RSS Substack des rédactions
-// (Tarn, Haute-Garonne). Appelée via la redirection
-// /articles/:slug -> /.netlify/functions/article/:slug
+// Génère une page article complète. Appelée via la redirection /articles/:slug -> /.netlify/functions/article/:slug
+// Ordre de recherche :
+//  1. les articles du site dans Compo (site_publications : mis en ligne depuis Compo, ou anciens articles Substack importés) ;
+//  2. sinon, comme avant : le flux RSS Substack des rédactions, puis une redirection vers Substack, puis « introuvable ».
+
+const compo = require('../../lib/compo');
 
 const SITE = 'https://ipsummedia.fr';
 
@@ -63,9 +66,9 @@ function infosRedac(r) {
   };
 }
 
-// "https://x.substack.com/p/mon-article?utm=1" -> "mon-article"
+// "https://x.substack.com/p/mon-article?utm=1" ou "https://ipsummedia.fr/articles/mon-article" -> "mon-article"
 function slugDuLien(link) {
-  const m = String(link || '').match(/\/p\/([^/?#]+)/);
+  const m = String(link || '').match(/\/(?:p|articles)\/([^/?#]+)/);
   return m ? m[1] : '';
 }
 
@@ -165,10 +168,21 @@ exports.handler = async function (event) {
     // En parallèle du flux RSS (qui donne le texte) : la liste déjà étiquetée par substack-feed
     // (qui, elle, sait reconnaître communes et rubriques), pour retrouver les étiquettes de cet
     // article et proposer un "À lire aussi" par sujet plutôt que par simple récence.
-    const [flux, etiquettesTous] = await Promise.all([
+    // Et, en même temps, l'article dans Compo (null s'il n'y est pas ou si la base ne répond pas).
+    const [publication, flux, etiquettesTous] = await Promise.all([
+      compo.unePublication(slug, 3000),
       Promise.all(REDACTIONS.map(chargerFlux)),
       chargerEtiquettes(),
     ]);
+
+    if (publication) {
+      const tousLesItems = [].concat(...flux.filter(Boolean).map((f) => f.items));
+      return {
+        statusCode: 200,
+        headers: { ...entetesHtml, 'Cache-Control': 'public, max-age=900' },
+        body: renderArticle(depuisPublication(publication, etiquettesTous, tousLesItems)),
+      };
+    }
 
     let trouve = null;
     for (const f of flux) {
@@ -222,7 +236,9 @@ exports.handler = async function (event) {
     return {
       statusCode: 200,
       headers: { ...entetesHtml, 'Cache-Control': 'public, max-age=900' },
-      body: renderArticle({ title, link, pubDate, author, description, content, image, legende, slug, redac, communes, rubriques, suggestions }),
+      // Copie d'un article de Substack : la balise canonical désigne l'original (Substack)
+      body: renderArticle({ title, link, pubDate, author, description, content, image, legende, slug, redac, communes, rubriques, suggestions,
+                            canonical: lienAutorise(link), commentairesUrl: redac.base + '/p/' + encodeURIComponent(slug) + '/comments' }),
     };
   } catch (e) {
     return {
@@ -232,6 +248,40 @@ exports.handler = async function (event) {
     };
   }
 };
+
+// Article du site lu dans Compo -> mêmes champs que pour un article du flux RSS.
+//  - ancien article importé de Substack (origine 'substack') : texte en HTML déjà nettoyé à l'import, balise canonical
+//    vers Substack (canonical_url), bouton « Commenter » vers ses commentaires sur Substack ;
+//  - article publié depuis Compo : texte en Markdown, la page du site est l'original, pas de bouton « Commenter »
+//    (les commentaires restent sur Substack, où ces articles ne sont plus publiés).
+function depuisPublication(p, etiquettesTous, itemsRss) {
+  const redac = compo.trouverRedaction(REDACTIONS, p.redaction_nom) || REDACTIONS[0];
+  const canonical = lienAutorise(p.canonical_url);
+  let content = p.corps_html ? cleanSubstackHtml(p.corps_html) : compo.mdVersHtml(p.corps_md);
+  if (p.corps_html) content = remplacerEmbeds(content, itemsRss);
+  // Étiquettes : celles que substack-feed a déjà classées (communes, rubriques) pour cet article
+  const etiquetteArticle = etiquettesTous.find((it) => slugDuLien(it.link) === p.slug);
+  const communes = (etiquetteArticle && etiquetteArticle.communes) || [];
+  const rubriques = (etiquetteArticle && etiquetteArticle.rubriques) || [];
+  return {
+    title: String(p.titre || '').replace(/\s+/g, ' ').trim(),
+    link: SITE + '/articles/' + p.slug,
+    pubDate: p.publie_le,
+    author: nomAuteur(p.auteurs) || 'Ipsum Média',
+    description: p.chapeau || '',
+    content,
+    image: p.image_url,
+    legende: p.image_legende || '',
+    slug: p.slug,
+    redac,
+    communes,
+    rubriques,
+    suggestions: calculerSuggestions(etiquettesTous, [], p.slug, communes, rubriques),
+    canonical,
+    commentairesUrl: canonical ? canonical.replace(/[?#].*$/, '').replace(/\/$/, '') + '/comments' : null,
+    modifie: p.maj_le,
+  };
+}
 
 function extractTag(xml, tag) {
   const re = new RegExp('<' + tag + '[^>]*>([\\s\\S]*?)</' + tag + '>', 'i');
@@ -818,7 +868,8 @@ function renderShare(a) {
 // Bouton "Commenter". Les commentaires vivent sur Substack (compte gratuit nécessaire) : on ouvre la page
 // de commentaires de l'article sur la rédaction qui l'a publié.
 function renderCommenter(a) {
-  const url = a.redac.base + '/p/' + encodeURIComponent(a.slug) + '/comments';
+  if (!a.commentairesUrl) return '';
+  const url = a.commentairesUrl;
   return `<a class="article-comment-btn" href="${escapeHtml(url)}" target="_blank" rel="noopener" title="Commenter cet article sur Substack">${ICONS.comment}<span>Commenter</span></a>`;
 }
 
@@ -867,7 +918,7 @@ function donneesStructurees(a, c) {
   };
   if (c.iso) {
     article.datePublished = c.iso;
-    article.dateModified = c.iso;
+    article.dateModified = (a.modifie && isoDate(a.modifie)) || c.iso;   // date d'erratum pour un article de Compo
   }
   if (c.image) article.image = [c.image];
   const filAriane = {
@@ -1027,7 +1078,7 @@ function renderArticle(a) {
   const ld = donneesStructurees(a, { url: ownUrl, resume, iso, mots, section: redac.libelle, image: imgPartage });
   const head = `<title>${titleSafe} | Ipsum Média</title>
 <meta name="description" content="${descSafe}">
-<link rel="canonical" href="${escapeHtml(ownUrl)}">
+<link rel="canonical" href="${escapeHtml(a.canonical || ownUrl)}">
 <meta property="og:type" content="article">
 <meta property="og:locale" content="fr_FR">
 <meta property="og:title" content="${titleSafe}">
