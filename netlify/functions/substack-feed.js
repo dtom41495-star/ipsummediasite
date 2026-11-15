@@ -16,6 +16,10 @@
 // et sur la page "Nos actus" (environ 2 minutes plus tard). Pour ajouter une commune, il suffit d'étiqueter un article.
 // On ne touche à ce fichier que si le nom s'affiche mal (traits d'union, apostrophes) : voir NOMS_COMMUNES.
 
+const compo = require('../../lib/compo');
+
+const SITE = 'https://ipsummedia.fr';
+
 const REDACTIONS = [
   { nom: 'Tarn', base: 'https://ipsummedia.substack.com' },
   { nom: 'Haute-Garonne', base: 'https://ipsummediahautegaronne.substack.com' },
@@ -50,6 +54,7 @@ const NOMS_COMMUNES = {
 // communes, il suffit de l'ajouter ici.
 const RUBRIQUES = {
   'actu': 'Actu',
+  'actu-locale': 'Actu locale',
   'actualite': 'Actualité',
   'actualites': 'Actualités',
   'agenda': 'Agenda',
@@ -98,8 +103,11 @@ exports.handler = async function (event) {
   const tous = params.tous === '1';
 
   try {
-    const resultats = await Promise.all(REDACTIONS.map((r) => chargerRedaction(r, tous)));
-    let items = [].concat(...resultats.map((r) => r.items));
+    const [resultats, publications] = await Promise.all([
+      Promise.all(REDACTIONS.map((r) => chargerRedaction(r, tous))),
+      compo.listePublications(3500),
+    ]);
+    let items = fusionnerPublications([].concat(...resultats.map((r) => r.items)), publications);
     items.sort(function (a, b) { return new Date(b.pubDate) - new Date(a.pubDate); });
     if (!tous) items = items.slice(0, NB_RECENTS);
 
@@ -110,7 +118,7 @@ exports.handler = async function (event) {
     items.forEach(function (it) { const id = idImage(it.image); it.coverGenerique = !!id && compte[id] > 1; });
 
     // Pour le suivi : d'où viennent les données de chaque rédaction ('api', 'rss' ou 'vide')
-    const sources = {};
+    const sources = { Compo: publications ? 'compo' : 'injoignable' };
     const alertes = [];
     REDACTIONS.forEach(function (r, i) {
       sources[r.nom] = resultats[i].source;
@@ -145,6 +153,93 @@ exports.handler = async function (event) {
 
 // Une rédaction en panne ou vide (ex : Haute-Garonne qui débute) ne doit jamais faire
 // planter l'ensemble : on renvoie juste une liste vide pour celle-là.
+// ===== Articles du site (Compo) =====
+// publications : ce que rend site_publications() (articles mis en ligne depuis Compo + anciens articles Substack
+// importés), ou null si la base ne répond pas : la liste reste alors exactement celle de Substack, comme avant.
+//  - un ancien article importé garde la carte de Substack (likes, étiquettes…), mais sa page est sur le site ;
+//  - un ancien article importé que Substack ne liste plus (trop ancien) est ajouté d'après la base ;
+//  - un article de Compo remplace la carte Substack de même adresse (cas d'un ancien article republié depuis Compo).
+function fusionnerPublications(items, publications) {
+  if (!publications || !publications.length) return items;
+  const parSlug = {};
+  publications.forEach(function (p) { if (p && p.slug) parSlug[p.slug] = p; });
+  const vus = new Set();
+  const garde = items.filter(function (it) {
+    const slug = slugDuLien(it.link);
+    const p = slug && parSlug[slug];
+    if (!p) return true;
+    if (p.origine !== 'substack') return false;
+    if (vus.has(slug)) return false;
+    vus.add(slug);
+    it.surLeSite = true;
+    return true;
+  });
+  // Communes connues du site (étiquettes Substack) : un mot-clé de Compo n'est affiché comme commune que s'il en fait partie
+  const communes = {};
+  garde.forEach(function (it) { (it.communes || []).forEach(function (c) { communes[c.slug] = c; }); });
+  publications.forEach(function (p) {
+    if (p.origine === 'substack') lireEtiquettes(etiquettesPub(p)).communes.forEach(function (c) { communes[c.slug] = c; });
+  });
+  publications.forEach(function (p) {
+    if (!p || !p.slug || vus.has(p.slug)) return;
+    if (p.origine === 'substack' && garde.some(function (it) { return slugDuLien(it.link) === p.slug; })) return;
+    garde.push(depuisCompo(p, communes));
+  });
+  return garde;
+}
+
+function etiquettesPub(p) {
+  return (Array.isArray(p.etiquettes) ? p.etiquettes : []).map(function (e) { return { name: e && e.nom, slug: e && e.slug }; });
+}
+
+function depuisCompo(p, communesConnues) {
+  const r = compo.trouverRedaction(REDACTIONS, p.redaction_nom) || { nom: nettoyer(p.redaction_nom) || 'Tarn' };
+  let communes = [], rubriques = [];
+  if (p.origine === 'substack') {
+    const e = lireEtiquettes(etiquettesPub(p));
+    communes = e.communes; rubriques = e.rubriques;
+  } else {
+    // Compo : rubrique choisie dans l'article, et mots-clés reconnus (rubrique ou commune déjà connue) ; le reste est ignoré
+    const vus = {};
+    const ajouterRubrique = function (cle) {
+      if (Object.prototype.hasOwnProperty.call(RUBRIQUES, cle) && !vus[cle]) { vus[cle] = 1; rubriques.push({ nom: RUBRIQUES[cle], slug: cle }); }
+    };
+    if (p.rubrique) ajouterRubrique(slugifier(p.rubrique));
+    (Array.isArray(p.etiquettes) ? p.etiquettes : []).forEach(function (e) {
+      const cle = slugifier(e && e.nom);
+      if (!cle) return;
+      ajouterRubrique(cle);
+      if (communesConnues[cle] && !vus['c:' + cle]) { vus['c:' + cle] = 1; communes.push(communesConnues[cle]); }
+    });
+  }
+  const image = adresseSure(p.image_url);
+  return {
+    title: echapper(nettoyer(p.titre)),
+    link: SITE + '/articles/' + p.slug,
+    pubDate: p.publie_le,
+    description: echapper(couper(p.chapeau || '', 160)),
+    image: redimensionnerImage(image, 720),
+    imageLarge: redimensionnerImage(image, 1600),
+    author: p.auteurs ? echapper(nomAuteur(p.auteurs)) : null,
+    minutes: null,
+    likes: 0,
+    section: null,
+    redaction: r.nom,
+    edition: slugEdition(r.nom),
+    kind: 'article',
+    communes: communes,
+    rubriques: rubriques,
+    surLeSite: true,
+    origine: p.origine === 'substack' ? 'substack' : 'compo',
+  };
+}
+
+// ".../p/mon-article" (Substack) ou ".../articles/mon-article" (site) -> "mon-article"
+function slugDuLien(link) {
+  const m = String(link || '').match(/\/(?:p|articles)\/([^/?#]+)/);
+  return m ? m[1] : '';
+}
+
 async function chargerRedaction(redac, tous) {
   const items = await chargerApi(redac, tous);
   if (items && items.length) return { source: 'api', items };

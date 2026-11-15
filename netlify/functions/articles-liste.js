@@ -45,7 +45,7 @@ function formatDate(iso) {
 
 // Les articles récents ont leur page sur le site ; les plus anciens renvoient vers Substack
 function lien(item) {
-  const m = item.link && item.link.match(/\/p\/([^/?#]+)/);
+  const m = item.link && item.link.match(/\/(?:p|articles)\/([^/?#]+)/);
   if (!m || item.surLeSite === false) return { href: item.link || '#', externe: true };
   return { href: '/articles/' + m[1], externe: false };
 }
@@ -346,7 +346,7 @@ function rendrePage(items) {
 
     // Les articles récents ont leur page sur le site ; les plus anciens renvoient vers Substack
     function lien(item) {
-      var m = item.link && item.link.match(/\/p\/([^/?#]+)/);
+      var m = item.link && item.link.match(/\/(?:p|articles)\/([^/?#]+)/);
       if (!m || item.surLeSite === false) return { href: item.link || '#', externe: true };
       return { href: '/articles/' + m[1], externe: false };
     }

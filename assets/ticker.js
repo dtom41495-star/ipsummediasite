@@ -35,7 +35,7 @@
   }
 
   function adresse(article) {
-    var m = article.link && article.link.match(/\/p\/([^/?#]+)/);
+    var m = article.link && article.link.match(/\/(?:p|articles)\/([^/?#]+)/);
     var url = m ? '/articles/' + m[1] : (article.link || '/articles.html');
     return url.replace(/"/g, '&quot;');
   }

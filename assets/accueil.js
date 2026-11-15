@@ -61,7 +61,7 @@
 
   // Les articles récents ont leur page sur le site ; les plus anciens renvoient vers Substack
   function lien(item) {
-    var m = item.link && item.link.match(/\/p\/([^/?#]+)/);
+    var m = item.link && item.link.match(/\/(?:p|articles)\/([^/?#]+)/);
     var externe = !m || item.surLeSite === false;
     var href = externe ? (item.link || '#') : '/articles/' + m[1];
     return ' href="' + href.replace(/"/g, '&quot;') + '"' + (externe ? ' target="_blank" rel="noopener"' : '');
