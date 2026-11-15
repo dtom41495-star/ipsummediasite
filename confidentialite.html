@@ -105,7 +105,6 @@
         <h2>Cookies et mesure d'audience</h2>
         <p>À votre première visite, un bandeau vous demande votre accord avant de déposer des cookies non indispensables. Avec votre accord, nous utilisons :</p>
         <ul>
-          <li><strong>Google Analytics</strong>, pour savoir combien de personnes visitent le site et quelles pages elles lisent ;</li>
           <li><strong>Umami (cartes de chaleur)</strong>, qui enregistre où vous cliquez et jusqu'où vous faites défiler les pages, pour améliorer leur présentation ;</li>
           <li><strong>Google AdSense</strong>, pour afficher les publicités qui financent en partie le site.</li>
         </ul>
@@ -187,7 +186,7 @@
 <script src="assets/tarteaucitron/tarteaucitron.min.js"></script>
 <script>
   tarteaucitron.init({
-    privacyUrl: '',
+    privacyUrl: '/confidentialite.html',
     orientation: 'middle',
     showAlertSmall: false,
     cookieslist: true,
@@ -200,9 +199,6 @@
     useExternalCss: false,
     readmoreLink: ''
   });
-
-  tarteaucitron.user.gtagUa = 'G-033HT830CF';
-  (tarteaucitron.job = tarteaucitron.job || []).push('gtag');
 
   // Cartes de chaleur Umami (recorder.js) : enregistrent les clics et le défilement de chaque visite, donc seulement avec accord
   tarteaucitron.services.umamicartes = { key:'umamicartes', type:'analytic', name:'Umami (cartes de chaleur)', uri:'https://ipsummedia.fr/confidentialite.html', needConsent:true, cookies:[],
