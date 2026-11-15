@@ -624,7 +624,7 @@ ${headExtra}
   .article-like-btn:hover { border-color: var(--orange); color: var(--orange); }
   .article-like-btn:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
   .article-like-btn svg { width: 18px; height: 18px; flex: none; }
-  .article-like-btn[aria-pressed="true"] { border-color: var(--orange); color: var(--orange); cursor: default; }
+  .article-like-btn[aria-pressed="true"] { border-color: var(--orange); color: var(--orange); }
   .article-like-btn[aria-pressed="true"] svg { fill: currentColor; }
   .article-like-nb:not(:empty)::before { content: "· "; }
   .article-comment-btn:hover { border-color: var(--orange); color: var(--orange); }
@@ -884,7 +884,7 @@ function renderCommenter(a) {
 function renderLike(a) {
   if (typeof a.likes !== 'number') return '';
   const api = compo.COMPO_URL + '/functions/v1/site-like';
-  return `<button type="button" class="article-like-btn" data-slug="${escapeHtml(a.slug)}" data-nb="${a.likes}" data-api="${escapeHtml(api)}" aria-pressed="false" title="J'aime cet article">${ICONS.heart}<span class="article-like-txt">J'aime</span><span class="article-like-nb">${a.likes > 0 ? a.likes : ''}</span></button>`;
+  return `<button type="button" class="article-like-btn" data-slug="${escapeHtml(a.slug)}" data-nb="${a.likes}" data-api="${escapeHtml(api)}" aria-pressed="false" title="J'aime cet article (cliquez à nouveau pour retirer)">${ICONS.heart}<span class="article-like-txt">J'aime</span><span class="article-like-nb">${a.likes > 0 ? a.likes : ''}</span></button>`;
 }
 
 // Cartes "À lire aussi" (mêmes cartes que la liste des articles)
@@ -1023,18 +1023,28 @@ function renderArticle(a) {
         });
       }
       if (dejaFait) afficher(nb, true);
+      // Un clic aime, un second clic retire son « J’aime » (le cœur se vide, le total baisse de 1)
       b.addEventListener('click', function () {
-        if (b.getAttribute('aria-pressed') === 'true' || b.dataset.envoi) return;
+        if (b.dataset.envoi) return;
+        var retire = b.getAttribute('aria-pressed') === 'true';
+        var avant = nb;
         b.dataset.envoi = '1';
-        afficher(nb + 1, true);   // tout de suite, sans attendre le serveur
-        fetch(b.getAttribute('data-api'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug: b.getAttribute('data-slug') }) })
+        afficher(retire ? Math.max(avant - 1, 0) : avant + 1, !retire);   // tout de suite, sans attendre le serveur
+        var corps = { slug: b.getAttribute('data-slug') };
+        if (retire) corps.action = 'retirer';
+        fetch(b.getAttribute('data-api'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(corps) })
           .then(function (r) { return r.json().catch(function () { return {}; }); })
           .then(function (d) {
             delete b.dataset.envoi;
-            if (d && d.ok) { nb = d.nb; afficher(nb, true); try { localStorage.setItem(cle, '1'); } catch (e) {} }
-            else { afficher(nb, false); b.title = d && d.raison === 'trop_de_likes' ? 'Trop de « J’aime » à la suite, réessayez dans un moment' : 'Le « J’aime » n’a pas pu être enregistré'; }
+            if (d && d.ok) {
+              nb = d.nb; afficher(nb, !retire);
+              try { if (retire) localStorage.removeItem(cle); else localStorage.setItem(cle, '1'); } catch (e) {}
+            } else {
+              afficher(avant, retire);   // refus : retour à l’état d’avant
+              b.title = d && d.raison === 'trop_de_likes' ? 'Trop de « J’aime » à la suite, réessayez dans un moment' : 'Le « J’aime » n’a pas pu être enregistré';
+            }
           })
-          .catch(function () { delete b.dataset.envoi; afficher(nb, false); b.title = 'Le « J’aime » n’a pas pu être enregistré'; });
+          .catch(function () { delete b.dataset.envoi; afficher(avant, retire); b.title = 'Le « J’aime » n’a pas pu être enregistré'; });
       });
     });
 
