@@ -1176,6 +1176,7 @@ section { padding: 88px 0; }
 @media (max-width: 860px) { .contact .wrap { grid-template-columns: 1fr; } }
 
 .contact-form { margin-top: 24px; }
+.cf-piege { position: absolute; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden; }
 .form-row { margin-bottom: 16px; }
 .form-row label {
   display: block;
