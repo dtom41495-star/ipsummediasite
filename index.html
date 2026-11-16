@@ -579,6 +579,10 @@
     var SUPABASE_URL = 'https://ctmekufqaxdelgfyjwly.supabase.co';
     var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0bWVrdWZxYXhkZWxnZnlqd2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMDI1OTksImV4cCI6MjA5MDg3ODU5OX0.32wkp9NsqNTktvuC2Pb3S5EnAPPipt06DYLxfeyf5xE';
     var SB_FN_HEADERS = { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY };
+    // Texte de la base inséré dans du HTML : toujours échappé
+    function echapper(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; });
+    }
     var redactionSelect = document.getElementById('cf-redaction');
     var form = document.getElementById('contact-form');
     var status = document.getElementById('cf-status');
@@ -599,7 +603,7 @@
           return a.nom.localeCompare(b.nom);
         });
         redactionSelect.innerHTML = redactions.map(function(r) {
-          return '<option value="' + r.id + '">' + r.nom + '</option>';
+          return '<option value="' + echapper(r.id) + '">' + echapper(r.nom) + '</option>';
         }).join('');
       })
       .catch(function() {
@@ -652,6 +656,9 @@
     var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0bWVrdWZxYXhkZWxnZnlqd2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMDI1OTksImV4cCI6MjA5MDg3ODU5OX0.32wkp9NsqNTktvuC2Pb3S5EnAPPipt06DYLxfeyf5xE';
     var SB_FN_HEADERS = { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY };
     var DEFAULT_SUBSCRIBE = 'https://ipsummedia.substack.com/subscribe';
+    function echapper(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; });
+    }
 
     var modal = document.getElementById('newsletter-modal');
     var openBtns = document.querySelectorAll('.newsletter-open-btn');
@@ -662,13 +669,14 @@
     function substackSubscribeUrl(lien) {
       if (!lien) return DEFAULT_SUBSCRIBE;
       var base = lien.replace(/\/feed\/?$/, '').replace(/^([^:]+:)?\/\//, 'https://').replace(/\/$/, '');
+      if (!/^https:\/\//i.test(base)) return DEFAULT_SUBSCRIBE;   // jamais autre chose qu'une adresse https
       return base + '/subscribe';
     }
 
     function renderButtons(redactions) {
       list.innerHTML = redactions.map(function(r) {
         return '<button type="button" class="btn btn-outline modal-redaction-btn" data-url="' +
-          substackSubscribeUrl(r.lien_substack) + '">' + r.nom + '</button>';
+          echapper(substackSubscribeUrl(r.lien_substack)) + '">' + echapper(r.nom) + '</button>';
       }).join('');
       list.querySelectorAll('.modal-redaction-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
