@@ -5,12 +5,8 @@
   var zoneUne = document.getElementById('une-main');
   if (!zoneUne) return;
 
-  var NB_SECONDAIRES = 2;   // articles à côté de la une
-  var NB_FIL = 10;          // dernières actus (colonne de droite ; 6 seulement sur tablette et téléphone, voir le CSS)
-  var NB_VILLES = 4;        // colonnes "commune"
-  var PAR_VILLE = 3;        // articles par commune
-  var MIN_VILLE = 2;        // il faut au moins 2 articles (hors la une) pour ouvrir la colonne d'une commune
   var NB_EDITIONS = 3;      // dernières newsletters
+  var R = window.AccueilRendu;   // le rendu des blocs d'articles est dans assets/accueil-rendu.js (le serveur l'utilise aussi)
 
   var fil = document.getElementById('une-fil');
   var cote = document.getElementById('une-cote');
@@ -25,8 +21,6 @@
   var nationalPastilles = document.getElementById('national-pastilles');
   var cartesEditions = document.getElementById('editions-cartes');
   var rubriquesGrille = document.getElementById('rubriques-grille');
-  var NB_RUBRIQUES = 3;     // blocs "rubrique"
-  var NB_NATIONAL = 4;      // colonnes (rubriques) du bloc « L'actu nationale »
   // Les éditions : l'identifiant vient de la fonction substack-feed (item.edition). Le jour d'envoi
   // n'est affiché que quand il est connu (null : pas encore décidé).
   var EDITIONS = [
@@ -34,196 +28,35 @@
     { slug: 'haute-garonne', nom: 'Haute-Garonne', base: 'https://ipsummediahautegaronne.substack.com', jour: null },
     { slug: 'national', nom: 'National', base: 'https://ipsummedianational.substack.com', jour: null }
   ];
-  var PAR_RUBRIQUE = 4;     // articles par rubrique
-
-  function formatDate(iso) {
-    try {
-      return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Paris' });
-    } catch (e) { return ''; }
-  }
-
-  // "09h02" pour un article du jour, "Hier", sinon "16 sept." (avec l'année pour un article d'une autre année)
-  function quand(iso) {
-    try {
-      var d = new Date(iso);
-      if (isNaN(d.getTime())) return '';
-      var jour = function (t) { return new Date(t).toLocaleDateString('fr-CA', { timeZone: 'Europe/Paris' }); };
-      var j = jour(d);
-      if (j === jour(Date.now())) {
-        return d.toLocaleTimeString('fr-FR', { timeZone: 'Europe/Paris', hour: '2-digit', minute: '2-digit' }).replace(':', 'h');
-      }
-      if (j === jour(Date.now() - 86400000)) return 'Hier';
-      return d.toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris', day: 'numeric', month: 'short', year: j.slice(0, 4) === jour(Date.now()).slice(0, 4) ? undefined : 'numeric' });
-    } catch (e) {
-      return '';
-    }
-  }
-
-  // Les articles récents ont leur page sur le site ; les plus anciens renvoient vers Substack
-  function lien(item) {
-    var m = item.link && item.link.match(/\/(?:p|articles)\/([^/?#]+)/);
-    var externe = !m || item.surLeSite === false;
-    var href = externe ? (item.link || '#') : '/articles/' + m[1];
-    return ' href="' + href.replace(/"/g, '&quot;') + '"' + (externe ? ' target="_blank" rel="noopener"' : '');
-  }
-
-  // "Castres · Culture", ou la rédaction quand l'article n'a ni commune ni rubrique
-  function surtitre(item, sansCommune) {
-    var parts = [];
-    if (!sansCommune && item.edition === 'national') parts.push('National');
-    if (!sansCommune && item.communes && item.communes.length) parts.push(item.communes[0].nom);
-    if (item.rubriques && item.rubriques.length) parts.push(item.rubriques[0].nom);
-    if (!parts.length && !sansCommune) parts.push(item.redaction || '');
-    return parts.join(' · ');
-  }
-
-  function kicker(item, sansCommune) {
-    var s = surtitre(item, sansCommune);
-    return s ? '<span class="kicker">' + s + '</span>' : '';
-  }
-
-  // Photo qui remplit son cadre (la une et les tuiles). Pour la une, le navigateur choisit la
-  // version de 720 ou de 1600 pixels selon l'écran.
-  function fond(item, grande) {
-    if (!item.image) return '';
-    var attrs = 'class="fond" alt="" decoding="async"';
-    if (grande) {
-      var large = item.imageLarge || item.image;
-      return '<img ' + attrs + ' src="' + large + '" srcset="' + item.image + ' 720w, ' + large + ' 1600w" sizes="(min-width: 1024px) 690px, 100vw" fetchpriority="high">';
-    }
-    return '<img ' + attrs + ' src="' + item.image + '" loading="lazy">';
-  }
-
-  // Photo au-dessus du texte (colonnes des communes)
-  function image(item) {
-    return item.image ? '<span class="une-img"><img src="' + item.image + '" alt="" decoding="async" loading="lazy"></span>' : '';
-  }
-
-  // Pastille dégradée avec la commune et la rubrique
-  function pastille(item) {
-    var s = surtitre(item);
-    return s ? '<span class="pastille">' + s + '</span>' : '';
-  }
-
-  // La une : grande photo, voile sombre, titre en blanc, bouton ; le chapô juste dessous
-  function htmlUne(a) {
-    return '<a class="une-lead"' + lien(a) + '>' +
-      '<div class="une-visuel">' + fond(a, true) + '<div class="voile"></div>' +
-      '<div class="une-texte">' + pastille(a) +
-      '<h2>' + a.title + '</h2>' +
-      '<span class="une-meta-clair">' + (a.author ? 'Par ' + a.author + ' · ' : '') + formatDate(a.pubDate) + '</span>' +
-      '<span class="btn btn-primary une-bouton">Lire l\'article</span>' +
-      '</div></div>' +
-      (a.description ? '<p class="une-lead-chapo">' + a.description + '</p>' : '') +
-      '</a>';
-  }
-
-  // Tuile à côté de la une : photo, voile sombre, titre en blanc
-  function htmlTuile(a) {
-    return '<a class="une-tuile"' + lien(a) + '>' + fond(a) + '<div class="voile"></div>' +
-      '<div class="une-texte">' + pastille(a) +
-      '<h3>' + a.title + '</h3>' +
-      '<span class="une-meta-clair">' + formatDate(a.pubDate) + '</span>' +
-      '</div></a>';
-  }
-
-  // Carte avec photo au-dessus du texte (tête d'une colonne commune)
-  function htmlCarte(a, titreH, sansCommune) {
-    return '<a class="une-card"' + lien(a) + '>' +
-      image(a) +
-      kicker(a, sansCommune) +
-      '<' + titreH + '>' + a.title + '</' + titreH + '>' +
-      '<span class="une-meta">' + formatDate(a.pubDate) + '</span>' +
-      '</a>';
-  }
-
-  // Ligne de liste : date (ou heure), commune, titre
-  function htmlLigne(a, sansCommune) {
-    var s = surtitre(a, sansCommune);
-    return '<li><a' + lien(a) + '>' +
-      '<span class="fil-meta"><span>' + quand(a.pubDate) + '</span>' + (s ? '<span>' + s + '</span>' : '') + '</span>' +
-      '<span class="fil-titre">' + a.title + '</span>' +
-      '</a></li>';
-  }
 
   function afficher(items) {
-    var articles = items.filter(function (i) { return i.kind !== 'newsletter'; });
-    var newsletters = items.filter(function (i) { return i.kind === 'newsletter'; });
-    if (!articles.length) {
+    var r = R.construire(items);
+    if (r.vide) {
       zoneUne.innerHTML = '<p class="feed-loading">Aucun article pour le moment.</p>';
       fil.innerHTML = '';   // efface le squelette de chargement, sinon il reste figé
       return;
     }
-
-    // La une : le dernier article avec une vraie photo, puis les suivants à côté
-    var avecPhoto = articles.filter(function (i) { return i.image && !i.coverGenerique; });
-    var une = avecPhoto[0] || articles[0];
-    var secondaires = avecPhoto.filter(function (i) { return i !== une; }).slice(0, NB_SECONDAIRES);
-    var utilises = [une].concat(secondaires);
-
-    zoneUne.innerHTML = htmlUne(une) +
-      (secondaires.length ? '<div class="une-secondaires">' + secondaires.map(htmlTuile).join('') + '</div>' : '');
-
-    // Dernières actus : la suite, dans l'ordre du temps
-    var suite = articles.filter(function (i) { return utilises.indexOf(i) === -1; }).slice(0, NB_FIL);
-    if (suite.length) {
-      fil.innerHTML = suite.map(function (a) { return htmlLigne(a); }).join('');
+    zoneUne.innerHTML = r.une;
+    if (r.fil !== null) {
+      fil.innerHTML = r.fil;
+      fil.removeAttribute('aria-hidden');   // la liste est faite de vrais liens : visible des lecteurs d'écran (le squelette, lui, était caché)
     } else {
       // Peu d'articles : la une prend toute la largeur
       cote.hidden = true;
       cote.parentNode.classList.add('sans-cote');
     }
-
-    // Le national a son propre bloc : « Par rubrique » et « Près de chez vous » restent locaux
-    var locaux = articles.filter(function (i) { return i.edition !== 'national'; });
-    var nationaux = articles.filter(function (i) { return i.edition === 'national'; });
-
-    // Les blocs rubrique ne reprennent pas ce que la une et la colonne « Dernières actus » montrent déjà
-    afficherRubriques(locaux, utilises.concat(suite));
-    afficherCommunes(locaux, utilises);
-    afficherNational(nationaux, utilises.concat(suite));
-    afficherEditions(items, nationaux.length > 0);
+    if (r.rubriques !== null) { rubriquesGrille.innerHTML = r.rubriques; rubriques.hidden = false; }
+    if (r.villes) { villesPastilles.innerHTML = r.villes.pastilles; villesGrille.innerHTML = r.villes.grille; villes.hidden = false; }
+    if (r.national) { nationalPastilles.innerHTML = r.national.pastilles; nationalGrille.innerHTML = r.national.grille; national.hidden = false; }
+    afficherEditions(items, r.nbNationaux > 0);
 
     // Dernières newsletters
-    if (newsletters.length) {
-      editions.innerHTML = newsletters.slice(0, NB_EDITIONS).map(function (n) { return htmlLigne(n, true); }).join('');
+    if (r.newsletters.length) {
+      editions.innerHTML = r.newsletters.slice(0, NB_EDITIONS).map(function (n) { return R.ligne(n, true); }).join('');
       editions.parentNode.hidden = !!(cartesEditions && !cartesEditions.hidden);   // remplacé par les cartes quand il y a plusieurs éditions
     }
   }
 
-
-  // L'actu nationale : même présentation que « Près de chez vous », avec les rubriques à la place des communes.
-  // Le bloc n'apparaît qu'une fois la rédaction nationale lancée (au moins un article).
-  function afficherNational(nationaux, utilises) {
-    if (!national || !nationaux.length) return;
-    var par = Object.create(null);
-    nationaux.forEach(function (a) {
-      var r = (a.rubriques && a.rubriques[0]) || { slug: 'actu', nom: 'Actualité' };
-      var e = par[r.slug] || (par[r.slug] = { slug: r.slug, nom: r.nom, articles: [], derniere: 0 });
-      e.articles.push(a);
-      e.derniere = Math.max(e.derniere, new Date(a.pubDate).getTime() || 0);
-    });
-    var liste = Object.keys(par).map(function (k) { return par[k]; })
-      .sort(function (x, y) { return y.derniere - x.derniere || y.articles.length - x.articles.length; });
-    // On évite de répéter ce que la une et « Dernières actus » montrent déjà, sauf s'il n'y a presque rien d'autre
-    var colonnes = liste.map(function (r) {
-      var neufs = r.articles.filter(function (a) { return utilises.indexOf(a) === -1; });
-      return { rubrique: r, dispo: (neufs.length ? neufs : r.articles).slice(0, PAR_VILLE) };
-    }).slice(0, NB_NATIONAL);
-    if (!colonnes.length) return;
-
-    nationalPastilles.innerHTML = liste.map(function (r) {
-      return '<a href="articles.html?edition=national&rubrique=' + r.slug + '">' + r.nom + '</a>';
-    }).join('');
-    nationalGrille.innerHTML = colonnes.map(function (c) {
-      return '<div class="ville">' +
-        '<div class="ville-tete"><h3>' + c.rubrique.nom + '</h3><a href="articles.html?edition=national&rubrique=' + c.rubrique.slug + '">Tout voir</a></div>' +
-        htmlCarte(c.dispo[0], 'h4', true) +
-        '<ul class="fil">' + c.dispo.slice(1).map(function (a) { return htmlLigne(a, true); }).join('') + '</ul>' +
-        '</div>';
-    }).join('');
-    national.hidden = false;
-  }
 
   // Onglets d'édition et newsletters par édition : seulement quand il y a plusieurs éditions à choisir,
   // donc dès que la rédaction nationale a publié. Avant, l'accueil reste exactement comme il était.
@@ -248,68 +81,6 @@
     cartesEditions.hidden = false;
     var dernieres = editions && editions.parentNode;
     if (dernieres) dernieres.hidden = true;
-  }
-
-  // Un bloc par rubrique (les plus récemment alimentées) : un article en photo puis des titres
-  function afficherRubriques(articles, utilises) {
-    var par = Object.create(null);
-    articles.forEach(function (a) {
-      if (utilises.indexOf(a) !== -1 || !a.rubriques || !a.rubriques.length) return;
-      var r = a.rubriques[0];
-      var e = par[r.slug] || (par[r.slug] = { slug: r.slug, nom: r.nom, articles: [], derniere: 0 });
-      e.articles.push(a);
-      e.derniere = Math.max(e.derniere, new Date(a.pubDate).getTime() || 0);
-    });
-    var blocs = Object.keys(par).map(function (k) { return par[k]; })
-      .filter(function (r) { return r.articles.length >= 3; })
-      .sort(function (x, y) { return y.derniere - x.derniere; })
-      .slice(0, NB_RUBRIQUES);
-    if (!blocs.length) return;
-    rubriquesGrille.innerHTML = blocs.map(function (r) {
-      var liste = r.articles.slice(0, PAR_RUBRIQUE);
-      return '<div class="ville rubrique">' +
-        '<div class="ville-tete"><h3>' + r.nom + '</h3><a href="/rubrique/' + r.slug + '">Tout voir</a></div>' +
-        htmlCarte(liste[0], 'h4') +
-        '<ul class="fil">' + liste.slice(1).map(function (a) { return htmlLigne(a); }).join('') + '</ul>' +
-        '</div>';
-    }).join('');
-    rubriques.hidden = false;
-  }
-
-  // L'actu de chaque commune : un article en photo puis des titres, pour les communes où l'on a publié
-  // le plus récemment. On classe par date du dernier article et non par nombre d'articles : sinon les
-  // mêmes communes, les plus fournies depuis toujours, gardent leur place et une commune qui vient de
-  // faire l'actu n'apparaît jamais.
-  function afficherCommunes(articles, utilises) {
-    var parCommune = Object.create(null);
-    articles.forEach(function (a) {
-      (a.communes || []).forEach(function (c) {
-        var e = parCommune[c.slug] || (parCommune[c.slug] = { slug: c.slug, nom: c.nom, articles: [], derniere: 0 });
-        e.articles.push(a);
-        e.derniere = Math.max(e.derniere, new Date(a.pubDate).getTime() || 0);
-      });
-    });
-    var liste = Object.keys(parCommune).map(function (k) { return parCommune[k]; })
-      .sort(function (x, y) { return y.derniere - x.derniere || y.articles.length - x.articles.length || (x.slug < y.slug ? -1 : 1); });
-    if (!liste.length) return;   // pas d'étiquettes de commune (flux de secours) : on ne montre pas cette partie
-
-    var colonnes = liste.map(function (c) {
-      return { commune: c, dispo: c.articles.filter(function (a) { return utilises.indexOf(a) === -1; }).slice(0, PAR_VILLE) };
-    }).filter(function (c) { return c.dispo.length >= MIN_VILLE; }).slice(0, NB_VILLES);
-    if (!colonnes.length) return;   // pas assez d'articles par commune : les pastilles seules n'ont pas d'intérêt
-
-    villesPastilles.innerHTML = liste.map(function (c) {
-      return '<a href="/commune/' + c.slug + '">' + c.nom + '</a>';
-    }).join('');
-
-    villesGrille.innerHTML = colonnes.map(function (c) {
-      return '<div class="ville">' +
-        '<div class="ville-tete"><h3>' + c.commune.nom + '</h3><a href="/commune/' + c.commune.slug + '">Tout voir</a></div>' +
-        htmlCarte(c.dispo[0], 'h4', true) +
-        '<ul class="fil">' + c.dispo.slice(1).map(function (a) { return htmlLigne(a, true); }).join('') + '</ul>' +
-        '</div>';
-    }).join('');
-    villes.hidden = false;
   }
 
   fetch('/.netlify/functions/substack-feed?tous=1')

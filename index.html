@@ -8,6 +8,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Ipsum Média">
 <meta property="og:url" content="https://ipsummedia.fr/">
+<link rel="canonical" href="https://ipsummedia.fr/">
 <meta property="og:title" content="Ipsum Média | L&#39;actualité du Tarn et de la Haute-Garonne">
 <meta property="og:description" content="Média associatif et indépendant du Tarn et de la Haute-Garonne. Reportages, interviews et newsletter chaque jeudi.">
 <meta property="og:image" content="https://ipsummedia.fr/assets/logo-gradient.png">
@@ -122,7 +123,7 @@
       <div class="une-grid">
         <div>
           <div class="journal-tete"><h2>À la une</h2></div>
-          <div class="une-main" id="une-main">
+          <div class="une-main" id="une-main"><!--ssr-une-->
             <div class="skeleton-une" aria-hidden="true">
               <div class="skeleton skeleton-hero"></div>
               <div class="skeleton-tuiles">
@@ -131,17 +132,17 @@
               </div>
             </div>
             <p class="feed-loading sr-only" role="status">Chargement des articles...</p>
-          </div>
+          <!--/ssr-une--></div>
         </div>
         <aside class="une-cote" id="une-cote" aria-label="Dernières actus">
           <div class="journal-tete"><h2>Dernières actus</h2><a href="articles.html">Tout voir</a></div>
-          <ul class="fil" id="une-fil" aria-hidden="true">
+          <ul class="fil" id="une-fil" aria-hidden="true"><!--ssr-fil-->
             <li class="skeleton-ligne"><span class="skeleton skeleton-ligne-meta"></span><span class="skeleton skeleton-ligne-titre"></span></li>
             <li class="skeleton-ligne"><span class="skeleton skeleton-ligne-meta"></span><span class="skeleton skeleton-ligne-titre court"></span></li>
             <li class="skeleton-ligne"><span class="skeleton skeleton-ligne-meta"></span><span class="skeleton skeleton-ligne-titre"></span></li>
             <li class="skeleton-ligne"><span class="skeleton skeleton-ligne-meta"></span><span class="skeleton skeleton-ligne-titre"></span></li>
             <li class="skeleton-ligne"><span class="skeleton skeleton-ligne-meta"></span><span class="skeleton skeleton-ligne-titre court"></span></li>
-          </ul>
+          <!--/ssr-fil--></ul>
         </aside>
       </div>
     </div>
@@ -167,23 +168,23 @@
   <section class="journal rubriques" id="rubriques" hidden>
     <div class="wrap">
       <div class="journal-tete"><h2>Par rubrique</h2><a href="articles.html">Toutes les actus</a></div>
-      <div class="villes-grille rubriques-grille" id="rubriques-grille"></div>
+      <div class="villes-grille rubriques-grille" id="rubriques-grille"><!--ssr-rubriques--><!--/ssr-rubriques--></div>
     </div>
   </section>
 
   <section class="journal villes" id="villes" hidden>
     <div class="wrap">
       <div class="journal-tete"><h2>Près de chez vous</h2><a href="articles.html">Toutes les actus</a></div>
-      <nav class="villes-pastilles" id="villes-pastilles" aria-label="Choisir une commune"></nav>
-      <div class="villes-grille" id="villes-grille"></div>
+      <nav class="villes-pastilles" id="villes-pastilles" aria-label="Choisir une commune"><!--ssr-villes-pastilles--><!--/ssr-villes-pastilles--></nav>
+      <div class="villes-grille" id="villes-grille"><!--ssr-villes--><!--/ssr-villes--></div>
     </div>
   </section>
 
   <section class="journal villes national" id="national" hidden>
     <div class="wrap">
       <div class="journal-tete"><h2>L'actu nationale</h2><a href="articles.html?edition=national">Toute l'actu nationale</a></div>
-      <nav class="villes-pastilles" id="national-pastilles" aria-label="Choisir une rubrique nationale"></nav>
-      <div class="villes-grille" id="national-grille"></div>
+      <nav class="villes-pastilles" id="national-pastilles" aria-label="Choisir une rubrique nationale"><!--ssr-national-pastilles--><!--/ssr-national-pastilles--></nav>
+      <div class="villes-grille" id="national-grille"><!--ssr-national--><!--/ssr-national--></div>
     </div>
   </section>
 
@@ -564,7 +565,8 @@
   })();
 </script>
 
-<script src="assets/accueil.js?v=20261116"></script>
+<script src="assets/accueil-rendu.js?v=20261117"></script>
+<script src="assets/accueil.js?v=20261117"></script>
 <script src="assets/videos.js"></script>
 <script src="assets/nav-rubriques.js"></script>
 <script src="assets/utm-substack.js"></script>

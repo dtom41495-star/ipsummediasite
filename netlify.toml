@@ -6,6 +6,14 @@
   to = "/.netlify/functions/article/:splat"
   status = 200
 
+# Accueil écrit côté serveur (articles déjà dans le HTML pour Google). "force" : index.html existe, la fonction passe devant ;
+# la fonction relit /index.html (adresse différente de "/"), donc pas de boucle. En cas de panne elle renvoie la page telle quelle.
+[[redirects]]
+  from = "/"
+  to = "/.netlify/functions/accueil"
+  status = 200
+  force = true
+
 # Pages d'une commune (/commune/castres) et d'une rubrique (/rubrique/culture), écrites côté serveur pour le référencement
 [[redirects]]
   from = "/commune/*"
