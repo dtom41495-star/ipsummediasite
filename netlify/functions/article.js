@@ -970,8 +970,8 @@ function renderArticle(a) {
     <h1>${titleSafe}</h1>
     ${chapo ? `<p class="article-chapo">${escapeHtml(chapo)}</p>` : ''}
     ${(a.communes.length || a.rubriques.length) ? `<div class="article-etiquettes">` +
-      a.communes.map((c) => `<a class="feed-tag" href="/articles.html?commune=${c.slug}">${c.nom}</a>`).join('') +
-      a.rubriques.map((r) => `<a class="feed-tag feed-tag-rubrique" href="/articles.html?rubrique=${r.slug}">${r.nom}</a>`).join('') +
+      a.communes.map((c) => `<a class="feed-tag" href="/commune/${c.slug}">${c.nom}</a>`).join('') +
+      a.rubriques.map((r) => `<a class="feed-tag feed-tag-rubrique" href="/rubrique/${r.slug}">${r.nom}</a>`).join('') +
       `</div>` : ''}
     <div class="article-meta-row">
       <div class="article-signature">

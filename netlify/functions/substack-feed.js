@@ -72,6 +72,7 @@ const RUBRIQUES = {
   'faits-divers': 'Faits divers',
   'histoire': 'Histoire',
   'insolite': 'Insolite',
+  'jeux-videos': 'Jeux vidéo',
   'interview': 'Interview',
   'interviews': 'Interviews',
   'jeunesse': 'Jeunesse',

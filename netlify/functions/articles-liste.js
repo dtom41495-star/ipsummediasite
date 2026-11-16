@@ -604,3 +604,6 @@ function rendrePage(items) {
 </html>
 `;
 }
+
+// Réutilisée par les pages de commune, de rubrique et d'auteur (netlify/functions/theme.js, auteur.js)
+exports.carte = carte;
