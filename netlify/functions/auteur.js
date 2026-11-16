@@ -3,7 +3,7 @@
 
 const compo = require('../../lib/compo');
 const { SITE, chargerItems } = require('../../lib/themes');
-const { echapper, decoder, enveloppe } = require('../../lib/page');
+const { echapper, decoder, enveloppe, reponseIndisponible } = require('../../lib/page');
 const { indexEquipe, articlesDe } = require('../../lib/auteurs');
 const { carte } = require('./articles-liste');
 
@@ -14,6 +14,7 @@ exports.handler = async function (event) {
   if (!/^[a-z0-9-]{1,100}$/.test(slug)) return introuvable();
 
   const [lignes, items] = await Promise.all([compo.equipe(4000), chargerItems()]);
+  if (!lignes) return reponseIndisponible();   // la base ne répond pas : pas un 404
   const membre = indexEquipe(lignes).parSlug.get(slug);
   if (!membre) return introuvable();
 
