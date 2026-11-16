@@ -1009,6 +1009,12 @@ function renderArticle(a) {
   </div>
   <script>
   (function () {
+    // Appli installable : ce service worker (sw.js) ne garde rien en mémoire ; il permet seulement au navigateur
+    // de proposer « Ajouter à l'écran d'accueil » (le petit bandeau de Chrome sur Android).
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () { navigator.serviceWorker.register('/sw.js').catch(function () {}); });
+    }
+
     // « J'aime » : un seul par navigateur (mémorisé dans ce navigateur, sans cookie) ; le total vient du serveur.
     var boutons = document.querySelectorAll('.article-like-btn');
     boutons.forEach(function (b) {
@@ -1132,6 +1138,9 @@ function renderArticle(a) {
   const head = `<title>${titleSafe} | Ipsum Média</title>
 <meta name="description" content="${descSafe}">
 <link rel="canonical" href="${escapeHtml(a.canonical || ownUrl)}">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#EA5B1C">
+<link rel="apple-touch-icon" href="/assets/app/apple-touch-icon.png">
 <meta property="og:type" content="article">
 <meta property="og:locale" content="fr_FR">
 <meta property="og:title" content="${titleSafe}">
