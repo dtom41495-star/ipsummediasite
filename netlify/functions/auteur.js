@@ -10,7 +10,7 @@ const { carte } = require('./articles-liste');
 const MAX_CARTES = 100;
 
 exports.handler = async function (event) {
-  const slug = String(((event && event.queryStringParameters) || {}).slug || '').replace(/\/+$/, '').toLowerCase();
+  const slug = lireNom(event);
   if (!/^[a-z0-9-]{1,100}$/.test(slug)) return introuvable();
 
   const [lignes, items] = await Promise.all([compo.equipe(4000), chargerItems()]);
@@ -76,6 +76,21 @@ exports.handler = async function (event) {
     body: enveloppe({ titre, description, canonical: url, robots: n ? 'index, follow' : 'noindex, follow', jsonld, main }),
   };
 };
+
+// « /auteurs/lola-schwal » ou « /.netlify/functions/auteur/lola-schwal » : dernier morceau de l'adresse (pas de paramètre d'adresse,
+// que Netlify ne remplace pas toujours dans une redirection ; le paramètre ?slug= reste accepté)
+function lireNom(event) {
+  const q = (event && event.queryStringParameters) || {};
+  if (/^[a-z0-9-]{1,100}$/i.test(String(q.slug || ''))) return String(q.slug).toLowerCase();
+  const seg = String((event && event.path) || '').split('/').filter(Boolean);
+  const dernier = seg[seg.length - 1];
+  return dernier && dernier !== 'auteur' && dernier !== 'auteurs' ? decoderChemin(dernier) : '';
+}
+
+// Un « % » mal formé dans l'adresse ne doit pas faire planter la fonction
+function decoderChemin(t) {
+  try { return decodeURIComponent(t).toLowerCase(); } catch (e) { return ''; }
+}
 
 function coupe(t, max) {
   if (t.length <= max) return t;

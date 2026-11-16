@@ -10,9 +10,7 @@ const MAX_CARTES = 100;
 const TYPES = { commune: 'communes', rubrique: 'rubriques' };
 
 exports.handler = async function (event) {
-  const q = (event && event.queryStringParameters) || {};
-  const type = TYPES[q.type] ? q.type : '';
-  const slug = String(q.slug || '').replace(/\/+$/, '').toLowerCase();
+  const { type, slug } = lireAdresse(event);
   if (!type || !/^[a-z0-9-]{1,80}$/.test(slug)) return introuvable();
 
   const items = await chargerItems();
@@ -88,6 +86,22 @@ exports.handler = async function (event) {
     body: enveloppe({ titre, description, canonical: url, robots: indexable ? 'index, follow' : 'noindex, follow', jsonld, main }),
   };
 };
+
+// « /commune/castres » ou « /.netlify/functions/theme/commune/castres » (les deux formes contiennent « commune/castres »).
+// Le nom ne passe pas par un paramètre d'adresse : Netlify ne le remplace pas toujours dans une redirection.
+function lireAdresse(event) {
+  const q = (event && event.queryStringParameters) || {};
+  if (TYPES[q.type] && /^[a-z0-9-]{1,80}$/i.test(String(q.slug || ''))) return { type: q.type, slug: String(q.slug).toLowerCase() };
+  const seg = String((event && event.path) || '').split('/').filter(Boolean);
+  const i = Math.max(seg.lastIndexOf('commune'), seg.lastIndexOf('rubrique'));
+  if (i < 0 || !seg[i + 1]) return { type: '', slug: '' };
+  return { type: seg[i], slug: decoderChemin(seg[i + 1]) };
+}
+
+// Un « % » mal formé dans l'adresse ne doit pas faire planter la fonction
+function decoderChemin(t) {
+  try { return decodeURIComponent(t).toLowerCase(); } catch (e) { return ''; }
+}
 
 function coupe(t, max) {
   if (t.length <= max) return t;
