@@ -1,6 +1,8 @@
-// Plan du site (sitemap.xml) fabriqué à chaque demande : les pages fixes, plus les articles dont le site est
-// l'original (publiés depuis Compo). Les copies d'anciens articles Substack n'y figurent pas : leur balise canonical
-// désigne Substack, et un plan du site ne doit lister que des adresses canoniques.
+// Plan du site (sitemap.xml) fabriqué à chaque demande : les pages fixes, plus TOUS les articles du site
+// (publiés depuis Compo, et anciens articles de Substack importés), les plus récents d'abord.
+// Les copies d'anciens articles Substack gardent une balise canonical vers Substack : Google les rangera comme
+// « page alternative » dans la Search Console, c'est normal. Pour ne lister que les articles dont le site est
+// l'original, filtrer sur `!p.canonical_url` ci-dessous.
 // Si la base ne répond pas, le plan contient au moins les pages fixes (comme l'ancien sitemap.xml).
 
 const compo = require('../../lib/compo');
@@ -24,7 +26,8 @@ function fabriquerSitemap(publications) {
   const urls = PAGES_FIXES.map(([chemin, freq, prio]) =>
     `  <url>\n    <loc>${SITE}${chemin}</loc>\n    <changefreq>${freq}</changefreq>\n    <priority>${prio}</priority>\n  </url>`);
   (publications || [])
-    .filter((p) => p && /^[a-z0-9-]{1,200}$/.test(p.slug || '') && !p.canonical_url)
+    .filter((p) => p && /^[a-z0-9-]{1,200}$/.test(p.slug || ''))
+    .sort((x, y) => new Date(y.publie_le) - new Date(x.publie_le))
     .forEach((p) => {
       const jour = isoJour(p.maj_le || p.publie_le);
       urls.push(`  <url>\n    <loc>${SITE}/articles/${p.slug}</loc>\n${jour ? `    <lastmod>${jour}</lastmod>\n` : ''}  </url>`);
