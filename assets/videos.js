@@ -14,10 +14,16 @@
     return n + (n > 1 ? ' vues' : ' vue');
   }
 
+  // Adresse venant du flux YouTube : https uniquement, guillemets neutralisés
+  function adresseSure(u) {
+    u = String(u || '');
+    return /^https:\/\//i.test(u) ? u.replace(/["'<>\s]/g, encodeURIComponent) : '';
+  }
+
   function carte(v) {
-    return '<a class="video-card" href="' + v.link + '" target="_blank" rel="noopener">' +
+    return '<a class="video-card" href="' + adresseSure(v.link) + '" target="_blank" rel="noopener">' +
       '<span class="video-thumb">' +
-      '<img src="' + v.thumbnail + '" alt="" loading="lazy" decoding="async">' +
+      '<img src="' + adresseSure(v.thumbnail) + '" alt="" loading="lazy" decoding="async">' +
       (v.court ? '<span class="video-badge">Short</span>' : '') +
       '<img class="video-logo" src="assets/logo-white-recadre.png" alt="" loading="lazy">' +
       ICONE_LECTURE +
