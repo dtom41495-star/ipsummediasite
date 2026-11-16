@@ -19,7 +19,15 @@
       if (!equipe.length) return;   // la section reste cachée : la page garde son contenu d'avant
       equipe.forEach(function (m) {
         var carte = el('div', 'equipe-carte');
-        carte.appendChild(el('h3', null, m.prenom + ' ' + m.nom));
+        var titre = el('h3');
+        if (m.slug && m.nbArticles > 0 && /^[a-z0-9-]+$/.test(m.slug)) {
+          var lien = el('a', null, m.prenom + ' ' + m.nom);
+          lien.href = '/auteurs/' + m.slug;
+          titre.appendChild(lien);
+        } else {
+          titre.textContent = m.prenom + ' ' + m.nom;
+        }
+        carte.appendChild(titre);
         if (m.fonction) carte.appendChild(el('p', 'equipe-fonction', m.fonction));
         if (m.redactions && m.redactions.length) {
           var liste = el('p', 'equipe-redactions');

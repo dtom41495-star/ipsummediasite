@@ -7,6 +7,8 @@
 
 const compo = require('../../lib/compo');
 const { chargerItems, regrouper, MIN_INDEX } = require('../../lib/themes');
+const { indexEquipe, articlesDe } = require('../../lib/auteurs');
+const { decoder } = require('../../lib/page');
 
 const SITE = 'https://ipsummedia.fr';
 const PAGES_FIXES = [
@@ -23,7 +25,7 @@ function isoJour(d) {
   return isNaN(t.getTime()) ? '' : t.toISOString().slice(0, 10);
 }
 
-function fabriquerSitemap(publications, themes) {
+function fabriquerSitemap(publications, themes, auteurs) {
   const urls = PAGES_FIXES.map(([chemin, freq, prio]) =>
     `  <url>\n    <loc>${SITE}${chemin}</loc>\n    <changefreq>${freq}</changefreq>\n    <priority>${prio}</priority>\n  </url>`);
   (publications || [])
@@ -45,18 +47,25 @@ function fabriquerSitemap(publications, themes) {
         });
     });
   }
+  // Pages de journalistes : seulement celles qui ont au moins un article
+  (auteurs || []).forEach((a) => {
+    const jour = isoJour(a.articles[0] && a.articles[0].pubDate);
+    urls.push(`  <url>\n    <loc>${SITE}/auteurs/${a.membre.slug}</loc>\n${jour ? `    <lastmod>${jour}</lastmod>\n` : ''}    <changefreq>weekly</changefreq>\n  </url>`);
+  });
   return '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + urls.join('\n') + '\n</urlset>\n';
 }
 
 async function sitemap() {
-  const [publications, items] = await Promise.all([compo.listePublications(5000), chargerItems(6000)]);
+  const [publications, items, lignesEquipe] = await Promise.all([compo.listePublications(5000), chargerItems(6000), compo.equipe(4000)]);
+  const auteurs = [...indexEquipe(lignesEquipe).parSlug.values()]
+    .map((membre) => ({ membre, articles: articlesDe(membre, items, decoder) })).filter((a) => a.articles.length > 0);
   return {
     statusCode: 200,
     headers: {
       'Content-Type': 'application/xml; charset=utf-8',
       'Cache-Control': publications ? 'public, max-age=3600' : 'public, max-age=300',
     },
-    body: fabriquerSitemap(publications, regrouper(items)),
+    body: fabriquerSitemap(publications, regrouper(items), auteurs),
   };
 }
 

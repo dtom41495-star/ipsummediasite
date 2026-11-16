@@ -17,6 +17,12 @@
   to = "/.netlify/functions/theme?type=rubrique&slug=:splat"
   status = 200
 
+# Page d'un·e journaliste (/auteurs/lola-schwal)
+[[redirects]]
+  from = "/auteurs/*"
+  to = "/.netlify/functions/auteur?slug=:splat"
+  status = 200
+
 # Le fichier articles.html existe encore (copie de secours), donc "force" pour que la fonction
 # (cartes déjà écrites dans le HTML, pour les moteurs de recherche) passe devant.
 [[redirects]]

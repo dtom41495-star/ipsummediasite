@@ -3,16 +3,25 @@
 // qui n'ont pas décoché « Apparaître sur la page À propos du site » dans Compo.
 
 const compo = require('../../lib/compo');
+const { chargerItems } = require('../../lib/themes');
+const { cle, indexEquipe, articlesDe } = require('../../lib/auteurs');
+const { decoder } = require('../../lib/page');
 
 exports.handler = async function () {
-  const lignes = await compo.equipe(4000);
-  const equipe = (lignes || []).map((m) => ({
-    prenom: m.prenom,
-    nom: m.nom,
-    redactions: (m.redactions || []).map(compo.libelleRedaction),
-    fonction: m.fonction_publique || null,
-    email: /^[a-z0-9._+-]+@ipsummedia\.fr$/i.test(m.email || '') ? m.email : null,   // seulement une adresse de l'association
-  }));
+  const [lignes, items] = await Promise.all([compo.equipe(4000), chargerItems(6000)]);
+  const index = indexEquipe(lignes);
+  const equipe = (lignes || []).map((m) => {
+    const membre = index.parCle.get(cle(`${m.prenom} ${m.nom}`)) || null;
+    return {
+      prenom: m.prenom,
+      nom: m.nom,
+      slug: membre ? membre.slug : null,
+      nbArticles: membre ? articlesDe(membre, items, decoder).length : 0,
+      redactions: (m.redactions || []).map(compo.libelleRedaction),
+      fonction: m.fonction_publique || null,
+      email: /^[a-z0-9._+-]+@ipsummedia\.fr$/i.test(m.email || '') ? m.email : null,   // seulement une adresse de l'association
+    };
+  });
   return {
     statusCode: 200,
     headers: {
