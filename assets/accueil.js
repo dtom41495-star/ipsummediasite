@@ -268,7 +268,7 @@
     rubriquesGrille.innerHTML = blocs.map(function (r) {
       var liste = r.articles.slice(0, PAR_RUBRIQUE);
       return '<div class="ville rubrique">' +
-        '<div class="ville-tete"><h3>' + r.nom + '</h3><a href="articles.html?rubrique=' + r.slug + '">Tout voir</a></div>' +
+        '<div class="ville-tete"><h3>' + r.nom + '</h3><a href="/rubrique/' + r.slug + '">Tout voir</a></div>' +
         htmlCarte(liste[0], 'h4') +
         '<ul class="fil">' + liste.slice(1).map(function (a) { return htmlLigne(a); }).join('') + '</ul>' +
         '</div>';
@@ -299,12 +299,12 @@
     if (!colonnes.length) return;   // pas assez d'articles par commune : les pastilles seules n'ont pas d'intérêt
 
     villesPastilles.innerHTML = liste.map(function (c) {
-      return '<a href="articles.html?commune=' + c.slug + '">' + c.nom + '</a>';
+      return '<a href="/commune/' + c.slug + '">' + c.nom + '</a>';
     }).join('');
 
     villesGrille.innerHTML = colonnes.map(function (c) {
       return '<div class="ville">' +
-        '<div class="ville-tete"><h3>' + c.commune.nom + '</h3><a href="articles.html?commune=' + c.commune.slug + '">Tout voir</a></div>' +
+        '<div class="ville-tete"><h3>' + c.commune.nom + '</h3><a href="/commune/' + c.commune.slug + '">Tout voir</a></div>' +
         htmlCarte(c.dispo[0], 'h4', true) +
         '<ul class="fil">' + c.dispo.slice(1).map(function (a) { return htmlLigne(a, true); }).join('') + '</ul>' +
         '</div>';

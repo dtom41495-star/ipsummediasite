@@ -14,7 +14,7 @@
   }
 
   function lien(r) {
-    return '<li><a href="/articles.html?rubrique=' + r.slug + '">' + r.nom +
+    return '<li><a href="/rubrique/' + r.slug + '">' + r.nom +
       ' <span class="nav-rubrique-count">' + r.n + '</span></a></li>';
   }
 
