@@ -449,6 +449,11 @@
             <label for="cf-message">Message</label>
             <textarea id="cf-message" name="message" rows="4" required></textarea>
           </div>
+          <!-- Champ piège anti-robot : invisible, jamais rempli par une personne (la fonction ignore alors le message) -->
+          <div class="cf-piege" aria-hidden="true">
+            <label for="cf-site">Ne pas remplir ce champ</label>
+            <input type="text" id="cf-site" name="site" tabindex="-1" autocomplete="off">
+          </div>
           <button type="submit" class="btn btn-primary" id="cf-submit">Envoyer</button>
           <p class="form-status" id="cf-status" role="status"></p>
         </form>
@@ -578,6 +583,7 @@
     var form = document.getElementById('contact-form');
     var status = document.getElementById('cf-status');
     var submitBtn = document.getElementById('cf-submit');
+    var ouvertLe = Date.now();   // un humain met plus de quelques secondes : la fonction écarte les envois instantanés
 
     fetch(SUPABASE_URL + '/functions/v1/redactions-publiques', { headers: SB_FN_HEADERS })
       .then(function(r) { return r.json(); })
@@ -613,7 +619,9 @@
           nom: document.getElementById('cf-nom').value,
           email: document.getElementById('cf-email').value,
           redaction_id: redactionSelect.value,
-          message: document.getElementById('cf-message').value
+          message: document.getElementById('cf-message').value,
+          site: document.getElementById('cf-site').value,
+          duree_ms: Date.now() - ouvertLe
         })
       })
         .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }); })
@@ -623,11 +631,14 @@
             status.className = 'form-status form-status-ok';
             form.reset();
           } else {
-            throw new Error((res.data && res.data.error) || 'Erreur inconnue');
+            var e = new Error((res.data && res.data.error) || 'Erreur inconnue');
+            if (res.data && res.data.limite) e.limite = true;
+            throw e;
           }
         })
-        .catch(function() {
-          status.textContent = 'Le formulaire est momentanément indisponible, écrivez-nous à contact@ipsummedia.fr.';
+        .catch(function(err) {
+          // Trop de messages (limite d'envoi) : la fonction explique quoi faire ; sinon message générique
+          status.textContent = (err && err.limite) ? err.message : 'Le formulaire est momentanément indisponible, écrivez-nous à contact@ipsummedia.fr.';
           status.className = 'form-status form-status-error';
         })
         .finally(function() { submitBtn.disabled = false; });
