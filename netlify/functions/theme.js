@@ -3,7 +3,7 @@
 // Appelée par les redirections de netlify.toml : /commune/* et /rubrique/*.
 
 const { SITE, MIN_INDEX, chargerItems, regrouper, de } = require('../../lib/themes');
-const { echapper, decoder, enveloppe } = require('../../lib/page');
+const { echapper, decoder, enveloppe, reponseIndisponible } = require('../../lib/page');
 const { carte } = require('./articles-liste');
 
 const MAX_CARTES = 100;
@@ -16,6 +16,7 @@ exports.handler = async function (event) {
   if (!type || !/^[a-z0-9-]{1,80}$/.test(slug)) return introuvable();
 
   const items = await chargerItems();
+  if (!items.length) return reponseIndisponible();   // la liste des articles ne répond pas : pas un 404
   const groupes = regrouper(items);
   const g = groupes[TYPES[type]][slug];
   if (!g) return introuvable();
