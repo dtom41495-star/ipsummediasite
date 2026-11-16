@@ -4,6 +4,7 @@
 //  2. sinon, comme avant : le flux RSS Substack des rédactions, puis une redirection vers Substack, puis « introuvable ».
 
 const compo = require('../../lib/compo');
+const { indexEquipe, auteursLies } = require('../../lib/auteurs');
 
 const SITE = 'https://ipsummedia.fr';
 
@@ -169,19 +170,22 @@ exports.handler = async function (event) {
     // (qui, elle, sait reconnaître communes et rubriques), pour retrouver les étiquettes de cet
     // article et proposer un "À lire aussi" par sujet plutôt que par simple récence.
     // Et, en même temps, l'article dans Compo (null s'il n'y est pas ou si la base ne répond pas).
-    const [publication, flux, etiquettesTous, likes] = await Promise.all([
+    const [publication, flux, etiquettesTous, likes, lignesEquipe] = await Promise.all([
       compo.unePublication(slug, 3000),
       Promise.all(REDACTIONS.map(chargerFlux)),
       chargerEtiquettes(),
       compo.nbLikes(slug),
+      compo.equipe(2500),
     ]);
+    // Signatures reliées à la page de l'auteur, seulement pour les journalistes de l'équipe publique
+    const equipePublique = indexEquipe(lignesEquipe);
 
     if (publication) {
       const tousLesItems = [].concat(...flux.filter(Boolean).map((f) => f.items));
       return {
         statusCode: 200,
         headers: { ...entetesHtml, 'Cache-Control': 'public, max-age=900' },
-        body: renderArticle({ ...depuisPublication(publication, etiquettesTous, tousLesItems), likes }),
+        body: renderArticle((() => { const a = depuisPublication(publication, etiquettesTous, tousLesItems); return { ...a, likes, auteurs: auteursLies(a.author, equipePublique) }; })()),
       };
     }
 
@@ -238,7 +242,7 @@ exports.handler = async function (event) {
       statusCode: 200,
       headers: { ...entetesHtml, 'Cache-Control': 'public, max-age=900' },
       // Copie d'un article de Substack : la balise canonical désigne l'original (Substack)
-      body: renderArticle({ title, link, pubDate, author, description, content, image, legende, slug, redac, communes, rubriques, suggestions,
+      body: renderArticle({ title, link, pubDate, author, auteurs: auteursLies(author, equipePublique), description, content, image, legende, slug, redac, communes, rubriques, suggestions,
                             canonical: lienAutorise(link), commentairesUrl: redac.base + '/p/' + encodeURIComponent(slug) + '/comments' }),
     };
   } catch (e) {
@@ -563,6 +567,8 @@ ${headExtra}
   .article-meta-row { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; margin-bottom: 28px; }
   .article-byline { margin: 0; font-size: 0.95rem; color: var(--ink); }
   .article-byline strong { font-weight: 600; }
+  .article-byline a { color: inherit; text-decoration: underline; text-decoration-color: var(--orange); text-underline-offset: 3px; }
+  .article-byline a:hover { color: var(--orange); }
   .article-dateline { margin: 2px 0 0; font-size: 0.85rem; color: var(--ink-soft); }
   .article-lecture { white-space: nowrap; }
   .article-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
@@ -881,6 +887,14 @@ function renderCommenter(a) {
 
 // Bouton « J'aime » : seulement pour les articles du site (a.likes est un nombre ; null si la base ne répond pas, et
 // absent pour les copies du flux Substack, qui ne sont pas dans la base). Le clic part vers la fonction site-like.
+// Signature : le nom d'un·e journaliste de l'équipe publique renvoie vers sa page (/auteurs/…), les autres restent du texte
+function renderAuteurs(a) {
+  if (!a.auteurs || !a.auteurs.length) return escapeHtml(a.author);
+  return a.auteurs.map((x) => x.membre
+    ? `<a href="/auteurs/${encodeURIComponent(x.membre.slug)}" rel="author">${escapeHtml(x.nom)}</a>`
+    : escapeHtml(x.nom)).join(', ');
+}
+
 function renderLike(a) {
   if (typeof a.likes !== 'number') return '';
   const api = compo.COMPO_URL + '/functions/v1/site-like';
@@ -910,15 +924,16 @@ function renderSuggestions(liste) {
 // l'éditeur (dates exactes, présence dans "À la une"), plus le fil d'Ariane.
 // Le flux RSS ne donne pas de date de mise à jour : dateModified reprend la date de publication.
 function donneesStructurees(a, c) {
-  const auteur = a.author === 'Ipsum Média'
+  const unAuteur = (nom, membre) => nom === 'Ipsum Média'
     ? { '@type': 'Organization', name: 'Ipsum Média', url: SITE + '/' }
-    : { '@type': 'Person', name: a.author };
+    : { '@type': 'Person', name: nom, ...(membre ? { url: SITE + '/auteurs/' + membre.slug } : {}) };
+  const auteurs = (a.auteurs && a.auteurs.length) ? a.auteurs.map((x) => unAuteur(x.nom, x.membre)) : [unAuteur(a.author, null)];
   const article = {
     '@type': 'NewsArticle',
     mainEntityOfPage: { '@type': 'WebPage', '@id': c.url },
     headline: a.title.slice(0, 110),
     description: c.resume,
-    author: [auteur],
+    author: auteurs,
     publisher: {
       '@type': 'NewsMediaOrganization',
       name: 'Ipsum Média',
@@ -975,7 +990,7 @@ function renderArticle(a) {
       `</div>` : ''}
     <div class="article-meta-row">
       <div class="article-signature">
-        <p class="article-byline">Par <strong>${escapeHtml(a.author)}</strong></p>
+        <p class="article-byline">Par <strong>${renderAuteurs(a)}</strong></p>
         <p class="article-dateline">Publié le ${escapeHtml(dateFr)}${heure ? ' à ' + heure : ''} · <span class="article-lecture">${lecture} min de lecture</span></p>
       </div>
       <div class="article-actions">
