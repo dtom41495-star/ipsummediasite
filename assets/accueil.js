@@ -40,8 +40,15 @@
   var EDITIONS = [
     { slug: 'tarn', nom: 'Tarn', base: 'https://ipsummedia.substack.com', jour: 'Chaque jeudi' },
     { slug: 'haute-garonne', nom: 'Haute-Garonne', base: 'https://ipsummediahautegaronne.substack.com', jour: null },
-    { slug: 'national', nom: 'National', base: 'https://ipsummedianational.substack.com', jour: null }
+    { slug: 'national', nom: 'National', base: 'https://ipsummedianational.substack.com', jour: 'Chaque lundi' }
   ];
+  // Le jour d'envoi vient de Compo (réglage de chaque rédaction, via la fonction redactions-publiques) ; les valeurs ci-dessus ne servent
+  // que si Compo ne répond pas.
+  var JOURS_SEMAINE = ['', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
+  function slugRedaction(nom) {
+    var c = String(nom || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    return c === 'nationale' ? 'national' : c;
+  }
   var PAR_RUBRIQUE = 4;     // articles par rubrique
 
   function formatDate(iso) {
@@ -533,6 +540,18 @@
     }).join('');
     villes.hidden = false;
   }
+
+  fetch(SB_URL + '/functions/v1/redactions-publiques', { headers: { apikey: SB_CLE, Authorization: 'Bearer ' + SB_CLE } })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (d) {
+      if (!d || !Array.isArray(d.redactions)) return;
+      d.redactions.forEach(function (r) {
+        var e = EDITIONS.filter(function (x) { return x.slug === slugRedaction(r.nom); })[0];
+        if (e) e.jour = r.jour_newsletter >= 1 && r.jour_newsletter <= 7 ? 'Chaque ' + JOURS_SEMAINE[r.jour_newsletter] : null;
+      });
+      if (tousItems) afficherEditions(tousItems, tousItems.some(function (i) { return i.kind !== 'newsletter' && i.edition === 'national'; }));
+    })
+    .catch(function () { /* on garde les jours prévus dans la page */ });
 
   // Un clic sur une édition change l'accueil sans recharger la page ; l'adresse suit (bouton « retour » du navigateur compris).
   // Sans JavaScript, ou clic avec Ctrl / clic du milieu : le lien /tarn s'ouvre normalement.

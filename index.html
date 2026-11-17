@@ -44,7 +44,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Montserrat:wght@700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261118">
+<link rel="stylesheet" href="style.css?v=20261119">
 <!-- Statistiques d'audience sans cookies (Umami, hébergé par Ipsum Média) -->
 <script defer src="https://stats.ipsummedia.fr/script.js" data-website-id="02190f37-9db9-421b-b0c2-f71b803e2ccb"></script>
 </head>
@@ -569,7 +569,7 @@
   })();
 </script>
 
-<script src="assets/accueil.js?v=20261118"></script>
+<script src="assets/accueil.js?v=20261119"></script>
 <script src="assets/videos.js"></script>
 <script src="assets/nav-rubriques.js"></script>
 <script src="assets/utm-substack.js"></script>
@@ -673,10 +673,16 @@
       return base + '/subscribe';
     }
 
+    // « Chaque jeudi » : le jour d'envoi renseigné dans Compo (1 = lundi … 7 = dimanche), vide s'il n'est pas décidé
+    function jourEnvoi(n) {
+      var jours = ['', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
+      return n >= 1 && n <= 7 ? ' <small class="modal-jour">chaque ' + jours[n] + '</small>' : '';
+    }
+
     function renderButtons(redactions) {
       list.innerHTML = redactions.map(function(r) {
         return '<button type="button" class="btn btn-outline modal-redaction-btn" data-url="' +
-          echapper(substackSubscribeUrl(r.lien_substack)) + '">' + echapper(r.nom) + '</button>';
+          echapper(substackSubscribeUrl(r.lien_substack)) + '">' + echapper(r.nom) + jourEnvoi(r.jour_newsletter) + '</button>';
       }).join('');
       list.querySelectorAll('.modal-redaction-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {

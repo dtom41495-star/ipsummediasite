@@ -1418,3 +1418,5 @@ a.equipe-nom:hover { color: var(--orange); text-decoration: underline; }
   .suite-grille, .plus-lus-liste { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) { .diapo { transition: none; } }
+
+.modal-redaction-btn .modal-jour { display: block; margin-top: 2px; font-size: 0.72rem; font-weight: 500; opacity: 0.75; }
