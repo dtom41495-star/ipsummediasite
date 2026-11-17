@@ -230,6 +230,98 @@
   });
   document.addEventListener('visibilitychange', function () { slider.onglet = !document.hidden; majPause(); });
 
+
+  // ===== Bandeau du jour (date, saint, météo mini) et météo sur 4 jours =====
+  // Les données sont calculées côté serveur toutes les 2 heures (table site_meteo, lecture publique) : la page n'appelle aucun service météo.
+  var LIEU_EDITION = { 'tarn': 'albi', 'haute-garonne': 'toulouse', 'national': 'paris' };   // « Toutes » : Albi
+  var CODES_METEO = function (c, jour) {
+    if (c === 0) return jour ? ['☀️', 'Soleil'] : ['🌙', 'Ciel dégagé'];
+    if (c === 1) return jour ? ['🌤️', 'Plutôt dégagé'] : ['🌙', 'Plutôt dégagé'];
+    if (c === 2) return ['⛅', 'Éclaircies'];
+    if (c === 3) return ['☁️', 'Couvert'];
+    if (c === 45 || c === 48) return ['🌫️', 'Brouillard'];
+    if (c >= 51 && c <= 57) return ['🌦️', 'Bruine'];
+    if (c === 61 || c === 63 || c === 65 || c === 66 || c === 67) return ['🌧️', c === 61 ? 'Pluie faible' : 'Pluie'];
+    if (c >= 71 && c <= 77) return ['❄️', 'Neige'];
+    if (c >= 80 && c <= 82) return ['🌦️', 'Averses'];
+    if (c === 85 || c === 86) return ['🌨️', 'Averses de neige'];
+    if (c >= 95) return ['⛈️', 'Orages'];
+    return ['⛅', 'Variable'];
+  };
+  var meteoDonnees = null;
+  function chargerMeteo() {
+    if (!meteoDonnees) {
+      meteoDonnees = fetch(SB_URL + '/rest/v1/rpc/site_meteo_lire', {
+        method: 'POST', headers: { apikey: SB_CLE, Authorization: 'Bearer ' + SB_CLE, 'Content-Type': 'application/json' }, body: '{}'
+      }).then(function (r) { return r.ok ? r.json() : []; }).then(function (l) {
+        var par = Object.create(null);
+        (Array.isArray(l) ? l : []).forEach(function (x) { if (x && x.lieu) par[x.lieu] = x; });
+        return par;
+      }).catch(function () { return Object.create(null); });
+    }
+    return meteoDonnees;
+  }
+  function echapper(t) { return String(t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function jourParis() {   // date du jour à Paris, en « AAAA-MM-JJ »
+    return new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Paris' });
+  }
+  function saintDuJour() {
+    var t = jourParis().split('-'), m = +t[1] - 1, j = +t[2] - 1;
+    var l = window.SAINTS_DU_JOUR;
+    return l && l[m] && l[m][j] ? l[m][j] : '';
+  }
+  function afficherJourEtMeteo() {
+    var bandeau = document.getElementById('jour-bandeau');
+    if (!bandeau) return;
+    var dateTxt = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Europe/Paris' });
+    document.getElementById('jour-date').textContent = dateTxt.charAt(0).toUpperCase() + dateTxt.slice(1);
+    var saint = saintDuJour();
+    var elSaint = document.getElementById('jour-saint');
+    elSaint.textContent = saint ? 'Saint du jour : ' + saint : '';
+    bandeau.hidden = false;
+    var lieu = LIEU_EDITION[editionActive] || 'albi';
+    chargerMeteo().then(function (par) {
+      var d = par[lieu], mini = document.getElementById('jour-meteo'), vig = document.getElementById('jour-vigilance'), sect = document.getElementById('meteo');
+      var frais = d && d.donnees && d.donnees.jours && d.donnees.jours.length && (Date.now() - new Date(d.maj_le).getTime() < 12 * 3600 * 1000);   // données trop vieilles : on n'affiche rien
+      if (!frais) { mini.hidden = true; vig.hidden = true; if (sect) sect.hidden = true; return; }
+      var dn = d.donnees, a = dn.actuel || {}, ic = CODES_METEO(a.code, a.jour !== false);
+      mini.innerHTML = '<span aria-hidden="true">' + ic[0] + '</span> ' + echapper(dn.nom) + ' <b>' + (a.temp != null ? a.temp : dn.jours[0].max) + '°</b>';
+      mini.setAttribute('aria-label', 'Météo à ' + dn.nom + ' : ' + ic[1] + ', ' + (a.temp != null ? a.temp : dn.jours[0].max) + ' degrés. Voir les prévisions sur 4 jours');
+      mini.hidden = false;
+
+      // Vigilance : la plus haute des phénomènes d'aujourd'hui (jaune, orange, rouge)
+      var aujourdhui = (dn.vigilance && dn.vigilance[0] && dn.vigilance[0].phenomenes) || [];
+      var demain = (dn.vigilance && dn.vigilance[1] && dn.vigilance[1].phenomenes) || [];
+      var pire = aujourdhui.reduce(function (m, p) { return Math.max(m, p.niveau || 0); }, 0);
+      var noms = aujourdhui.filter(function (p) { return p.niveau === pire; }).map(function (p) { return p.nom; });
+      vig.hidden = !pire;
+      if (pire) {
+        vig.className = 'jour-vigilance vig-' + (pire === 4 ? 'rouge' : pire === 3 ? 'orange' : 'jaune');
+        vig.innerHTML = '<span aria-hidden="true">⚠</span> Vigilance ' + (pire === 4 ? 'rouge' : pire === 3 ? 'orange' : 'jaune') + ' : ' + echapper(noms.join(', '));
+      }
+
+      if (!sect) return;
+      document.getElementById('meteo-titre').textContent = 'La météo à ' + dn.nom;
+      document.getElementById('meteo-maj').textContent = 'mise à jour à ' + new Date(d.maj_le).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Paris' }).replace(':', ' h ');
+      var zv = document.getElementById('meteo-vigilance'), lignesVig = [];
+      [['aujourd\'hui', aujourdhui], ['demain', demain]].forEach(function (x) {
+        x[1].filter(function (p) { return p.niveau >= 2; }).forEach(function (p) { lignesVig.push('<li class="vig-' + (p.niveau === 4 ? 'rouge' : p.niveau === 3 ? 'orange' : 'jaune') + '"><b>Vigilance ' + echapper(p.couleur) + '</b> · ' + echapper(p.nom) + ' · ' + x[0] + '</li>'); });
+      });
+      zv.hidden = !lignesVig.length;
+      zv.innerHTML = lignesVig.length ? '<ul>' + lignesVig.join('') + '</ul><a href="https://vigilance.meteofrance.fr/" target="_blank" rel="noopener">Détails et consignes sur vigilance.meteofrance.fr</a>' : '';
+      var auj = jourParis();
+      document.getElementById('meteo-jours').innerHTML = dn.jours.slice(0, 4).map(function (j) {
+        var ico = CODES_METEO(j.code, true);
+        var nomJour = j.date === auj ? 'Aujourd\'hui' : new Date(j.date + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', timeZone: 'Europe/Paris' });
+        nomJour = nomJour.charAt(0).toUpperCase() + nomJour.slice(1);
+        return '<li><span class="mj-nom">' + echapper(nomJour) + '</span><span class="mj-ico" aria-hidden="true">' + ico[0] + '</span><span class="mj-lib">' + echapper(ico[1]) + '</span>' +
+          '<span class="mj-temp"><b>' + j.max + '°</b> <span>' + j.min + '°</span></span>' +
+          '<span class="mj-det">' + (j.pluie != null ? 'Pluie ' + j.pluie + ' %' : '') + (j.rafales >= 50 ? ' · rafales ' + j.rafales + ' km/h' : '') + '</span></li>';
+      }).join('');
+      sect.hidden = false;
+    });
+  }
+
   // ===== Les plus lus : classement des 7 derniers jours calculé chaque nuit (table site_vues, lecture publique) =====
   var plusLusDonnees = null, jetonPlusLus = 0;
   function chargerPlusLus() {
@@ -401,6 +493,7 @@
       if (suiteSection) suiteSection.hidden = false;
     }
     afficherPlusLus(articles);
+    afficherJourEtMeteo();
 
     // Le national a son propre bloc : « Par rubrique » et « Près de chez vous » restent locaux
     var locaux = articles.filter(function (i) { return i.edition !== 'national'; });
