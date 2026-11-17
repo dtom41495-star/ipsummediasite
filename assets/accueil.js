@@ -5,8 +5,12 @@
   var zoneUne = document.getElementById('une-main');
   if (!zoneUne) return;
 
-  var NB_SECONDAIRES = 2;   // articles à côté de la une
-  var NB_FIL = 10;          // dernières actus (colonne de droite ; 6 seulement sur tablette et téléphone, voir le CSS)
+  var NB_DIAPOS = 5;        // articles du bandeau (le dernier publié en premier)
+  var NB_MINI = 4;          // mini cartes fixes à droite du bandeau
+  var DUREE_DIAPO = 10000;  // 10 secondes par article
+  var SB_URL = 'https://ctmekufqaxdelgfyjwly.supabase.co';
+  var SB_CLE = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0bWVrdWZxYXhkZWxnZnlqd2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMDI1OTksImV4cCI6MjA5MDg3ODU5OX0.32wkp9NsqNTktvuC2Pb3S5EnAPPipt06DYLxfeyf5xE';   // clé publique (anon), la même que dans les autres pages
+  var NB_SUITE = 8;         // la suite des actus, sous le bandeau
   var NB_VILLES = 4;        // colonnes "commune"
   var PAR_VILLE = 3;        // articles par commune
   var MIN_VILLE = 2;        // il faut au moins 2 articles (hors la une) pour ouvrir la colonne d'une commune
@@ -14,6 +18,10 @@
 
   var fil = document.getElementById('une-fil');
   var cote = document.getElementById('une-cote');
+  var haut = document.getElementById('une-haut');
+  var suiteSection = document.getElementById('suite');
+  var plusLus = document.getElementById('plus-lus');
+  var plusLusListe = document.getElementById('plus-lus-liste');
   var villes = document.getElementById('villes');
   var villesGrille = document.getElementById('villes-grille');
   var villesPastilles = document.getElementById('villes-pastilles');
@@ -105,26 +113,146 @@
     return s ? '<span class="pastille">' + s + '</span>' : '';
   }
 
-  // La une : grande photo, voile sombre, titre en blanc, bouton ; le chapô juste dessous
-  function htmlUne(a) {
-    return '<a class="une-lead"' + lien(a) + '>' +
-      '<div class="une-visuel">' + fond(a, true) + '<div class="voile"></div>' +
-      '<div class="une-texte">' + pastille(a) +
-      '<h2>' + a.title + '</h2>' +
-      '<span class="une-meta-clair">' + (a.author ? 'Par ' + a.author + ' · ' : '') + formatDate(a.pubDate) + '</span>' +
-      '<span class="btn btn-primary une-bouton">Lire l\'article</span>' +
-      '</div></div>' +
-      (a.description ? '<p class="une-lead-chapo">' + a.description + '</p>' : '') +
-      '</a>';
+  // ===== Bandeau « à la une » : slider façon stories (10 s par article), le dernier article publié toujours en premier =====
+  function sansPhoto(a) { return !a.image || a.coverGenerique; }
+
+  // Une diapositive : photo (si elle existe) sous le dégradé orange, étiquette, titre sur bandes blanches, signature, bouton
+  function htmlDiapo(a, premier) {
+    var photo = !sansPhoto(a);
+    var s = surtitre(a);
+    var img = '';
+    if (photo) {
+      var large = a.imageLarge || a.image;
+      img = '<img class="fond" alt="" decoding="async" src="' + large + '" srcset="' + a.image + ' 720w, ' + large + ' 1600w" sizes="100vw"' + (premier ? ' fetchpriority="high"' : ' loading="lazy"') + '>';
+    }
+    return '<article class="diapo' + (photo ? '' : ' sans-photo') + '" aria-roledescription="diapositive">' + img + '<div class="teinte"></div>' +
+      (photo ? '' : '<div class="marque" aria-hidden="true"></div>') +
+      '<div class="diapo-contenu">' + (s ? '<span class="etiquette">' + s + '</span>' : '') +
+      '<h2 class="diapo-titre"><a' + lien(a) + '><span>' + a.title + '</span></a></h2>' +
+      '<div class="signature">' + (a.author ? 'Par ' + a.author + ' · ' : '') + formatDate(a.pubDate) + '</div>' +
+      '<a class="lire"' + lien(a) + ' tabindex="-1" aria-hidden="true">Lire l\'article</a>' +
+      '</div></article>';
   }
 
-  // Tuile à côté de la une : photo, voile sombre, titre en blanc
-  function htmlTuile(a) {
-    return '<a class="une-tuile"' + lien(a) + '>' + fond(a) + '<div class="voile"></div>' +
-      '<div class="une-texte">' + pastille(a) +
-      '<h3>' + a.title + '</h3>' +
-      '<span class="une-meta-clair">' + formatDate(a.pubDate) + '</span>' +
-      '</div></a>';
+  // Mini carte du côté : même dessin que le bandeau (photo, dégradé orange, titre sur bande blanche)
+  function htmlMini(a) {
+    var s = surtitre(a);
+    return '<a class="mini' + (sansPhoto(a) ? ' sans-photo' : '') + '"' + lien(a) + '>' +
+      (sansPhoto(a) ? '' : '<img class="fond" alt="" loading="lazy" decoding="async" src="' + a.image + '">') + '<span class="teinte"></span>' +
+      (s ? '<span class="etiquette">' + s + '</span>' : '') +
+      '<h3><span>' + a.title + '</span></h3><span class="quand">' + quand(a.pubDate) + '</span></a>';
+  }
+
+  var slider = { courant: 0, n: 0, pauseManuelle: false, survol: false, onglet: true, x0: null };
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) slider.pauseManuelle = true;   // moins d'animations demandé : pas de défilement tout seul
+
+  function monterBandeau(liste) {
+    slider.n = liste.length;
+    slider.courant = 0;
+    zoneUne.style.setProperty('--duree', DUREE_DIAPO / 1000 + 's');
+    var h = '';
+    if (liste.length > 1) {
+      h += '<div class="progres" role="group" aria-label="Choisir un article">' + liste.map(function (a, i) {
+        return '<button type="button" data-aller="' + i + '" aria-label="Article ' + (i + 1) + ' sur ' + liste.length + '"><i><b></b></i></button>';
+      }).join('') + '</div>';
+    }
+    h += liste.map(function (a, i) { return htmlDiapo(a, i === 0); }).join('');
+    if (liste.length > 1) {
+      h += '<button type="button" class="zone g" data-act="prec" aria-label="Article précédent"></button>' +
+        '<button type="button" class="zone d" data-act="suiv" aria-label="Article suivant"></button>' +
+        '<button type="button" class="fleche g" data-act="prec" aria-label="Article précédent">‹</button>' +
+        '<button type="button" class="fleche d" data-act="suiv" aria-label="Article suivant">›</button>' +
+        '<button type="button" class="lecture" data-act="pause"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" class="ico-pause"><rect x="3" y="2" width="3.5" height="12" rx="1"/><rect x="9.5" y="2" width="3.5" height="12" rx="1"/></svg>' +
+        '<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" class="ico-lire"><path d="M4 2l10 6-10 6z"/></svg><span class="lecture-texte"></span></button>';
+    }
+    zoneUne.innerHTML = h;
+    zoneUne.classList.toggle('un-seul', liste.length < 2);
+    aller(0);
+  }
+
+  function majPause() {
+    var stop = slider.pauseManuelle || slider.survol || !slider.onglet;
+    zoneUne.classList.toggle('pause', stop);
+    var bouton = zoneUne.querySelector('.lecture');
+    if (bouton) {
+      bouton.classList.toggle('en-pause', slider.pauseManuelle);
+      bouton.setAttribute('aria-label', slider.pauseManuelle ? 'Reprendre le défilement' : 'Mettre en pause le défilement');
+      bouton.querySelector('.lecture-texte').textContent = slider.pauseManuelle ? 'Lecture' : 'Pause';
+    }
+  }
+
+  function aller(i) {
+    if (!slider.n) return;
+    slider.courant = (i + slider.n) % slider.n;
+    var diapos = zoneUne.querySelectorAll('.diapo'), barres = zoneUne.querySelectorAll('.progres button');
+    Array.prototype.forEach.call(diapos, function (d, k) { d.classList.toggle('actif', k === slider.courant); d.setAttribute('aria-hidden', k === slider.courant ? 'false' : 'true'); });
+    Array.prototype.forEach.call(barres, function (b, k) { b.classList.remove('en-cours'); b.classList.toggle('fait', k < slider.courant); b.removeAttribute('aria-current'); });
+    if (barres.length) {
+      void zoneUne.offsetWidth;   // relance l'animation de la barre
+      barres[slider.courant].classList.add('en-cours');
+      barres[slider.courant].setAttribute('aria-current', 'true');
+    }
+    majPause();
+  }
+
+  // Commandes : branchées une seule fois (le contenu du bandeau est refait à chaque changement d'édition)
+  zoneUne.addEventListener('click', function (ev) {
+    var b = ev.target && ev.target.closest ? ev.target.closest('[data-aller], [data-act]') : null;
+    if (!b || !zoneUne.contains(b)) return;
+    if (b.hasAttribute('data-aller')) aller(Number(b.getAttribute('data-aller')));
+    else if (b.getAttribute('data-act') === 'prec') aller(slider.courant - 1);
+    else if (b.getAttribute('data-act') === 'suiv') aller(slider.courant + 1);
+    else if (b.getAttribute('data-act') === 'pause') { slider.pauseManuelle = !slider.pauseManuelle; majPause(); }
+  });
+  zoneUne.addEventListener('animationend', function (ev) {
+    if (ev.target && ev.target.parentNode && ev.target.parentNode.parentNode && ev.target.parentNode.parentNode.classList.contains('en-cours')) aller(slider.courant + 1);
+  });
+  zoneUne.addEventListener('mouseenter', function () { slider.survol = true; majPause(); });
+  zoneUne.addEventListener('mouseleave', function () { slider.survol = false; majPause(); });
+  zoneUne.addEventListener('focusin', function () { slider.survol = true; majPause(); });
+  zoneUne.addEventListener('focusout', function () { slider.survol = false; majPause(); });
+  zoneUne.addEventListener('keydown', function (ev) {
+    if (ev.key === 'ArrowLeft') aller(slider.courant - 1); else if (ev.key === 'ArrowRight') aller(slider.courant + 1);
+  });
+  zoneUne.addEventListener('touchstart', function (ev) { slider.x0 = ev.touches[0].clientX; slider.survol = true; majPause(); }, { passive: true });
+  zoneUne.addEventListener('touchend', function (ev) {
+    slider.survol = false;
+    var dx = slider.x0 == null ? 0 : ev.changedTouches[0].clientX - slider.x0;
+    slider.x0 = null;
+    if (Math.abs(dx) > 40) aller(slider.courant + (dx < 0 ? 1 : -1)); else majPause();
+  });
+  document.addEventListener('visibilitychange', function () { slider.onglet = !document.hidden; majPause(); });
+
+  // ===== Les plus lus : classement des 7 derniers jours calculé chaque nuit (table site_vues, lecture publique) =====
+  var plusLusDonnees = null, jetonPlusLus = 0;
+  function chargerPlusLus() {
+    if (!plusLusDonnees) {
+      plusLusDonnees = fetch(SB_URL + '/rest/v1/rpc/site_plus_lus', {
+        method: 'POST', headers: { apikey: SB_CLE, Authorization: 'Bearer ' + SB_CLE, 'Content-Type': 'application/json' }, body: '{}'
+      }).then(function (r) { return r.ok ? r.json() : []; }).then(function (l) { return Array.isArray(l) ? l : []; }).catch(function () { return []; });
+    }
+    return plusLusDonnees;
+  }
+  function afficherPlusLus(articles) {
+    if (!plusLus || !plusLusListe) return;
+    var jeton = ++jetonPlusLus;
+    chargerPlusLus().then(function (lignes) {
+      if (jeton !== jetonPlusLus) return;   // l'édition a changé entre-temps
+      var vues = Object.create(null);
+      lignes.forEach(function (l) { if (l && l.slug) vues[l.slug] = Number(l.vues) || 0; });
+      var classes = articles.map(function (a) {
+        var m = a.link && a.link.match(/\/(?:p|articles)\/([^/?#]+)/);
+        return { a: a, v: m && vues[m[1]] ? vues[m[1]] : 0 };
+      }).filter(function (x) { return x.v > 0; })
+        .sort(function (x, y) { return y.v - x.v || new Date(y.a.pubDate) - new Date(x.a.pubDate); }).slice(0, 5);
+      if (classes.length < 3) { plusLus.hidden = true; return; }   // pas assez de données pour un classement utile
+      plusLusListe.innerHTML = classes.map(function (x, i) {
+        var s = surtitre(x.a);
+        return '<li><a' + lien(x.a) + '><span class="rang">' + (i + 1) + '</span><span class="plus-lus-texte">' +
+          (s ? '<span class="kicker">' + s + '</span>' : '') + '<span class="plus-lus-titre">' + x.a.title + '</span></span></a></li>';
+      }).join('');
+      plusLus.hidden = false;
+    });
   }
 
   // Carte avec photo au-dessus du texte (tête d'une colonne commune)
@@ -220,7 +348,11 @@
     var items = tousItems || [];
     // Remise à zéro : on peut changer d'édition sans recharger la page
     cote.hidden = false;
-    cote.parentNode.classList.remove('sans-cote');
+    haut.classList.remove('sans-cote');
+    cote.innerHTML = '';
+    fil.innerHTML = '';
+    if (suiteSection) suiteSection.hidden = true;
+    if (plusLus) plusLus.hidden = true;
     [rubriques, villes, national].forEach(function (b) { if (b) b.hidden = true; });
     [rubriquesGrille, villesGrille, villesPastilles, nationalGrille, nationalPastilles].forEach(function (b) { if (b) b.innerHTML = ''; });
 
@@ -238,28 +370,30 @@
     var newsletters = base.filter(function (i) { return i.kind === 'newsletter'; });
     if (!articles.length) {
       zoneUne.innerHTML = '<p class="feed-loading">Aucun article pour le moment.</p>';
-      fil.innerHTML = '';   // efface le squelette de chargement, sinon il reste figé
+      cote.hidden = true; haut.classList.add('sans-cote');   // efface le squelette de chargement, sinon il reste figé
       return;
     }
 
-    // La une : le dernier article avec une vraie photo, puis les suivants à côté
-    var avecPhoto = articles.filter(function (i) { return i.image && !i.coverGenerique; });
-    var une = avecPhoto[0] || articles[0];
-    var secondaires = avecPhoto.filter(function (i) { return i !== une; }).slice(0, NB_SECONDAIRES);
-    var utilises = [une].concat(secondaires);
-
-    zoneUne.innerHTML = htmlUne(une) +
-      (secondaires.length ? '<div class="une-secondaires">' + secondaires.map(htmlTuile).join('') + '</div>' : '');
-
-    // Dernières actus : la suite, dans l'ordre du temps
-    var suite = articles.filter(function (i) { return utilises.indexOf(i) === -1; }).slice(0, NB_FIL);
-    if (suite.length) {
-      fil.innerHTML = suite.map(function (a) { return htmlLigne(a); }).join('');
+    // Le bandeau : les 5 derniers articles, le plus récent d'abord (avec ou sans photo). À droite, les 4 suivants ; la suite sous le bandeau.
+    var diapos = articles.slice(0, NB_DIAPOS);
+    var minis = articles.slice(NB_DIAPOS, NB_DIAPOS + NB_MINI);
+    var suite = articles.slice(NB_DIAPOS + NB_MINI, NB_DIAPOS + NB_MINI + NB_SUITE);
+    var utilises = diapos.concat(minis);
+    monterBandeau(diapos);
+    cote.removeAttribute('aria-hidden');
+    if (minis.length) {
+      cote.style.setProperty('--n', minis.length);
+      cote.innerHTML = minis.map(htmlMini).join('');
     } else {
-      // Peu d'articles : la une prend toute la largeur
+      // Peu d'articles : le bandeau prend toute la largeur
       cote.hidden = true;
-      cote.parentNode.classList.add('sans-cote');
+      haut.classList.add('sans-cote');
     }
+    if (suite.length) {
+      fil.innerHTML = suite.map(function (a) { return htmlCarte(a, 'h3'); }).join('');
+      if (suiteSection) suiteSection.hidden = false;
+    }
+    afficherPlusLus(articles);
 
     // Le national a son propre bloc : « Par rubrique » et « Près de chez vous » restent locaux
     var locaux = articles.filter(function (i) { return i.edition !== 'national'; });
@@ -420,6 +554,7 @@
     .then(function (r) { return r.json(); })
     .then(function (data) { afficher((data && data.items) || []); })
     .catch(function () {
+      cote.hidden = true; haut.classList.add('sans-cote');
       zoneUne.innerHTML = '<p class="feed-loading">Impossible de charger les articles pour le moment. <a href="https://ipsummedia.substack.com" target="_blank" rel="noopener">Voir sur Substack</a>.</p>';
       fil.innerHTML = '';   // efface le squelette de chargement, sinon il reste figé
     });
