@@ -1420,3 +1420,32 @@ a.equipe-nom:hover { color: var(--orange); text-decoration: underline; }
 @media (prefers-reduced-motion: reduce) { .diapo { transition: none; } }
 
 .modal-redaction-btn .modal-jour { display: block; margin-top: 2px; font-size: 0.72rem; font-weight: 500; opacity: 0.75; }
+
+/* Bandeau du jour : date, saint du jour, météo mini, vigilance */
+.jour-bandeau[hidden], .meteo[hidden] { display: none; }
+.jour-bandeau { background: var(--white); border-bottom: 1px solid var(--border); font-size: 0.82rem; color: var(--ink-soft); }
+.jour-bandeau .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; padding-top: 7px; padding-bottom: 7px; }
+.jour-date { font-weight: 700; color: var(--ink); }
+.jour-meteo { color: var(--ink); text-decoration: none; padding: 2px 10px; border-radius: 999px; background: var(--orange-light); }
+.jour-meteo:hover, .jour-meteo:focus-visible { background: var(--orange); color: var(--white); }
+.jour-vigilance { text-decoration: none; font-weight: 700; padding: 2px 10px; border-radius: 999px; }
+.jour-vigilance[hidden] { display: none; }
+.vig-jaune { background: #FFE27A; color: #4a3b00; }
+.vig-orange { background: #FF9A3D; color: #3b1c00; }
+.vig-rouge { background: #D62B2B; color: #fff; }
+
+/* La météo sur 4 jours */
+.meteo-vigilance { margin-bottom: 16px; }
+.meteo-vigilance ul { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
+.meteo-vigilance li { padding: 6px 12px; border-radius: 10px; font-size: 0.88rem; }
+.meteo-vigilance a { font-size: 0.8rem; color: var(--ink-soft); }
+.meteo-jours { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.meteo-jours li { display: grid; gap: 4px; justify-items: center; text-align: center; padding: 18px 12px; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); }
+.mj-nom { font: 700 0.95rem/1.2 Poppins, Montserrat, Arial, sans-serif; color: var(--ink); }
+.mj-ico { font-size: 2.4rem; line-height: 1.2; }
+.mj-lib { color: var(--ink-soft); font-size: 0.85rem; }
+.mj-temp { font: 700 1.1rem/1.2 Poppins, Montserrat, Arial, sans-serif; color: var(--orange-dark); }
+.mj-temp span { color: var(--ink-soft); font-weight: 600; }
+.mj-det { color: var(--ink-soft); font-size: 0.78rem; min-height: 1.2em; }
+.meteo-source { margin-top: 12px; font-size: 0.74rem; color: var(--ink-soft); }
+@media (max-width: 640px) { .meteo-jours { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } }
