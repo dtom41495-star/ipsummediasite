@@ -834,6 +834,7 @@ ${bodyHtml}
 <script src="/assets/nav-rubriques.js"></script>
 <script src="/assets/utm-substack.js"></script>
 <script src="/assets/ticker.js"></script>
+<script src="/assets/jour.js"></script>
 </body>
 </html>`;
 }
