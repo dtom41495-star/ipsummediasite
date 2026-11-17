@@ -8,6 +8,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Ipsum Média">
 <meta property="og:url" content="https://ipsummedia.fr/">
+<link rel="canonical" href="https://ipsummedia.fr/">
 <meta property="og:title" content="Ipsum Média | L&#39;actualité du Tarn et de la Haute-Garonne">
 <meta property="og:description" content="Média associatif et indépendant du Tarn et de la Haute-Garonne. Reportages, interviews et newsletter chaque jeudi.">
 <meta property="og:image" content="https://ipsummedia.fr/assets/logo-gradient.png">
@@ -43,7 +44,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261102">
+<link rel="stylesheet" href="style.css?v=20261117">
 <!-- Statistiques d'audience sans cookies (Umami, hébergé par Ipsum Média) -->
 <script defer src="https://stats.ipsummedia.fr/script.js" data-website-id="02190f37-9db9-421b-b0c2-f71b803e2ccb"></script>
 </head>
@@ -106,13 +107,13 @@
     <symbol id="ico-solidaire" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20v-1a5 5 0 0 1 5-5h2a5 5 0 0 1 5 5v1"/><circle cx="17.5" cy="9" r="2.5"/><path d="M17 14a4 4 0 0 1 4 4v2"/></symbol>
   </svg>
 
-  <!-- Onglets d'édition : apparaissent dès que la rédaction nationale a publié (voir assets/accueil.js) -->
+  <!-- Barre des éditions : apparaît dès que deux éditions ont publié ; une fois une édition choisie, elle montre ses communes (voir assets/accueil.js) -->
   <nav class="editions-onglets" id="editions-onglets" aria-label="Choisir une édition" hidden>
     <div class="wrap">
-      <a href="articles.html" class="actif" aria-current="page">Toutes</a>
-      <a href="articles.html?edition=tarn">Tarn</a>
-      <a href="articles.html?edition=haute-garonne">Haute-Garonne</a>
-      <a href="articles.html?edition=national">National</a>
+      <a href="/" data-edition="" class="actif" aria-current="page">Toutes</a>
+      <a href="/tarn" data-edition="tarn">Tarn</a>
+      <a href="/haute-garonne" data-edition="haute-garonne">Haute-Garonne</a>
+      <a href="/national" data-edition="national">National</a>
     </div>
   </nav>
 
@@ -569,7 +570,7 @@
   })();
 </script>
 
-<script src="assets/accueil.js?v=20261116"></script>
+<script src="assets/accueil.js?v=20261117"></script>
 <script src="assets/videos.js"></script>
 <script src="assets/nav-rubriques.js"></script>
 <script src="assets/utm-substack.js"></script>

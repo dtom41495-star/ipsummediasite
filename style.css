@@ -1284,6 +1284,9 @@ footer.site-footer .wrap.footer-legal {
 .editions-onglets a { flex: none; padding: 14px 0 10px; border-bottom: 4px solid transparent; color: var(--ink); font-size: 0.95rem; font-weight: 700; }
 .editions-onglets a:hover { color: var(--orange); }
 .editions-onglets a.actif { border-bottom-color: var(--ink); }
+.editions-onglets .edition-retour span { margin-right: 2px; color: var(--orange); }
+.editions-onglets .edition-sep { flex: none; width: 1px; margin: 12px 0 10px; background: var(--border); }
+.editions-onglets .edition-sep + a { margin-left: -4px; }
 .villes.national .ville-tete { border-left-color: #2748E0; }
 .villes.national .villes-pastilles a:hover { border-color: #2748E0; color: #2748E0; }
 

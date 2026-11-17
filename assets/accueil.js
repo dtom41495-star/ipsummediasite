@@ -146,9 +146,96 @@
       '</a></li>';
   }
 
+  // ===== Édition choisie (/tarn, /haute-garonne, /national) : l'accueil ne montre que ses articles =====
+  // Même page statique pour toutes les adresses : Netlify sert index.html, ce script lit l'adresse et filtre (rien à payer côté serveur).
+  var tousItems = null;
+  var editionActive = null;
+  var TITRES_EDITION = { 'tarn': 'du Tarn', 'haute-garonne': 'de la Haute-Garonne', 'national': 'nationale' };
+  var h1Accueil = document.querySelector('#accueil h1.sr-only');
+  var canonique = document.querySelector('link[rel="canonical"]');
+  var titreOrigine = document.title, h1Origine = h1Accueil ? h1Accueil.textContent : '';
+  var toutVoirFil = cote ? cote.querySelector('.journal-tete a') : null;
+
+  function editionDepuisAdresse() {
+    var m = location.pathname.match(/^\/(tarn|haute-garonne|national)\/?$/);
+    var slug = m ? m[1] : new URLSearchParams(location.search).get('edition');
+    return EDITIONS.some(function (e) { return e.slug === slug; }) ? slug : null;
+  }
+
+  // Éditions qui ont au moins un article (la Haute-Garonne apparaît dès qu'elle publie)
+  function editionsDispo(items) {
+    return EDITIONS.filter(function (e) {
+      return items.some(function (i) { return i.kind !== 'newsletter' && i.edition === e.slug; });
+    });
+  }
+
+  function lienEdition(href, nom, slug, actif) {
+    return '<a href="' + href + '" data-edition="' + slug + '"' + (actif ? ' class="actif" aria-current="page"' : '') + '>' + nom + '</a>';
+  }
+
+  // Le bandeau du haut. « Toutes » : les éditions. Une édition choisie : son nom (pour revenir) puis ses communes
+  // (ou ses rubriques pour la nationale, qui n'a pas de communes), comme le menu d'un journal régional.
+  function afficherBarre(dispo, base) {
+    if (!ongletsEditions) return;
+    var conteneur = ongletsEditions.querySelector('.wrap');
+    if (dispo.length < 2 || !conteneur) { ongletsEditions.hidden = true; return; }
+    var h = '';
+    if (!editionActive) {
+      h += lienEdition('/', 'Toutes', '', true);
+      dispo.forEach(function (e) { h += lienEdition('/' + e.slug, e.nom, e.slug, false); });
+    } else {
+      var edition = EDITIONS.filter(function (e) { return e.slug === editionActive; })[0];
+      var national = editionActive === 'national';
+      var cle = national ? 'rubriques' : 'communes';
+      var compte = Object.create(null), noms = {};
+      base.forEach(function (a) {
+        if (a.kind === 'newsletter') return;
+        (a[cle] || []).forEach(function (t) { compte[t.slug] = (compte[t.slug] || 0) + 1; noms[t.slug] = t.nom; });
+      });
+      var liste = Object.keys(compte).sort(function (x, y) { return compte[y] - compte[x] || (noms[x] < noms[y] ? -1 : 1); });
+      h += '<a href="/" data-edition="" class="actif edition-retour" aria-current="page" title="Revenir à toutes les éditions"><span aria-hidden="true">‹</span> ' + edition.nom + '</a>';
+      if (liste.length) h += '<span class="edition-sep" aria-hidden="true"></span>';
+      h += liste.map(function (slug) { return '<a href="/' + (national ? 'rubrique' : 'commune') + '/' + slug + '">' + noms[slug] + '</a>'; }).join('');
+    }
+    conteneur.innerHTML = h;
+    ongletsEditions.setAttribute('aria-label', editionActive ? 'Communes de l\'édition' : 'Choisir une édition');
+    ongletsEditions.hidden = false;
+  }
+
+  function majTitres() {
+    var titre = editionActive ? 'Ipsum Média | L\'actualité ' + TITRES_EDITION[editionActive] : titreOrigine;
+    document.title = titre;
+    if (h1Accueil) h1Accueil.textContent = editionActive ? titre : h1Origine;
+    if (canonique) canonique.href = 'https://ipsummedia.fr/' + (editionActive || '');
+    if (toutVoirFil) toutVoirFil.href = editionActive ? 'articles.html?edition=' + editionActive : 'articles.html';
+  }
+
   function afficher(items) {
-    var articles = items.filter(function (i) { return i.kind !== 'newsletter'; });
-    var newsletters = items.filter(function (i) { return i.kind === 'newsletter'; });
+    tousItems = items;
+    editionActive = editionDepuisAdresse();
+    rendre();
+  }
+
+  function rendre() {
+    var items = tousItems || [];
+    // Remise à zéro : on peut changer d'édition sans recharger la page
+    cote.hidden = false;
+    cote.parentNode.classList.remove('sans-cote');
+    [rubriques, villes, national].forEach(function (b) { if (b) b.hidden = true; });
+    [rubriquesGrille, villesGrille, villesPastilles, nationalGrille, nationalPastilles].forEach(function (b) { if (b) b.innerHTML = ''; });
+
+    var dispo = editionsDispo(items);
+    // Une édition sans article (ex. /haute-garonne avant sa première publication) : on montre tout
+    if (editionActive && !dispo.some(function (e) { return e.slug === editionActive; })) {
+      editionActive = null;
+      try { if (location.pathname !== '/') history.replaceState(null, '', '/'); } catch (e) { /* adresse inchangée */ }
+    }
+    var base = editionActive ? items.filter(function (i) { return i.edition === editionActive; }) : items;
+    majTitres();
+    afficherBarre(dispo, base);
+
+    var articles = base.filter(function (i) { return i.kind !== 'newsletter'; });
+    var newsletters = base.filter(function (i) { return i.kind === 'newsletter'; });
     if (!articles.length) {
       zoneUne.innerHTML = '<p class="feed-loading">Aucun article pour le moment.</p>';
       fil.innerHTML = '';   // efface le squelette de chargement, sinon il reste figé
@@ -177,14 +264,16 @@
     // Le national a son propre bloc : « Par rubrique » et « Près de chez vous » restent locaux
     var locaux = articles.filter(function (i) { return i.edition !== 'national'; });
     var nationaux = articles.filter(function (i) { return i.edition === 'national'; });
+    var enNational = editionActive === 'national';   // l'accueil est déjà national : « Par rubrique » suffit, pas de bloc en plus
 
     // Les blocs rubrique ne reprennent pas ce que la une et la colonne « Dernières actus » montrent déjà
-    afficherRubriques(locaux, utilises.concat(suite));
+    afficherRubriques(enNational ? nationaux : locaux, utilises.concat(suite));
     afficherCommunes(locaux, utilises);
-    afficherNational(nationaux, utilises.concat(suite));
-    afficherEditions(items, nationaux.length > 0);
+    if (!enNational) afficherNational(nationaux, utilises.concat(suite));
+    afficherEditions(items, items.some(function (i) { return i.kind !== 'newsletter' && i.edition === 'national'; }));
 
     // Dernières newsletters
+    newsletters = items.filter(function (i) { return i.kind === 'newsletter'; });
     if (newsletters.length) {
       editions.innerHTML = newsletters.slice(0, NB_EDITIONS).map(function (n) { return htmlLigne(n, true); }).join('');
       editions.parentNode.hidden = !!(cartesEditions && !cartesEditions.hidden);   // remplacé par les cartes quand il y a plusieurs éditions
@@ -229,7 +318,6 @@
   // donc dès que la rédaction nationale a publié. Avant, l'accueil reste exactement comme il était.
   function afficherEditions(items, plusieurs) {
     if (!plusieurs) return;
-    if (ongletsEditions) ongletsEditions.hidden = false;
     if (!cartesEditions) return;
     var titre = document.getElementById('newsletter-titre');
     var texte = document.getElementById('newsletter-texte');
@@ -311,6 +399,22 @@
     }).join('');
     villes.hidden = false;
   }
+
+  // Un clic sur une édition change l'accueil sans recharger la page ; l'adresse suit (bouton « retour » du navigateur compris).
+  // Sans JavaScript, ou clic avec Ctrl / clic du milieu : le lien /tarn s'ouvre normalement.
+  if (ongletsEditions) ongletsEditions.addEventListener('click', function (ev) {
+    var a = ev.target && ev.target.closest ? ev.target.closest('a[data-edition]') : null;
+    if (!a || ev.defaultPrevented || ev.button || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || !tousItems) return;
+    ev.preventDefault();
+    editionActive = a.getAttribute('data-edition') || null;
+    try { history.pushState(null, '', a.getAttribute('href')); } catch (e) { /* l'adresse ne change pas */ }
+    rendre();
+  });
+  window.addEventListener('popstate', function () {
+    if (!tousItems) return;
+    editionActive = editionDepuisAdresse();
+    rendre();
+  });
 
   fetch('/.netlify/functions/substack-feed?tous=1')
     .then(function (r) { return r.json(); })
