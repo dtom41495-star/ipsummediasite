@@ -6,6 +6,38 @@
   to = "/.netlify/functions/article/:splat"
   status = 200
 
+# Accueil d'une édition (/tarn, /haute-garonne, /national) : la même page statique, le script de l'accueil filtre selon l'adresse
+[[redirects]]
+  from = "/tarn"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/haute-garonne"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/national"
+  to = "/index.html"
+  status = 200
+
+# Avec une barre finale, les liens relatifs de la page casseraient
+[[redirects]]
+  from = "/tarn/"
+  to = "/tarn"
+  status = 301
+
+[[redirects]]
+  from = "/haute-garonne/"
+  to = "/haute-garonne"
+  status = 301
+
+[[redirects]]
+  from = "/national/"
+  to = "/national"
+  status = 301
+
 # Pages d'une commune (/commune/castres) et d'une rubrique (/rubrique/culture), écrites côté serveur pour le référencement
 [[redirects]]
   from = "/commune/*"
