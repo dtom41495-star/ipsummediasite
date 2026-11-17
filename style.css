@@ -1328,3 +1328,93 @@ a.equipe-nom:hover { color: var(--orange); text-decoration: underline; }
 .equipe-mail:hover { color: var(--orange); text-decoration: underline; }
 /* Page d'un·e journaliste : pastilles des rédactions */
 .equipe-redactions { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; }
+
+
+/* ===== À la une : bandeau pleine largeur (slider façon stories) + 4 mini cartes fixes à droite =====
+   Dessin repris des visuels de Compo : photo, dégradé orange, titre sur bandes blanches, Poppins. */
+.une-zone { padding: 0; }
+.une-haut { display: grid; grid-template-columns: minmax(0, 1fr) clamp(300px, 27vw, 380px); background: var(--cream); }
+.une-haut.sans-cote { grid-template-columns: minmax(0, 1fr); }
+.bandeau { position: relative; min-width: 0; height: clamp(440px, 40vw, 580px); overflow: hidden; background: #2a2a3a; color: var(--white); isolation: isolate; user-select: none; touch-action: pan-y; }
+.bandeau.un-seul { user-select: auto; }
+.bandeau-squelette { position: absolute; inset: 0; border-radius: 0; }
+.bandeau .feed-loading:not(.sr-only) { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; }
+.diapo { position: absolute; inset: 0; opacity: 0; visibility: hidden; transition: opacity 0.5s ease, visibility 0s linear 0.5s; }
+.diapo.actif, .bandeau.un-seul .diapo { opacity: 1; visibility: visible; transition: opacity 0.5s ease; z-index: 1; }
+.diapo .fond, .mini .fond { transition: none; }
+.teinte { position: absolute; inset: 0; background: linear-gradient(to top, rgba(240, 98, 18, 0.9) 0%, rgba(231, 67, 110, 0.5) 34%, rgba(238, 128, 47, 0.14) 66%, rgba(238, 128, 47, 0) 100%); }
+.sans-photo .teinte { background: var(--grad); }
+.diapo .marque { position: absolute; right: -4%; bottom: -22%; width: min(52vw, 560px); aspect-ratio: 1; border-radius: 50%; border: 3px solid rgba(255, 255, 255, 0.22); box-shadow: inset 0 0 0 28px rgba(255, 255, 255, 0.06), inset 0 0 0 29px rgba(255, 255, 255, 0.14); }
+.diapo .marque::after { content: ''; position: absolute; inset: 22%; border-radius: 50%; border: 3px solid rgba(255, 255, 255, 0.2); }
+.diapo-contenu { position: absolute; z-index: 2; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 56px max(24px, 8vw) 40px; text-align: center; }
+.etiquette { display: inline-block; padding: 6px 14px; border-radius: 999px; background: var(--white); color: var(--orange); font: 700 0.75rem/1 Poppins, Montserrat, Arial, sans-serif; letter-spacing: 0.08em; text-transform: uppercase; }
+.diapo-titre { margin: 0; max-width: 980px; font: 700 clamp(1.45rem, 3.3vw, 2.6rem)/1.55 Poppins, Montserrat, Arial, sans-serif; color: var(--ink); text-wrap: balance; }
+.diapo-titre span, .mini h3 span { background: var(--white); padding: 3px 16px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.diapo-titre a:hover span, .diapo-titre a:focus-visible span { background: var(--ink); color: var(--white); }
+.signature { font: 600 0.85rem/1.4 Poppins, Montserrat, Arial, sans-serif; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255, 255, 255, 0.98); text-shadow: 0 1px 10px rgba(0, 0, 0, 0.55); }
+.lire { display: inline-block; padding: 12px 26px; border-radius: 999px; background: var(--white); color: var(--orange); font: 700 0.95rem/1 Poppins, Montserrat, Arial, sans-serif; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18); }
+.diapo:hover .lire { background: var(--ink); color: var(--white); }
+
+/* Barres de progression (stories) */
+.progres { position: absolute; z-index: 5; top: 14px; left: 16px; right: 16px; display: flex; gap: 6px; }
+.progres button { flex: 1; height: 24px; padding: 10px 0; border: 0; background: transparent; cursor: pointer; }
+.progres i { display: block; height: 4px; border-radius: 3px; background: rgba(255, 255, 255, 0.38); overflow: hidden; }
+.progres i b { display: block; height: 100%; width: 0; background: var(--white); border-radius: 3px; }
+.progres button.fait i b { width: 100%; }
+.progres button.en-cours i b { animation: bandeau-remplir var(--duree, 10s) linear forwards; }
+.bandeau.pause .progres button.en-cours i b { animation-play-state: paused; }
+@keyframes bandeau-remplir { from { width: 0; } to { width: 100%; } }
+.zone { position: absolute; z-index: 3; top: 44px; bottom: 0; width: 22%; border: 0; background: transparent; cursor: pointer; }
+.zone.g { left: 0; } .zone.d { right: 0; }
+.fleche { position: absolute; z-index: 4; top: 50%; translate: 0 -50%; width: 44px; height: 44px; border-radius: 50%; border: 0; background: rgba(255, 255, 255, 0.92); color: var(--ink); font: 700 20px/1 Poppins, Montserrat, Arial, sans-serif; cursor: pointer; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2); transition: opacity 0.2s; }
+.fleche.g { left: 16px; } .fleche.d { right: 16px; }
+.bandeau:not(:hover):not(:focus-within) .fleche { opacity: 0; }
+.lecture { position: absolute; z-index: 5; right: 16px; bottom: 14px; display: inline-flex; gap: 8px; align-items: center; padding: 7px 14px 7px 10px; border: 0; border-radius: 999px; background: rgba(26, 26, 46, 0.55); color: var(--white); font: 600 0.78rem/1 Poppins, Montserrat, Arial, sans-serif; cursor: pointer; }
+.lecture svg { width: 16px; height: 16px; }
+.lecture .ico-lire, .lecture.en-pause .ico-pause { display: none; }
+.lecture.en-pause .ico-lire { display: block; }
+.bandeau button:focus-visible, .bandeau a:focus-visible { outline: 3px solid var(--white); outline-offset: 2px; }
+
+/* Côté droit : 4 mini cartes fixes, même dessin que le bandeau */
+.une-cote { display: grid; grid-template-rows: repeat(var(--n, 4), minmax(0, 1fr)); gap: 6px; padding-left: 6px; height: clamp(440px, 40vw, 580px); min-width: 0; }
+.une-cote[hidden] { display: none; }
+.mini-squelette { min-height: 80px; border-radius: 0; }
+.mini { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 12px 14px; overflow: hidden; isolation: isolate; background: #2a2a3a; color: var(--white); text-align: center; min-height: 0; }
+.mini .fond, .mini .teinte { position: absolute; inset: 0; z-index: -1; }
+.mini .teinte { background: linear-gradient(to top, rgba(240, 98, 18, 0.9) 0%, rgba(231, 67, 110, 0.5) 40%, rgba(238, 128, 47, 0.14) 75%, rgba(238, 128, 47, 0) 100%); }
+.mini.sans-photo .teinte { background: var(--grad); }
+.mini .etiquette { padding: 4px 10px; font-size: 0.62rem; }
+.mini h3 { margin: 0; font: 700 clamp(0.82rem, 1.05vw, 0.98rem)/1.6 Poppins, Montserrat, Arial, sans-serif; color: var(--ink); text-wrap: balance; }
+.mini h3 span { padding: 2px 9px; }
+.mini:hover h3 span, .mini:focus-visible h3 span { background: var(--ink); color: var(--white); }
+.mini .quand { font: 600 0.68rem/1 Poppins, Montserrat, Arial, sans-serif; letter-spacing: 0.06em; text-transform: uppercase; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55); }
+
+/* La suite sous le bandeau, et « Les plus lus » */
+.suite[hidden], .plus-lus[hidden] { display: none; }
+.suite { padding-top: 28px; }
+.suite-grille { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
+.plus-lus-aide { color: var(--ink-soft); font-size: 0.82rem; }
+.plus-lus-liste { list-style: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 20px; counter-reset: rang; }
+.plus-lus-liste a { display: flex; gap: 12px; align-items: flex-start; }
+.plus-lus-liste .rang { flex: none; width: 2.1rem; font: 700 2.1rem/1 Poppins, Montserrat, Arial, sans-serif; color: var(--orange); }
+.plus-lus-texte { display: grid; gap: 4px; min-width: 0; }
+.plus-lus-titre { font-family: 'Bitter', Georgia, serif; font-size: 1.02rem; font-weight: 700; line-height: 1.3; color: var(--ink); }
+.plus-lus-liste a:hover .plus-lus-titre { color: var(--orange); }
+
+@media (max-width: 1000px) {
+  .suite-grille { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .plus-lus-liste { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  .une-haut { grid-template-columns: 1fr; }
+  .une-cote { height: auto; grid-template-rows: none; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 6px 0 0; }
+  .mini { min-height: 150px; }
+}
+@media (max-width: 640px) {
+  .fleche { display: none; }
+  .bandeau { height: 460px; }
+  .zone { width: 30%; }
+  .diapo-titre span { padding: 2px 10px; }
+  .suite-grille, .plus-lus-liste { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { .diapo { transition: none; } }
