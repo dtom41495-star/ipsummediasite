@@ -666,6 +666,8 @@
     .then(function (r) { return r.json(); })
     .then(function (data) { afficher((data && data.items) || []); })
     .catch(function () {
+      editionActive = editionDepuisAdresse();
+      afficherJourEtMeteo();   // le bandeau du jour et la météo ne dépendent pas des articles
       cote.hidden = true; haut.classList.add('sans-cote');
       zoneUne.innerHTML = '<p class="feed-loading">Impossible de charger les articles pour le moment. <a href="https://ipsummedia.substack.com" target="_blank" rel="noopener">Voir sur Substack</a>.</p>';
       fil.innerHTML = '';   // efface le squelette de chargement, sinon il reste figé
