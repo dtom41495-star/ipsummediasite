@@ -1,0 +1,62 @@
+# Génère le site statique (scripts/generer.js) et le publie sur GitHub Pages.
+# - À chaque push sur la branche de test : construit le site et le garde comme fichier téléchargeable (rien n'est publié).
+# - Toutes les heures et à la demande : construit, puis publie sur Pages SEULEMENT depuis la branche master.
+name: Site statique
+
+on:
+  push:
+    branches: [claude/generateur-pages]
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+    inputs:
+      deployer:
+        description: 'Publier sur GitHub Pages (la branche doit être autorisée dans l’environnement github-pages)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  construire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Générer le site
+        run: node scripts/generer.js --sortie public ${{ vars.SITE_DOMAINE && format('--domaine {0}', vars.SITE_DOMAINE) || '' }}
+      - name: Contrôle rapide
+        run: |
+          test -s public/index.html
+          test -s public/sitemap.xml
+          echo "Articles : $(ls public/articles | wc -l) · Communes : $(ls public/commune 2>/dev/null | wc -l) · Rubriques : $(ls public/rubrique 2>/dev/null | wc -l) · Journalistes : $(ls public/auteurs 2>/dev/null | wc -l)"
+          ! grep -rl '\.netlify/functions' public
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site-genere
+          path: public
+          retention-days: 7
+      - uses: actions/upload-pages-artifact@v3
+        if: github.ref == 'refs/heads/master' || inputs.deployer
+        with:
+          path: public
+
+  publier:
+    needs: construire
+    if: github.ref == 'refs/heads/master' || inputs.deployer
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploiement.outputs.page_url }}
+    steps:
+      - id: deploiement
+        uses: actions/deploy-pages@v4
