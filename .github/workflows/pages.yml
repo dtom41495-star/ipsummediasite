@@ -1,22 +1,17 @@
 # Génère le site statique (scripts/generer.js) et le publie sur GitHub Pages.
-# - À chaque push sur la branche de test : construit le site et le garde comme fichier téléchargeable (rien n'est publié).
-# - Toutes les heures et à la demande : construit, puis publie sur Pages SEULEMENT depuis la branche master.
+# Toutes les heures, à chaque push sur master et à la demande : construit le site puis le publie sur GitHub Pages.
+# Le domaine est réglé par la variable de dépôt SITE_DOMAINE (Settings > Secrets and variables > Actions > Variables).
 name: Site statique
 
 on:
   push:
-    branches: [claude/generateur-pages]
+    branches: [master]
   schedule:
     - cron: '17 * * * *'
   workflow_dispatch:
-    inputs:
-      deployer:
-        description: 'Publier sur GitHub Pages (la branche doit être autorisée dans l’environnement github-pages)'
-        type: boolean
-        default: false
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
@@ -40,29 +35,20 @@ jobs:
           test -s public/sitemap.xml
           echo "Articles : $(ls public/articles | wc -l) · Communes : $(ls public/commune 2>/dev/null | wc -l) · Rubriques : $(ls public/rubrique 2>/dev/null | wc -l) · Journalistes : $(ls public/auteurs 2>/dev/null | wc -l)"
           ! grep -rl '\.netlify/functions' public
-      - name: Copie du site généré sur la branche site-genere (test uniquement, pour l'inspecter)
-        if: github.ref == 'refs/heads/claude/generateur-pages'
-        run: |
-          cd public
-          git init -q -b site-genere
-          git config user.name "github-actions"
-          git config user.email "actions@users.noreply.github.com"
-          git add -A
-          git commit -q -m "Site généré"
-          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" site-genere
+          test "$(ls public/articles | wc -l)" -ge 20   # garde-fou : jamais publier un site quasi vide
       - uses: actions/upload-artifact@v4
         with:
           name: site-genere
           path: public
           retention-days: 7
       - uses: actions/upload-pages-artifact@v3
-        if: github.ref == 'refs/heads/master' || inputs.deployer
+        if: github.ref == 'refs/heads/master'
         with:
           path: public
 
   publier:
     needs: construire
-    if: github.ref == 'refs/heads/master' || inputs.deployer
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
