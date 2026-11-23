@@ -1355,6 +1355,9 @@ a.equipe-nom:hover { color: var(--orange); text-decoration: underline; }
 .lire { display: inline-block; padding: 12px 26px; border-radius: 999px; background: var(--white); color: var(--orange); font: 700 0.95rem/1 Poppins, Montserrat, Arial, sans-serif; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18); }
 .diapo:hover .lire { background: var(--ink); color: var(--white); }
 
+/* Chapeau de l'article à la une : deux lignes au plus, rien s'il n'y en a pas */
+.diapo-chapeau { margin: 0; max-width: 720px; font: 500 1rem/1.5 Inter, Arial, sans-serif; color: var(--white); text-shadow: 0 1px 12px rgba(0, 0, 0, 0.6); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-wrap: balance; }
+
 /* Barres de progression (stories) */
 .progres { position: absolute; z-index: 5; top: 14px; left: 16px; right: 16px; display: flex; gap: 6px; }
 .progres button { flex: 1; height: 24px; padding: 10px 0; border: 0; background: transparent; cursor: pointer; }
@@ -1409,12 +1412,14 @@ a.equipe-nom:hover { color: var(--orange); text-decoration: underline; }
   .une-haut { grid-template-columns: 1fr; }
   .une-cote { height: auto; grid-template-rows: none; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 6px 0 0; }
   .mini { min-height: 150px; }
+  .mini:last-child:nth-child(odd) { grid-column: 1 / -1; }
 }
 @media (max-width: 640px) {
   .fleche { display: none; }
   .bandeau { height: 460px; }
   .zone { width: 30%; }
   .diapo-titre span { padding: 2px 10px; }
+  .diapo-chapeau { font-size: 0.9rem; -webkit-line-clamp: 1; }
   .suite-grille, .plus-lus-liste { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) { .diapo { transition: none; } }

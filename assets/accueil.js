@@ -6,7 +6,7 @@
   if (!zoneUne) return;
 
   var NB_DIAPOS = 5;        // articles du bandeau (le dernier publié en premier)
-  var NB_MINI = 4;          // mini cartes fixes à droite du bandeau
+  var NB_MINI = 3;          // mini cartes fixes à droite du bandeau
   var DUREE_DIAPO = 10000;  // 10 secondes par article
   var SB_URL = 'https://ctmekufqaxdelgfyjwly.supabase.co';
   var SB_CLE = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0bWVrdWZxYXhkZWxnZnlqd2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMDI1OTksImV4cCI6MjA5MDg3ODU5OX0.32wkp9NsqNTktvuC2Pb3S5EnAPPipt06DYLxfeyf5xE';   // clé publique (anon), la même que dans les autres pages
@@ -137,6 +137,7 @@
       '<div class="diapo-contenu">' + (s ? '<span class="etiquette">' + s + '</span>' : '') +
       '<h2 class="diapo-titre"><a' + lien(a) + '><span>' + a.title + '</span></a></h2>' +
       '<div class="signature">' + (a.author ? 'Par ' + a.author + ' · ' : '') + formatDate(a.pubDate) + '</div>' +
+      (a.description ? '<p class="diapo-chapeau">' + a.description + '</p>' : '') +
       '<a class="lire"' + lien(a) + ' tabindex="-1" aria-hidden="true">Lire l\'article</a>' +
       '</div></article>';
   }
