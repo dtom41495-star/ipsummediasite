@@ -16,7 +16,7 @@ on:
         default: false
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -40,6 +40,16 @@ jobs:
           test -s public/sitemap.xml
           echo "Articles : $(ls public/articles | wc -l) · Communes : $(ls public/commune 2>/dev/null | wc -l) · Rubriques : $(ls public/rubrique 2>/dev/null | wc -l) · Journalistes : $(ls public/auteurs 2>/dev/null | wc -l)"
           ! grep -rl '\.netlify/functions' public
+      - name: Copie du site généré sur la branche site-genere (test uniquement, pour l'inspecter)
+        if: github.ref == 'refs/heads/claude/generateur-pages'
+        run: |
+          cd public
+          git init -q -b site-genere
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Site généré"
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" site-genere
       - uses: actions/upload-artifact@v4
         with:
           name: site-genere
