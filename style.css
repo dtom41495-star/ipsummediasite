@@ -531,6 +531,9 @@ section { padding: 88px 0; }
 .journal-newsletter { position: relative; margin-top: 24px; padding: 48px 0; overflow: hidden; background: var(--orange-light); }
 .journal-newsletter .wrap { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: center; }
 .journal-newsletter .wrap > div { position: relative; z-index: 1; }
+/* Quand il n'y a rien à afficher à droite (ni dernières éditions, ni cartes), le texte prend la place et se centre : pas de grand vide */
+.journal-newsletter .wrap:not(:has(.editions:not([hidden]), .editions-cartes:not([hidden]))) { grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center; }
+.journal-newsletter .wrap:not(:has(.editions:not([hidden]), .editions-cartes:not([hidden]))) p { margin-left: auto; margin-right: auto; }
 /* Grande enveloppe penchée derrière le texte, qui déborde du cadre à gauche et en bas */
 .newsletter-deco { position: absolute; bottom: -130px; left: -120px; z-index: 0; width: 540px; height: auto; transform: rotate(-13deg); pointer-events: none; }
 .journal-newsletter h2 { margin-bottom: 12px; font-size: clamp(1.5rem, 2.6vw, 2rem); }
