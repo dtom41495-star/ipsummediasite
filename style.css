@@ -1639,3 +1639,30 @@ a.equipe-nom:hover { color: var(--orange); text-decoration: underline; }
   .journal-newsletter .wrap > .editions, .journal-newsletter .wrap > .editions-cartes { grid-column: 1; grid-row: auto; }
   .newsletter-tel-cadre { width: 210px; }
 }
+
+/* ===== « Dernières actus » en défilement : liste fixe à gauche, articles à droite, fond = couleur moyenne de la photo ===== */
+.actus-scroll { --actus-fond: #3B1A2B; margin-top: 24px; padding: 80px 0; background: var(--actus-fond); color: #fff; transition: background-color .6s ease; }
+.actus-scroll[hidden] { display: none; }
+.actus-titre { margin: 0 0 40px; text-align: center; font-family: 'Anton', 'Arial Narrow', Impact, sans-serif; font-weight: 400; text-transform: uppercase; font-size: clamp(2.2rem, 6vw, 4.2rem); line-height: 1.02; color: #fff; }
+.actus-grille { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.4fr); gap: 56px; align-items: start; }
+.actus-liste { position: sticky; top: 130px; margin: 0; padding: 0; list-style: none; font-family: 'Anton', 'Arial Narrow', Impact, sans-serif; text-transform: uppercase; font-size: clamp(1.4rem, 2.6vw, 2.2rem); line-height: 1.2; }
+.actus-liste li { opacity: .35; transition: opacity .4s ease; }
+.actus-liste li.actif { opacity: 1; }
+.actus-panneaux { display: grid; gap: 40px; }
+.actus-panneau { min-height: 70vh; display: flex; align-items: center; }
+.actus-carte { display: block; width: 100%; overflow: hidden; background: #fff; color: var(--ink); }
+.actus-img { display: block; aspect-ratio: 16 / 10; overflow: hidden; background: var(--border); }
+.actus-img img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
+.actus-carte:hover .actus-img img { transform: scale(1.03); }
+.actus-corps { display: block; padding: 22px 26px 26px; }
+.actus-carte h3 { margin: 0 0 10px; font-family: 'Anton', 'Arial Narrow', Impact, sans-serif; font-weight: 400; text-transform: uppercase; font-size: clamp(1.5rem, 2.8vw, 2.2rem); line-height: 1.08; color: var(--ink); }
+.actus-carte:hover h3 { color: var(--orange); }
+.actus-tout { margin: 36px 0 0; text-align: center; }
+@media (max-width: 900px) {
+  .actus-scroll { padding: 56px 0; }
+  .actus-grille { grid-template-columns: 1fr; gap: 0; }
+  .actus-liste { display: none; }
+  .actus-panneau { min-height: 0; padding-bottom: 8px; }
+}
+@media (prefers-reduced-motion: reduce) { .actus-scroll, .actus-liste li { transition: none; } }
+.actus-img[hidden] { display: none; }

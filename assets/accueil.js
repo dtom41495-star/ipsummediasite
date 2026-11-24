@@ -10,7 +10,7 @@
   var DUREE_DIAPO = 10000;  // 10 secondes par article
   var SB_URL = (window.IPSUM_CONFIG || {}).SUPABASE_URL;
   var SB_CLE = (window.IPSUM_CONFIG || {}).SUPABASE_CLE;   // clé publique (anon), la même que dans les autres pages
-  var NB_SUITE = 8;         // la suite des actus, sous le bandeau
+  var NB_SUITE = 6;         // la suite des actus, sous le bandeau (défilement : une photo par article)
   var NB_VILLES = 4;        // colonnes "commune"
   var PAR_VILLE = 3;        // articles par commune
   var MIN_VILLE = 2;        // il faut au moins 2 articles (hors la une) pour ouvrir la colonne d'une commune
@@ -374,6 +374,78 @@
       '</a></li>';
   }
 
+  // ===== « Dernières actus » : les articles défilent, la couleur du fond est la moyenne des couleurs de la photo =====
+  var PALETTE_SUITE = ['#EA5B1C', '#E7436E', '#3B1A2B', '#201A17'];   // repli si la photo ne peut pas être lue (réglage du serveur d'images)
+  var observateurSuite = null;
+
+  // Moyenne des couleurs d'une photo, ramenée à un fond assez sombre pour que le texte blanc reste lisible. null si illisible.
+  function couleurMoyenne(img) {
+    try {
+      var c = document.createElement('canvas');
+      c.width = c.height = 16;
+      var ctx = c.getContext('2d', { willReadFrequently: true });
+      ctx.drawImage(img, 0, 0, 16, 16);
+      var d = ctx.getImageData(0, 0, 16, 16).data, r = 0, g = 0, b = 0, n = 0;
+      for (var i = 0; i < d.length; i += 4) { if (d[i + 3] < 128) continue; r += d[i]; g += d[i + 1]; b += d[i + 2]; n++; }
+      if (!n) return null;
+      r /= n * 255; g /= n * 255; b /= n * 255;
+      var max = Math.max(r, g, b), min = Math.min(r, g, b), l = (max + min) / 2, s = 0, t = 0;
+      if (max !== min) {
+        var e = max - min;
+        s = l > 0.5 ? e / (2 - max - min) : e / (max + min);
+        t = max === r ? (g - b) / e + (g < b ? 6 : 0) : max === g ? (b - r) / e + 2 : (r - g) / e + 4;
+        t *= 60;
+      }
+      return 'hsl(' + Math.round(t) + ', ' + Math.round(Math.min(Math.max(s, 0.25), 0.7) * 100) + '%, ' + Math.round(Math.min(Math.max(l, 0.16), 0.32) * 100) + '%)';
+    } catch (e) {
+      return null;   // photo d'un autre domaine qui n'autorise pas la lecture
+    }
+  }
+
+  function afficherSuiteDefilante(articles) {
+    var liste = document.getElementById('actus-liste');
+    if (!suiteSection || !liste) return;
+    if (observateurSuite) observateurSuite.disconnect();
+    liste.innerHTML = articles.map(function (a, i) {
+      return '<li data-i="' + i + '">' + (surtitre(a) || 'Actualité') + '</li>';
+    }).join('');
+    fil.innerHTML = articles.map(function (a, i) {
+      return '<article class="actus-panneau" data-i="' + i + '" data-fond="' + PALETTE_SUITE[i % PALETTE_SUITE.length] + '">' +
+        '<a class="actus-carte"' + lien(a) + '>' +
+        (a.image ? '<span class="actus-img"><img src="' + a.image + '" alt="" decoding="async" loading="lazy" onerror="this.parentNode.hidden=true"></span>' : '') +
+        '<span class="actus-corps">' + kicker(a) + '<h3>' + a.title + '</h3><span class="une-meta">' + formatDate(a.pubDate) + '</span></span>' +
+        '</a></article>';
+    }).join('');
+    var panneaux = fil.querySelectorAll('.actus-panneau');
+    function activer(i) {
+      var p = panneaux[i];
+      if (!p) return;
+      suiteSection.style.setProperty('--actus-fond', p.getAttribute('data-fond'));
+      Array.prototype.forEach.call(liste.children, function (li, k) { li.classList.toggle('actif', k === i); });
+      suiteSection.setAttribute('data-actif', i);
+    }
+    // couleur moyenne de chaque photo (image chargée à part, avec l'autorisation de la lire)
+    articles.forEach(function (a, i) {
+      if (!a.image) return;
+      var test = new Image();
+      test.crossOrigin = 'anonymous';
+      test.onload = function () {
+        var c = couleurMoyenne(test);
+        if (!c) return;
+        panneaux[i].setAttribute('data-fond', c);
+        if (suiteSection.getAttribute('data-actif') === String(i)) activer(i);
+      };
+      test.src = a.image;
+    });
+    activer(0);
+    if ('IntersectionObserver' in window) {
+      observateurSuite = new IntersectionObserver(function (entrees) {
+        entrees.forEach(function (e) { if (e.isIntersecting) activer(Number(e.target.getAttribute('data-i'))); });
+      }, { rootMargin: '-45% 0px -45% 0px' });
+      panneaux.forEach(function (p) { observateurSuite.observe(p); });
+    }
+  }
+
   // ===== Édition choisie (/tarn, /haute-garonne, /national) : l'accueil ne montre que ses articles =====
   // Même page statique pour toutes les adresses : Netlify sert index.html, ce script lit l'adresse et filtre (rien à payer côté serveur).
   var tousItems = null;
@@ -490,7 +562,7 @@
       haut.classList.add('sans-cote');
     }
     if (suite.length) {
-      fil.innerHTML = suite.map(function (a) { return htmlCarte(a, 'h3'); }).join('');
+      afficherSuiteDefilante(suite);
       if (suiteSection) suiteSection.hidden = false;
     }
     afficherPlusLus(articles);
