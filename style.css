@@ -1480,7 +1480,11 @@ a.equipe-nom:hover { color: var(--orange); text-decoration: underline; }
 .rejoindre h2 { max-width: 22ch; margin: 8px auto 14px; font-size: clamp(1.7rem, 3.2vw, 2.4rem); }
 .rejoindre-lead { max-width: 56ch; margin: 0 auto; color: var(--ink-soft); }
 .diversity-montage { flex-wrap: wrap; align-items: center; }
+.diversity-montage { max-width: 740px; margin-left: auto; margin-right: auto; row-gap: 22px; }
+.diversity-montage img:nth-child(2) { transform: rotate(2.5deg); }
 .diversity-montage img:nth-child(4) { transform: rotate(3deg); }
+.diversity-montage img:nth-child(5) { transform: rotate(-2.5deg); }
+.diversity-montage img:hover { transform: rotate(0) scale(1.04); }
 @media (max-width: 820px) {
   .apropos-aventure .wrap, .apropos-aventure-inverse .wrap { grid-template-columns: 1fr; gap: 28px; }
   .apropos-aventure-inverse .apropos-photo { order: 0; }
