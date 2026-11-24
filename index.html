@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<script src="/assets/config.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ipsum Média | L&#39;actualité du Tarn et de la Haute-Garonne</title>
 <meta name="description" content="Ipsum Média, média associatif et indépendant du Tarn et de la Haute-Garonne. Reportages, interviews et actus locales, chaque jeudi dans votre boîte mail.">
@@ -589,15 +590,15 @@
 </script>
 
 <script src="assets/saints.js?v=20261117"></script>
-<script src="assets/accueil.js?v=20261123"></script>
+<script src="assets/accueil.js?v=20261124"></script>
 <script src="assets/videos.js"></script>
 <script src="assets/nav-rubriques.js"></script>
 <script src="assets/utm-substack.js"></script>
 
 <script>
   (function() {
-    var SUPABASE_URL = 'https://ctmekufqaxdelgfyjwly.supabase.co';
-    var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0bWVrdWZxYXhkZWxnZnlqd2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMDI1OTksImV4cCI6MjA5MDg3ODU5OX0.32wkp9NsqNTktvuC2Pb3S5EnAPPipt06DYLxfeyf5xE';
+    var SUPABASE_URL = (window.IPSUM_CONFIG || {}).SUPABASE_URL;
+    var SUPABASE_ANON_KEY = (window.IPSUM_CONFIG || {}).SUPABASE_CLE;
     var SB_FN_HEADERS = { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY };
     // Texte de la base inséré dans du HTML : toujours échappé
     function echapper(s) {
@@ -672,8 +673,8 @@
 
 <script>
   (function() {
-    var SUPABASE_URL = 'https://ctmekufqaxdelgfyjwly.supabase.co';
-    var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0bWVrdWZxYXhkZWxnZnlqd2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMDI1OTksImV4cCI6MjA5MDg3ODU5OX0.32wkp9NsqNTktvuC2Pb3S5EnAPPipt06DYLxfeyf5xE';
+    var SUPABASE_URL = (window.IPSUM_CONFIG || {}).SUPABASE_URL;
+    var SUPABASE_ANON_KEY = (window.IPSUM_CONFIG || {}).SUPABASE_CLE;
     var SB_FN_HEADERS = { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY };
     var DEFAULT_SUBSCRIBE = 'https://ipsummedia.substack.com/subscribe';
     function echapper(s) {

@@ -4,8 +4,8 @@
 (function () {
   var ticker = document.getElementById('ticker');
   if (!ticker || document.getElementById('jour-bandeau')) return;
-  var SB_URL = 'https://ctmekufqaxdelgfyjwly.supabase.co';
-  var SB_CLE = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0bWVrdWZxYXhkZWxnZnlqd2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMDI1OTksImV4cCI6MjA5MDg3ODU5OX0.32wkp9NsqNTktvuC2Pb3S5EnAPPipt06DYLxfeyf5xE';   // clé publique (anon), la même que dans les autres pages
+  var SB_URL = (window.IPSUM_CONFIG || {}).SUPABASE_URL;
+  var SB_CLE = (window.IPSUM_CONFIG || {}).SUPABASE_CLE;   // clé publique (anon), la même que dans les autres pages
   var CODES_METEO = function (c, jour) {
     if (c === 0) return jour ? ['☀️', 'Soleil'] : ['🌙', 'Ciel dégagé'];
     if (c === 1) return jour ? ['🌤️', 'Plutôt dégagé'] : ['🌙', 'Plutôt dégagé'];

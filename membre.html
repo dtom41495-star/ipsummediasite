@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<script src="/assets/config.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vérification de carte de membre | Ipsum Média</title>
 <meta name="robots" content="noindex">
@@ -175,8 +176,8 @@
   // (ipsummedia.fr/membre?c=...) et est vérifié par la fonction Supabase
   // verifier-carte-membre, qui ne renvoie que ce qui est imprimé sur la carte.
   (function () {
-    var SUPABASE_URL = 'https://ctmekufqaxdelgfyjwly.supabase.co';
-    var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0bWVrdWZxYXhkZWxnZnlqd2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMDI1OTksImV4cCI6MjA5MDg3ODU5OX0.32wkp9NsqNTktvuC2Pb3S5EnAPPipt06DYLxfeyf5xE';
+    var SUPABASE_URL = (window.IPSUM_CONFIG || {}).SUPABASE_URL;
+    var SUPABASE_ANON_KEY = (window.IPSUM_CONFIG || {}).SUPABASE_CLE;
     var zone = document.getElementById('verif-carte');
     var ICONE_OK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.7 2.7L16 9.8"/></svg>';
     var ICONE_PRESSE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 3v3h6V3"/><circle cx="12" cy="11" r="2.5"/><path d="M8 17c.6-1.8 2.2-3 4-3s3.4 1.2 4 3"/></svg>';
