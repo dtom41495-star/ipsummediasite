@@ -557,7 +557,6 @@ ${headExtra}
   /* Mise en page à deux colonnes sur ordinateur : l'article à gauche, une colonne qui suit le défilement à droite */
   .article-layout { padding: 0; }
   .article-side { max-width: 720px; margin: 0 auto; padding: 0 24px 80px; }
-  .article-side .article-subscribe { margin-top: 28px; }
   .side-titre { margin: 0 0 14px; padding-bottom: 8px; border-bottom: 2px solid var(--ink); font-family: 'Anton', 'Arial Narrow', Impact, sans-serif; font-weight: 400; text-transform: uppercase; font-size: 1.5rem; line-height: 1.1; letter-spacing: .005em; }
   .side-liste { list-style: none; margin: 0; padding: 0; }
   .side-liste li + li { border-top: 1px solid var(--border); }
@@ -571,6 +570,8 @@ ${headExtra}
     .article-layout .article-page { max-width: none; margin: 0; padding: 60px 0 100px; }
     .article-side { position: sticky; top: 96px; max-width: none; margin: 0; padding: 60px 0 40px; }
   }
+  .article-layout.sans-cote .article-side { display: none; }
+  @media (min-width: 1100px) { .article-layout.sans-cote { display: block; } .article-layout.sans-cote .article-page { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; } }
   .article-page .eyebrow { display:block; margin-bottom: 14px; }
   .article-page h1 { font-size: clamp(1.5rem, 3.4vw, 2.1rem); line-height: 1.2; margin-bottom: 14px; }
   .article-meta { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 28px; }
@@ -1017,18 +1018,19 @@ function renderArticle(a) {
     <div class="article-share-end">
       <p>Cet article vous a plu ? Partagez-le, ou dites-nous ce que vous en pensez.</p>
       <div class="article-share-end-actions">${renderLike(a)}${commenter}${share}</div>
-    </div>${renderSuggestions(a.suggestions)}
+    </div>
+    <div class="article-subscribe">
+      <h3>Envie de ne rater aucun article ?</h3>
+      <p>Recevez l'actu ${escapeHtml(redac.de)} chaque jeudi directement par email.</p>
+      <a class="btn btn-primary" href="${escapeHtml(redac.subscribeUrl)}" target="_blank" rel="noopener">Je m'inscris à la newsletter</a>
+    </div>
+    ${renderSuggestions(a.suggestions)}
   </div>
   <aside class="article-side" aria-label="Autour de l'article">
     <section class="side-plus-lus" id="side-plus-lus" hidden>
       <h2 class="side-titre">Les plus lus</h2>
       <ol class="side-liste" id="side-liste"></ol>
     </section>
-    <div class="article-subscribe">
-      <h3>Envie de ne rater aucun article ?</h3>
-      <p>Recevez l'actu ${escapeHtml(redac.de)} chaque jeudi directement par email.</p>
-      <a class="btn btn-primary" href="${escapeHtml(redac.subscribeUrl)}" target="_blank" rel="noopener">Je m'inscris à la newsletter</a>
-    </div>
   </aside>
   </div>
   <script>
@@ -1039,6 +1041,7 @@ function renderArticle(a) {
     if (!bloc || !liste || !CFG.SUPABASE_URL) return;
     function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
     function slugDe(lien) { var m = String(lien || '').match(/\\/(?:p|articles)\\/([^/?#]+)/); return m ? m[1] : ''; }
+    function sansCote() { var mise = document.querySelector('.article-layout'); if (mise) mise.classList.add('sans-cote'); }
     var courant = (location.pathname.split('/').filter(Boolean).pop() || '').replace(/\\.html$/, '');
     var vues = fetch(CFG.SUPABASE_URL + '/rest/v1/rpc/site_plus_lus', { method: 'POST', headers: { apikey: CFG.SUPABASE_CLE, Authorization: 'Bearer ' + CFG.SUPABASE_CLE, 'Content-Type': 'application/json' }, body: '{}' })
       .then(function (r) { return r.ok ? r.json() : []; });
@@ -1049,14 +1052,14 @@ function renderArticle(a) {
       lignes.forEach(function (l) { if (l && l.slug) nb[l.slug] = Number(l.vues) || 0; });
       var classes = items.filter(function (it) { return it.kind !== 'newsletter' && slugDe(it.link) && slugDe(it.link) !== courant && nb[slugDe(it.link)] > 0; })
         .sort(function (a, b) { return nb[slugDe(b.link)] - nb[slugDe(a.link)]; }).slice(0, 5);
-      if (classes.length < 3) return;
+      if (classes.length < 3) { sansCote(); return; }
       liste.innerHTML = classes.map(function (it, i) {
         var lieu = (it.communes && it.communes[0] && it.communes[0].nom) || (it.rubriques && it.rubriques[0] && it.rubriques[0].nom) || '';
         return '<li><a href="/articles/' + encodeURIComponent(slugDe(it.link)) + '"><span class="side-rang">' + (i + 1) + '</span><span>' +
           (lieu ? '<span class="side-kicker">' + esc(lieu) + '</span>' : '') + '<span class="side-titre-article">' + it.title + '</span></span></a></li>';
       }).join('');
       bloc.hidden = false;
-    }).catch(function () { /* colonne sans classement : l'inscription à la newsletter reste */ });
+    }).catch(function () { sansCote(); });
   })();
   </script>
   <script>
