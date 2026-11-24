@@ -16,7 +16,16 @@ exports.handler = async function (event) {
   const photo = urlPhoto(e);
   const paragraphes = String(e.description || '').split(/\n{2,}/).map((p) => p.trim()).filter(Boolean)
     .map((p) => `<p>${echapper(p).replace(/\n/g, '<br>')}</p>`).join('');
-  const autres = tous.filter((x) => x.edition === e.edition && x.slug !== e.slug).slice(0, 4);
+  // Événements similaires : dans la même ville, à la même période (qui chevauchent les dates de celui-ci, à une semaine près), les plus proches d'abord
+  const SEMAINE = 7 * 86400000;
+  const debutE = new Date(e.date_debut).getTime(), finE = new Date(e.date_fin || e.date_debut).getTime();
+  const ville = (v) => String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  const autres = tous
+    .filter((x) => x.slug !== e.slug && ville(x.commune) === ville(e.commune))
+    .filter((x) => { const d = new Date(x.date_debut).getTime(), f = new Date(x.date_fin || x.date_debut).getTime(); return d <= finE + SEMAINE && f >= debutE - SEMAINE; })
+    .sort((x, y) => Math.abs(new Date(x.date_debut) - debutE) - Math.abs(new Date(y.date_debut) - debutE))
+    .slice(0, 4)
+    .sort((x, y) => new Date(x.date_debut) - new Date(y.date_debut));
   const quand = `${dateLongue(e.date_debut)} · ${horaire(e)}`;
   const aCarte = Number.isFinite(Number(e.lat)) && Number.isFinite(Number(e.lng)) && e.lat != null && e.lng != null;
   const lat = aCarte ? Number(e.lat) : null, lng = aCarte ? Number(e.lng) : null;
@@ -46,10 +55,9 @@ exports.handler = async function (event) {
         <a class="btn btn-primary" href="${echapper(lienGoogleAgenda(e))}" target="_blank" rel="noopener">Ajouter à mon agenda</a>
         <button type="button" class="btn btn-outline" id="ev-partager">Partager</button>
       </div>
-      <p class="ev-note">Cet événement est proposé par son organisateur et publié sur l'agenda d'Ipsum Média, sans promesse de couverture par la rédaction.</p>
     </aside>
   </div></section>
-  ${autres.length ? `<section class="journal suite"><div class="wrap"><div class="journal-tete"><h2>Autres événements ${echapper(ed.de)}</h2><a href="/agenda/${e.edition}">Tout l'agenda</a></div><div class="suite-grille">${autres.map(carte).join('')}</div></div></section>` : ''}
+  ${autres.length ? `<section class="journal suite"><div class="wrap"><div class="journal-tete"><h2>À la même période à ${echapper(e.commune)}</h2><a href="/agenda/${e.edition}">Tout l'agenda</a></div><div class="suite-grille">${autres.map(carte).join('')}</div></div></section>` : ''}
   ${aCarte ? '<script src="/assets/agenda-carte.js"></script>' : ''}
   <script>
   (function () {
