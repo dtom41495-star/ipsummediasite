@@ -1650,4 +1650,3 @@ a.equipe-nom:hover { color: var(--orange); text-decoration: underline; }
 .villes-pastilles a.ma-commune { background: var(--orange); border-color: var(--orange); color: #fff; font-weight: 700; }
 .villes-pastilles a.ma-commune:hover { color: #fff; opacity: .9; }
 .ville-ma .ville-tete { border-left-color: var(--orange); }
-.ville-ma .ville-tete h3::after { content: ' \2605'; color: var(--orange); }

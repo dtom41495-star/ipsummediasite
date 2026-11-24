@@ -650,7 +650,7 @@
     if (!colonnes.length) return;   // pas assez d'articles par commune : les pastilles seules n'ont pas d'intérêt
 
     villesPastilles.innerHTML = liste.map(function (c) {
-      return '<a href="/commune/' + c.slug + '"' + (c === ma ? ' class="ma-commune"' : '') + '>' + (c === ma ? '\u2605 ' : '') + c.nom + '</a>';
+      return '<a href="/commune/' + c.slug + '"' + (c === ma ? ' class="ma-commune"' : '') + '>' + c.nom + '</a>';
     }).join('');
 
     villesGrille.innerHTML = colonnes.map(function (c) {
