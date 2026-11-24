@@ -126,11 +126,11 @@
     </div>
   </nav>
 
-  <!-- À la une : bandeau pleine largeur (slider façon stories, 10 s par article) + 3 mini cartes fixes à droite (voir assets/accueil.js) -->
+  <!-- À la une : bandeau pleine largeur (le dernier article) + 3 mini cartes fixes à droite (voir assets/accueil.js) -->
   <section class="une-zone" id="accueil">
     <h1 class="sr-only">Ipsum Média | L'actualité du Tarn et de la Haute-Garonne</h1>
     <div class="une-haut" id="une-haut">
-      <section class="bandeau" id="une-main" aria-roledescription="carrousel" aria-label="À la une">
+      <section class="bandeau" id="une-main" aria-label="À la une">
         <div class="skeleton bandeau-squelette" aria-hidden="true"></div>
         <p class="feed-loading sr-only" role="status">Chargement des articles...</p>
       </section>
@@ -140,21 +140,21 @@
     </div>
   </section>
 
-  <!-- Près de chez vous : juste sous la une. La commune choisie par le visiteur est retenue dans son navigateur (voir assets/accueil.js) -->
+  <!-- La suite des actus, sous le bandeau -->
+  <section class="journal suite" id="suite" hidden>
+    <div class="wrap">
+      <div class="journal-tete"><h2>Dernières actus</h2><a href="articles.html">Tout voir</a></div>
+      <div class="suite-grille" id="une-fil"></div>
+    </div>
+  </section>
+
+  <!-- Près de chez vous : sous « Dernières actus ». La commune choisie par le visiteur est retenue dans son navigateur (voir assets/accueil.js) -->
   <section class="journal villes" id="villes" hidden>
     <div class="wrap">
       <h2 class="villes-titre">Près de chez vous</h2>
       <p class="villes-memo" id="villes-memo" hidden></p>
       <nav class="villes-pastilles" id="villes-pastilles" aria-label="Choisir une commune"></nav>
       <div class="villes-grille" id="villes-grille"></div>
-    </div>
-  </section>
-
-  <!-- La suite des actus, sous le bandeau -->
-  <section class="journal suite" id="suite" hidden>
-    <div class="wrap">
-      <div class="journal-tete"><h2>Dernières actus</h2><a href="articles.html">Tout voir</a></div>
-      <div class="suite-grille" id="une-fil"></div>
     </div>
   </section>
 
@@ -537,7 +537,7 @@
 </script>
 
 <script src="assets/saints.js?v=20261117"></script>
-<script src="assets/accueil.js?v=20261402"></script>
+<script src="assets/accueil.js?v=20261403"></script>
 <script src="assets/videos.js"></script>
 <script src="assets/nav-rubriques.js"></script>
 <script src="assets/utm-substack.js"></script>
