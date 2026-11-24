@@ -8,8 +8,8 @@
   var NB_DIAPOS = 5;        // articles du bandeau (le dernier publié en premier)
   var NB_MINI = 3;          // mini cartes fixes à droite du bandeau
   var DUREE_DIAPO = 10000;  // 10 secondes par article
-  var SB_URL = 'https://ctmekufqaxdelgfyjwly.supabase.co';
-  var SB_CLE = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0bWVrdWZxYXhkZWxnZnlqd2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMDI1OTksImV4cCI6MjA5MDg3ODU5OX0.32wkp9NsqNTktvuC2Pb3S5EnAPPipt06DYLxfeyf5xE';   // clé publique (anon), la même que dans les autres pages
+  var SB_URL = (window.IPSUM_CONFIG || {}).SUPABASE_URL;
+  var SB_CLE = (window.IPSUM_CONFIG || {}).SUPABASE_CLE;   // clé publique (anon), la même que dans les autres pages
   var NB_SUITE = 8;         // la suite des actus, sous le bandeau
   var NB_VILLES = 4;        // colonnes "commune"
   var PAR_VILLE = 3;        // articles par commune

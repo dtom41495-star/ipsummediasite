@@ -18,8 +18,8 @@ const LIBELLES = { 'Tarn': "La Rédac' du Tarn", 'Haute-Garonne': "La Rédac' d'
 const DE_LA_REDAC = { 'Tarn': 'du Tarn', 'Haute-Garonne': "d'Haute-Garonne" };
 
 // Compo (base de données de la rédaction). Clé publique (anon) : la même que dans le JS de la page d'accueil.
-const SUPABASE_URL = 'https://ctmekufqaxdelgfyjwly.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0bWVrdWZxYXhkZWxnZnlqd2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMDI1OTksImV4cCI6MjA5MDg3ODU5OX0.32wkp9NsqNTktvuC2Pb3S5EnAPPipt06DYLxfeyf5xE';
+const SUPABASE_URL = compo.COMPO_URL;
+const SUPABASE_ANON_KEY = compo.COMPO_CLE;
 
 // Lien Substack d'un article ancien, tel que la rédaction l'a renseigné dans Compo
 // (colonne articles.lien_publication, servie par la fonction lien-publication).
@@ -544,6 +544,7 @@ function pageShell(bodyHtml, headExtra, subscribeUrl) {
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<script src="/assets/config.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 ${headExtra}
 <link rel="icon" type="image/png" href="/assets/logo-carre.png">

@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<script src="/assets/config.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vérification de document signé | Ipsum Média</title>
 <meta name="robots" content="noindex">
@@ -183,8 +184,8 @@
   // Vérification d'un document signé dans Compo : par son code (certificat, QR code)
   // ou en déposant le PDF, dont l'empreinte SHA-256 est calculée dans le navigateur.
   (function () {
-    var SUPABASE_URL = 'https://ctmekufqaxdelgfyjwly.supabase.co';
-    var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0bWVrdWZxYXhkZWxnZnlqd2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMDI1OTksImV4cCI6MjA5MDg3ODU5OX0.32wkp9NsqNTktvuC2Pb3S5EnAPPipt06DYLxfeyf5xE';
+    var SUPABASE_URL = (window.IPSUM_CONFIG || {}).SUPABASE_URL;
+    var SUPABASE_ANON_KEY = (window.IPSUM_CONFIG || {}).SUPABASE_CLE;
     var zone = document.getElementById('doc-zone');
     var ICONE_OK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.7 2.7L16 9.8"/></svg>';
     var ICONE_KO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M9 9l6 6M15 9l-6 6"/></svg>';

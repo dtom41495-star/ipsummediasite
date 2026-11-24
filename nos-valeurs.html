@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<script src="/assets/config.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nos valeurs | Ipsum Média</title>
 <meta name="description" content="Indépendance, apprentissage sur le terrain, ouverture à tous, ancrage local : ce qui anime Ipsum Média au quotidien.">
@@ -225,8 +226,8 @@
 
 <script>
   (function() {
-    var SUPABASE_URL = 'https://ctmekufqaxdelgfyjwly.supabase.co';
-    var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0bWVrdWZxYXhkZWxnZnlqd2x5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMDI1OTksImV4cCI6MjA5MDg3ODU5OX0.32wkp9NsqNTktvuC2Pb3S5EnAPPipt06DYLxfeyf5xE';
+    var SUPABASE_URL = (window.IPSUM_CONFIG || {}).SUPABASE_URL;
+    var SUPABASE_ANON_KEY = (window.IPSUM_CONFIG || {}).SUPABASE_CLE;
     var SB_FN_HEADERS = { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY };
     var DEFAULT_SUBSCRIBE = 'https://ipsummedia.substack.com/subscribe';
 

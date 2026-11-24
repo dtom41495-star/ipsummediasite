@@ -113,6 +113,9 @@ async function main() {
   const t0 = Date.now();
   if (fs.existsSync(SORTIE)) fs.rmSync(SORTIE, { recursive: true });
   copierStatique();
+  // La configuration des pages suit celle des fonctions (variables COMPO_URL / COMPO_CLE_PUBLIQUE si elles existent)
+  const cfg = require('../lib/compo');
+  ecrire('assets/config.js', `window.IPSUM_CONFIG = ${JSON.stringify({ SUPABASE_URL: cfg.COMPO_URL, SUPABASE_CLE: cfg.COMPO_CLE })};\n`);
 
   // Flux JSON lus par les scripts du navigateur
   const lire = async (nom, q) => {
