@@ -1829,3 +1829,5 @@ a.equipe-nom:hover { color: var(--orange); text-decoration: underline; }
 .na-onglets { flex: 1 1 100%; }
 .na-selects { flex: 1 1 100%; padding: 12px 0 14px; border-top: 1px solid var(--border); flex-wrap: wrap; }
 .na-select select { min-width: 220px; }
+/* Ancres de la page À propos : la bande démarre sous l'en-tête fixe */
+.ap2-band, .team, .contact { scroll-margin-top: 80px; }
