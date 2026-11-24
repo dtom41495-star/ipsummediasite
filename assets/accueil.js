@@ -407,10 +407,10 @@
     if (!suiteSection || !liste) return;
     if (observateurSuite) observateurSuite.disconnect();
     liste.innerHTML = articles.map(function (a, i) {
-      return '<li data-i="' + i + '">' + (surtitre(a) || 'Actualité') + '</li>';
+      return '<li data-i="' + i + '"><a href="#actu-' + i + '">' + a.title + '</a></li>';
     }).join('');
     fil.innerHTML = articles.map(function (a, i) {
-      return '<article class="actus-panneau" data-i="' + i + '" data-fond="' + PALETTE_SUITE[i % PALETTE_SUITE.length] + '">' +
+      return '<article class="actus-panneau" id="actu-' + i + '" data-i="' + i + '" data-fond="' + PALETTE_SUITE[i % PALETTE_SUITE.length] + '">' +
         '<a class="actus-carte"' + lien(a) + '>' +
         (a.image ? '<span class="actus-img"><img src="' + a.image + '" alt="" decoding="async" loading="lazy" onerror="this.parentNode.hidden=true"></span>' : '') +
         '<span class="actus-corps">' + kicker(a) + '<h3>' + a.title + '</h3><span class="une-meta">' + formatDate(a.pubDate) + '</span></span>' +

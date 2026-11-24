@@ -1666,3 +1666,10 @@ a.equipe-nom:hover { color: var(--orange); text-decoration: underline; }
 }
 @media (prefers-reduced-motion: reduce) { .actus-scroll, .actus-liste li { transition: none; } }
 .actus-img[hidden] { display: none; }
+
+/* Liste de gauche : les titres des articles (cliquables, ils mènent au panneau) */
+.actus-liste { font-size: clamp(1rem, 1.5vw, 1.35rem); line-height: 1.2; }
+.actus-liste li { margin: 0 0 16px; }
+.actus-liste a { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; color: inherit; }
+.actus-liste a:hover, .actus-liste a:focus-visible { text-decoration: underline; text-underline-offset: 4px; }
+.actus-panneau { scroll-margin-top: 110px; }
