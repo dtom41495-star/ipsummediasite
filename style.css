@@ -1639,3 +1639,22 @@ a.equipe-nom:hover { color: var(--orange); text-decoration: underline; }
   .journal-newsletter .wrap > .editions, .journal-newsletter .wrap > .editions-cartes { grid-column: 1; grid-row: auto; }
   .newsletter-tel-cadre { width: 210px; }
 }
+
+/* ===== « Dernières actus » : cartes de couleur (étiquette, titre en capitales condensées, date, photo en bas) ===== */
+.suite-grille { gap: 16px; }
+.suite-grille .une-card { display: flex; flex-direction: column; min-height: 400px; padding: 22px 22px 0; overflow: hidden; text-align: left; }
+.suite-grille .une-card:nth-child(4n+1) { background: #EA5B1C; color: #201A17; }
+.suite-grille .une-card:nth-child(4n+2) { background: #201A17; color: #fff; }
+.suite-grille .une-card:nth-child(4n+3) { background: #E7436E; color: #fff; }
+.suite-grille .une-card:nth-child(4n+4) { background: #FDD9C6; color: #5A2A12; }
+.suite-grille .une-card .kicker { order: 1; margin: 0 0 18px; text-align: center; color: inherit; opacity: .92; }
+.suite-grille .une-card h3 { order: 2; margin: 0 0 8px; font-family: 'Anton', 'Arial Narrow', Impact, sans-serif; font-weight: 400; text-transform: uppercase; font-size: 1.45rem; line-height: 1.08; color: inherit; }
+.suite-grille .une-card .une-meta { order: 3; margin: 0 0 18px; color: inherit; opacity: .8; }
+.suite-grille .une-card .une-img { order: 4; margin: auto -22px 0; border-radius: 0; aspect-ratio: 16 / 10; background: rgba(0, 0, 0, .18); }
+.suite-grille .une-card:hover h3, .suite-grille .une-card:focus-visible h3 { color: inherit; text-decoration: underline; text-underline-offset: 4px; }
+@media (max-width: 1000px) { .suite-grille .une-card { min-height: 360px; } }
+@media (max-width: 640px) {
+  .suite-grille { gap: 12px; }
+  .suite-grille .une-card { min-height: 0; }
+  .suite-grille .une-card h3 { font-size: 1.35rem; }
+}
