@@ -5,7 +5,7 @@ const compo = require('../../lib/compo');
 const { SITE, chargerItems } = require('../../lib/themes');
 const { echapper, decoder, enveloppe, reponseIndisponible } = require('../../lib/page');
 const { indexEquipe, articlesDe } = require('../../lib/auteurs');
-const { carte } = require('./articles-liste');
+const { carte } = require('../../lib/blocs');
 
 const MAX_CARTES = 100;
 
@@ -41,7 +41,7 @@ exports.handler = async function (event) {
   <section class="articles-list">
     <div class="wrap">
       <nav class="theme-fil" aria-label="Fil d'Ariane" style="font-size:.9rem; margin-bottom:18px;"><a href="/index.html#accueil">Accueil</a> › <a href="/a-propos.html#journalistes">Nos journalistes</a> › <span aria-current="page">${echapper(membre.nom)}</span></nav>
-      ${n ? `<div class="feed-grid">${articles.slice(0, MAX_CARTES).map(carte).join('')}</div>` : ''}
+      ${n ? `<div class="suite-grille">${articles.slice(0, MAX_CARTES).map(carte).join('')}</div>` : ''}
       <p style="margin-top:28px;"><a class="btn btn-outline" href="/a-propos.html#journalistes">Toute l'équipe</a> <a class="btn btn-outline" href="/articles.html">Tous nos articles</a></p>
     </div>
   </section>`;

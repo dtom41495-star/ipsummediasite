@@ -1781,3 +1781,51 @@ a.equipe-nom:hover { color: var(--orange); text-decoration: underline; }
   .suite-grille .une-card h3 { font-size: 1rem; }
   .suite-grille .une-card .kicker { font-size: .62rem; }
 }
+
+/* ===== Nos actus, communes, rubriques : même univers que l'accueil ===== */
+.page-bandeau { background: var(--ink); color: #fff; padding: 44px 0 40px; }
+.page-bandeau .wrap { max-width: none; padding-left: clamp(16px, 3vw, 44px); padding-right: clamp(16px, 3vw, 44px); }
+.page-bandeau .theme-fil { margin-bottom: 18px; font-size: .85rem; color: rgba(255,255,255,.7); }
+.page-bandeau .theme-fil a { color: rgba(255,255,255,.85); }
+.page-bandeau .theme-fil a:hover { color: var(--orange); }
+.page-bandeau-eyebrow { display: inline-block; margin-bottom: 10px; padding: 4px 10px; background: var(--orange); color: var(--ink); font-size: .74rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.page-bandeau h1 { margin: 0 0 12px; color: #fff; font-family: 'Anton', 'Arial Narrow', Impact, sans-serif; font-weight: 400; text-transform: uppercase; font-size: clamp(2.6rem, 7vw, 5rem); line-height: 1; letter-spacing: .01em; }
+.page-bandeau-lead { max-width: 60ch; margin: 0; color: rgba(255,255,255,.82); font-size: 1.05rem; }
+.page-bandeau-pastilles { margin: 22px 0 0; }
+.page-bandeau .villes-pastilles a { border-color: rgba(255,255,255,.5); color: #fff; }
+.page-bandeau .villes-pastilles a:hover { background: var(--orange); border-color: var(--orange); color: var(--ink); }
+.page-bandeau + .une-zone { margin-top: 0; }
+.une-zone + .journal, .page-bandeau + .journal { border-top: 0; }
+.na-liste, .theme-tout { background: var(--white); }
+.theme-tout, .journal.plus-lus + .journal { border-top: 1px solid var(--border); }
+.theme-voir-aussi .villes-pastilles { margin-bottom: 0; }
+
+/* Barre de choix de « Nos actus » : des onglets pour les rubriques, deux listes pour le reste */
+.na-outils { position: sticky; top: 76px; z-index: 20; background: var(--white); border-bottom: 1px solid var(--border); }
+.na-outils .wrap { max-width: none; display: flex; align-items: center; gap: 20px; padding: 0 clamp(16px, 3vw, 44px); }
+.na-onglets { display: flex; gap: 4px; flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.na-onglets::-webkit-scrollbar { display: none; }
+.na-onglet { flex: none; padding: 16px 14px 13px; border: 0; border-bottom: 3px solid transparent; background: none; color: var(--ink-soft); font: inherit; font-size: .88rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; cursor: pointer; }
+.na-onglet:hover { color: var(--ink); }
+.na-onglet[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--orange); }
+.na-onglet:focus-visible { outline: 2px solid var(--orange); outline-offset: -2px; }
+.na-selects { display: flex; gap: 14px; flex: none; }
+.na-select { display: flex; align-items: center; gap: 8px; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-soft); }
+.na-select[hidden] { display: none; }
+.na-select select { max-width: 200px; padding: 8px 30px 8px 10px; border: 2px solid var(--ink); border-radius: 0; background: var(--white); color: var(--ink); font: inherit; font-size: .86rem; font-weight: 600; text-transform: none; letter-spacing: 0; }
+.na-statut { color: var(--ink-soft); font-size: .86rem; font-weight: 600; }
+.na-liste { padding-top: 32px; }
+#articles-container .feed-more, .theme-tout .feed-more { margin-top: 32px; text-align: center; }
+.feed-more[hidden] { display: none; }
+@media (max-width: 720px) {
+  .na-outils { top: 0; position: static; }
+  .na-outils .wrap { flex-direction: column; align-items: stretch; gap: 0; }
+  .na-selects { padding: 10px 0 14px; flex-wrap: wrap; }
+  .na-select { flex: 1 1 100%; justify-content: space-between; }
+  .na-select select { max-width: none; flex: 1; }
+}
+.na-outils { position: static; }
+.na-outils .wrap { flex-wrap: wrap; gap: 0 20px; }
+.na-onglets { flex: 1 1 100%; }
+.na-selects { flex: 1 1 100%; padding: 12px 0 14px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+.na-select select { min-width: 220px; }
