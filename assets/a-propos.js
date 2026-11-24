@@ -34,6 +34,21 @@
     }
   }
 
+  // Bande-annonce YouTube : rien n'est chargé chez YouTube tant qu'on n'a pas cliqué (confidentialité et rapidité)
+  var trailer = document.getElementById('ap-trailer');
+  if (trailer) {
+    trailer.addEventListener('click', function () {
+      var id = trailer.getAttribute('data-video');
+      var cadre = document.createElement('iframe');
+      cadre.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1&rel=0&modestbranding=1&playsinline=1';
+      cadre.title = "La bande-annonce d'Ipsum Média";
+      cadre.allow = 'autoplay; encrypted-media; picture-in-picture';
+      cadre.allowFullscreen = true;
+      cadre.className = 'ap-trailer-cadre';
+      trailer.parentNode.replaceChild(cadre, trailer);
+    });
+  }
+
   var select = document.getElementById('cf-redaction');
   var form = document.getElementById('contact-form');
   if (!select || !form || !CFG.SUPABASE_URL) return;
