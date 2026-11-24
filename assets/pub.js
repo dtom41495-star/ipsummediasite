@@ -43,7 +43,7 @@
       titre: 'Devenir bénévole',
       texte: 'Reportage, écriture, photo, montage : rejoignez l\'équipe d\'un média associatif fait par et pour les Tarnais.',
       bouton: 'Nous rejoindre',
-      href: '/nous-rejoindre.html',
+      href: '/a-propos.html#rejoindre',
       icone: '<circle cx="9" cy="8" r="3"/><path d="M3 20v-1a5 5 0 0 1 5-5h2a5 5 0 0 1 5 5v1"/><circle cx="17.5" cy="9" r="2.5"/><path d="M17 14a4 4 0 0 1 4 4v2"/>'
     }
   };
