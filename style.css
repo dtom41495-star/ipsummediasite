@@ -1690,3 +1690,5 @@ a.equipe-nom:hover { color: var(--orange); text-decoration: underline; }
 .ap2-visages-ligne img { height: auto; min-width: 0; aspect-ratio: 3 / 4; object-fit: cover; object-position: 50% 30%; }
 @media (max-width: 900px) { .ap2-visages-ligne { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; } .ap2-visages-ligne img { aspect-ratio: 3 / 4; } }
 @media (max-width: 480px) { .ap2-visages-ligne { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ap2-visages-ligne img:last-child { grid-column: 1 / -1; aspect-ratio: 16 / 10; object-position: 50% 28%; } }
+/* Pastilles de communes sur téléphone : une seule ligne qui défile, alignée à gauche (centrée, les premières sortiraient de l'écran) */
+@media (max-width: 720px) { #villes .villes-pastilles { justify-content: flex-start; } }
