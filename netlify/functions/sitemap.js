@@ -23,7 +23,7 @@ function isoJour(d) {
   return isNaN(t.getTime()) ? '' : t.toISOString().slice(0, 10);
 }
 
-function fabriquerSitemap(publications, themes, auteurs) {
+function fabriquerSitemap(publications, themes, auteurs, agenda) {
   const urls = PAGES_FIXES.map(([chemin, freq, prio]) =>
     `  <url>\n    <loc>${SITE}${chemin}</loc>\n    <changefreq>${freq}</changefreq>\n    <priority>${prio}</priority>\n  </url>`);
   (publications || [])
@@ -50,11 +50,16 @@ function fabriquerSitemap(publications, themes, auteurs) {
     const jour = isoJour(a.articles[0] && a.articles[0].pubDate);
     urls.push(`  <url>\n    <loc>${SITE}/auteurs/${a.membre.slug}</loc>\n${jour ? `    <lastmod>${jour}</lastmod>\n` : ''}    <changefreq>weekly</changefreq>\n  </url>`);
   });
+  // Agenda public : les deux pages d'agenda, puis chaque événement à venir
+  if (agenda) {
+    ['tarn', 'haute-garonne'].forEach((e) => urls.push(`  <url>\n    <loc>${SITE}/agenda/${e}</loc>\n    <changefreq>daily</changefreq>\n  </url>`));
+    agenda.filter((e) => e && /^[a-z0-9-]{1,120}$/.test(e.slug || '')).forEach((e) => urls.push(`  <url>\n    <loc>${SITE}/evenement/${e.slug}</loc>\n  </url>`));
+  }
   return '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + urls.join('\n') + '\n</urlset>\n';
 }
 
 async function sitemap() {
-  const [publications, items, lignesEquipe] = await Promise.all([compo.listePublications(5000), chargerItems(6000), compo.equipe(4000)]);
+  const [publications, items, lignesEquipe, agenda] = await Promise.all([compo.listePublications(5000), chargerItems(6000), compo.equipe(4000), compo.agenda(4000)]);
   const auteurs = [...indexEquipe(lignesEquipe).parSlug.values()]
     .map((membre) => ({ membre, articles: articlesDe(membre, items, decoder) })).filter((a) => a.articles.length > 0);
   return {
@@ -63,7 +68,7 @@ async function sitemap() {
       'Content-Type': 'application/xml; charset=utf-8',
       'Cache-Control': publications ? 'public, max-age=3600' : 'public, max-age=300',
     },
-    body: fabriquerSitemap(publications, regrouper(items), auteurs),
+    body: fabriquerSitemap(publications, regrouper(items), auteurs, agenda),
   };
 }
 
