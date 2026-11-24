@@ -144,7 +144,7 @@ function rendrePage(items) {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.css?v=20261014">
+<link rel="stylesheet" href="/style.css?v=20261125">
 <!-- Statistiques d'audience sans cookies (Umami, hébergé par Ipsum Média) -->
 <script defer src="https://stats.ipsummedia.fr/script.js" data-website-id="02190f37-9db9-421b-b0c2-f71b803e2ccb"></script>
 </head>
@@ -154,6 +154,7 @@ function rendrePage(items) {
   <div class="wrap">
     <a href="/index.html#accueil" class="brand">
       <img src="/assets/logo.png" alt="Ipsum Média">
+      <span class="brand-sous">Média associatif</span>
     </a>
     <nav class="main-nav" id="main-nav">
       <ul>

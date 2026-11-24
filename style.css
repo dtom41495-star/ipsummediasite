@@ -93,9 +93,11 @@ section { padding: 88px 0; }
   justify-content: space-between;
   height: 76px;
 }
-.brand { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.brand { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; flex-shrink: 0; }
 .brand img { height: 46px; width: auto; }
-@media (max-width: 480px) { .brand img { height: 38px; } }
+/* Ce que nous sommes, sous le logo : pour qui arrive sans nous connaître */
+.brand-sous { padding-left: 2px; font: 600 0.62rem/1 Poppins, Montserrat, Arial, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); white-space: nowrap; }
+@media (max-width: 480px) { .brand img { height: 36px; } .brand-sous { font-size: 0.54rem; letter-spacing: 0.1em; } }
 .main-nav { flex-shrink: 1; min-width: 0; }
 .main-nav ul { display: flex; gap: 22px; align-items: center; flex-wrap: nowrap; }
 .main-nav li { flex-shrink: 0; }
