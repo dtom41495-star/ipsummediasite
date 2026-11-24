@@ -1642,3 +1642,11 @@ a.equipe-nom:hover { color: var(--orange); text-decoration: underline; }
 .ap-short-bouton:hover img, .ap-short-bouton:focus-visible img { opacity: 1; transform: scale(1.03); }
 .ap-short-bouton:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 @media (max-width: 900px) { .ap2-short-grille { grid-template-columns: 1fr; gap: 32px; } .ap2-short-texte { text-align: center; } .ap2-short-texte .ap2-titre { text-align: center !important; margin-left: auto !important; } .ap2-short-texte p { margin: 0 auto; } }
+
+/* Vidéos YouTube de la page : sans commandes, sans clic, l'image fixe sert de fond en attendant */
+.ap-video { position: relative; overflow: hidden; background: #15121A; box-shadow: 0 18px 40px rgba(0,0,0,.28); }
+.ap-video-large { width: 100%; aspect-ratio: 16 / 9; }
+.ap-video-vertical { width: min(100%, 340px); aspect-ratio: 9 / 16; margin: 0 auto; box-shadow: 0 18px 40px rgba(0,0,0,.4); }
+.ap-video > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.ap-video > iframe { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; border: 0; pointer-events: none; }
+.ap-video .ap-trailer-legende { z-index: 2; pointer-events: none; }
