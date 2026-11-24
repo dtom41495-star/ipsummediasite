@@ -63,7 +63,6 @@ function infosRedac(r) {
     libelle: libelleRedac(r),
     de: DE_LA_REDAC[r.nom] || 'de la rédaction ' + r.nom,
     subscribeUrl: r.base + '/subscribe',
-    archiveUrl: r.base + '/archive',
   };
 }
 
@@ -551,7 +550,7 @@ ${headExtra}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.css?v=20261305">
+<link rel="stylesheet" href="/style.css?v=20261306">
 <style>
   .article-page { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
   /* Mise en page à deux colonnes sur ordinateur : l'article à gauche, une colonne qui suit le défilement à droite */
@@ -1208,21 +1207,14 @@ ${imgPartage ? `<meta property="og:image" content="${escapeHtml(imgPartage)}">
   return pageShell(body, head, redac.subscribeUrl);
 }
 
-// Article introuvable : ni dans le flux, ni sur Substack. On propose les archives de chaque rédaction.
+// Article introuvable : ni dans le flux, ni sur Substack.
 function renderNotFound() {
-  const boutons = REDACTIONS.map((r) =>
-    `<a class="btn btn-outline" href="${escapeHtml(r.base)}/archive" target="_blank" rel="noopener">${escapeHtml(libelleRedac(r))}</a>`
-  ).join('\n      ');
   const body = `
   <div class="article-page" style="text-align:center;">
     <span class="eyebrow">Article</span>
     <h1>Article introuvable</h1>
     <p class="article-meta">Le lien est peut-être erroné, ou l'article est plus ancien : le site n'affiche que nos derniers articles.</p>
     <a class="btn btn-primary" href="/articles.html">Voir nos derniers articles</a>
-    <p class="article-meta" style="margin: 32px 0 14px;">Pour un article plus ancien, consultez les archives de la rédaction :</p>
-    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:12px;">
-      ${boutons}
-    </div>
   </div>`;
   return pageShell(body, '<title>Article introuvable | Ipsum Média</title>\n<meta name="robots" content="noindex">');
 }
