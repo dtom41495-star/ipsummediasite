@@ -215,9 +215,15 @@
   zoneUne.addEventListener('animationend', function (ev) {
     if (ev.target && ev.target.parentNode && ev.target.parentNode.parentNode && ev.target.parentNode.parentNode.classList.contains('en-cours')) aller(slider.courant + 1);
   });
-  zoneUne.addEventListener('mouseenter', function () { slider.survol = true; majPause(); });
-  zoneUne.addEventListener('mouseleave', function () { slider.survol = false; majPause(); });
-  zoneUne.addEventListener('focusin', function () { slider.survol = true; majPause(); });
+  // Plus de pause au survol de la souris : les diapositives défilent même quand le pointeur est dessus (on voyait toujours la même).
+  // Le bouton « Pause » reste là pour s'arrêter volontairement ; au clavier (focus visible), le défilement s'arrête le temps de la navigation.
+  // Un clic à la souris sur une flèche ou un bouton ne fige plus le bandeau : seul le focus au clavier le fait.
+  zoneUne.addEventListener('focusin', function (ev) {
+    var cible = ev.target;
+    var auClavier = false;
+    try { auClavier = !!(cible && cible.matches && cible.matches(':focus-visible')); } catch (e) { auClavier = true; }
+    if (auClavier) { slider.survol = true; majPause(); }
+  });
   zoneUne.addEventListener('focusout', function () { slider.survol = false; majPause(); });
   zoneUne.addEventListener('keydown', function (ev) {
     if (ev.key === 'ArrowLeft') aller(slider.courant - 1); else if (ev.key === 'ArrowRight') aller(slider.courant + 1);
