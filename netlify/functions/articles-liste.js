@@ -85,8 +85,7 @@ function boutonType(type, libelle, actif, n) {
 // sont des filtres, pas du contenu à indexer.
 function corpsArticles(items) {
   if (!items.length) {
-    return '<div id="articles-container"><p class="feed-loading">Impossible de charger les articles pour le moment. ' +
-      '<a href="https://ipsummedia.substack.com" target="_blank" rel="noopener">Voir sur Substack</a>.</p></div>';
+    return '<div id="articles-container"><p class="feed-loading">Impossible de charger les articles pour le moment. Réessayez dans un instant.</p></div>';
   }
 
   const nbArticles = items.filter((i) => genre(i) === 'article').length;
@@ -144,7 +143,7 @@ function rendrePage(items) {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.css?v=20261305">
+<link rel="stylesheet" href="/style.css?v=20261402">
 <!-- Statistiques d'audience sans cookies (Umami, hébergé par Ipsum Média) -->
 <script defer src="https://stats.ipsummedia.fr/script.js" data-website-id="02190f37-9db9-421b-b0c2-f71b803e2ccb"></script>
 </head>
@@ -199,14 +198,6 @@ function rendrePage(items) {
   <section class="articles-list">
     <div class="wrap">
       ${corpsArticles(items)}
-      <div class="archive-cta" id="archive-cta">
-        <h2>Voir tous les articles</h2>
-        <p>Le site affiche nos derniers articles. Retrouvez toutes les archives sur Substack, en choisissant votre rédaction.</p>
-        <div class="archive-cta-choices">
-          <a class="btn btn-primary" href="https://ipsummedia.substack.com/archive" target="_blank" rel="noopener">La Rédac' du Tarn &rarr;</a>
-          <a class="btn btn-primary" href="https://ipsummediahautegaronne.substack.com/archive" target="_blank" rel="noopener">La Rédac' d'Haute-Garonne &rarr;</a>
-        </div>
-      </div>
     </div>
   </section>
 
@@ -346,7 +337,7 @@ function rendrePage(items) {
 
     // Les articles récents ont leur page sur le site ; les plus anciens renvoient vers Substack
     function lien(item) {
-      var m = item.link && item.link.match(/\/(?:p|articles)\/([^/?#]+)/);
+      var m = item.link && item.link.match(/\\/(?:p|articles)\\/([^/?#]+)/);
       if (!m || item.surLeSite === false) return { href: item.link || '#', externe: true };
       return { href: '/articles/' + m[1], externe: false };
     }
@@ -587,11 +578,7 @@ function rendrePage(items) {
         dessiner(false);
       })
       .catch(function() {
-        container.innerHTML = '<p class="feed-loading">Impossible de charger les articles pour le moment. <a href="https://ipsummedia.substack.com" target="_blank" rel="noopener">Voir sur Substack</a>.</p>';
-      })
-      .then(function() {
-        // Dans tous les cas (liste affichée, vide ou en erreur) : lien vers les archives
-        document.getElementById('archive-cta').hidden = false;
+        container.innerHTML = '<p class="feed-loading">Impossible de charger les articles pour le moment. Réessayez dans un instant.</p>';
       });
   })();
 </script>
