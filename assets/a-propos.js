@@ -43,20 +43,21 @@
     }
   }
 
-  // Bande-annonce YouTube : rien n'est chargé chez YouTube tant qu'on n'a pas cliqué (confidentialité et rapidité)
-  var trailer = document.getElementById('ap-trailer');
-  if (trailer) {
-    trailer.addEventListener('click', function () {
-      var id = trailer.getAttribute('data-video');
+  // Vidéos YouTube (bande-annonce, Club de la presse) : rien n'est chargé chez YouTube tant qu'on n'a pas cliqué (confidentialité et rapidité)
+  document.querySelectorAll('button.ap-lite[data-video]').forEach(function (bouton) {
+    var vignette = bouton.querySelector('img');
+    if (vignette) vignette.addEventListener('error', function () { vignette.remove(); });   // sans vignette : fond sombre avec le bouton de lecture
+    bouton.addEventListener('click', function () {
+      var id = bouton.getAttribute('data-video');
       var cadre = document.createElement('iframe');
       cadre.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1&rel=0&modestbranding=1&playsinline=1';
-      cadre.title = "La bande-annonce d'Ipsum Média";
+      cadre.title = bouton.getAttribute('aria-label') || 'Vidéo Ipsum Média';
       cadre.allow = 'autoplay; encrypted-media; picture-in-picture';
       cadre.allowFullscreen = true;
-      cadre.className = 'ap-trailer-cadre';
-      trailer.parentNode.replaceChild(cadre, trailer);
+      cadre.className = bouton.getAttribute('data-format') === 'vertical' ? 'ap-short-cadre' : 'ap-trailer-cadre';
+      bouton.parentNode.replaceChild(cadre, bouton);
     });
-  }
+  });
 
   var select = document.getElementById('cf-redaction');
   var form = document.getElementById('contact-form');

@@ -1632,3 +1632,13 @@ a.equipe-nom:hover { color: var(--orange); text-decoration: underline; }
 .ap2-collage + figcaption { padding-top: 34px; }
 .ap2-carte-media .ap2-collage-badge { position: absolute; right: 16px; bottom: -22px; left: auto; top: auto; width: 40%; height: auto; aspect-ratio: auto; object-fit: contain; }
 .ap2-carte-media .ap2-collage > img:first-child { aspect-ratio: 4 / 3; }
+
+/* Club de la presse : vidéo verticale (format Short) à côté du texte */
+.ap2-short-grille { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr); gap: 56px; align-items: center; }
+.ap2-short-texte p { max-width: 46ch; margin: 0; font-size: 1.15rem; line-height: 1.55; color: #EDE4DE; }
+.ap-short-bouton, .ap-short-cadre { position: relative; display: block; width: min(100%, 340px); aspect-ratio: 9 / 16; margin: 0 auto; border: 0; overflow: hidden; background: #15121A; box-shadow: 0 18px 40px rgba(0,0,0,.4); }
+.ap-short-bouton { padding: 0; cursor: pointer; }
+.ap-short-bouton img { width: 100%; height: 100%; object-fit: cover; opacity: .9; transition: opacity .2s ease, transform .3s ease; }
+.ap-short-bouton:hover img, .ap-short-bouton:focus-visible img { opacity: 1; transform: scale(1.03); }
+.ap-short-bouton:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+@media (max-width: 900px) { .ap2-short-grille { grid-template-columns: 1fr; gap: 32px; } .ap2-short-texte { text-align: center; } .ap2-short-texte .ap2-titre { text-align: center !important; margin-left: auto !important; } .ap2-short-texte p { margin: 0 auto; } }
