@@ -45,7 +45,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Montserrat:wght@700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261207">
+<link rel="stylesheet" href="style.css?v=20261209">
 <!-- Statistiques d'audience sans cookies (Umami, hébergé par Ipsum Média) -->
 <script defer src="https://stats.ipsummedia.fr/script.js" data-website-id="02190f37-9db9-421b-b0c2-f71b803e2ccb"></script>
 </head>
@@ -220,12 +220,15 @@
         <path d="M14 262 L150 148 M386 262 L250 148" fill="none" stroke="#EA5B1C" stroke-opacity="0.3" stroke-width="3" stroke-linecap="round"/>
         <path d="M14 22 L200 172 L386 22" fill="url(#enveloppe-degrade)" fill-opacity="0.13" stroke="#EA5B1C" stroke-opacity="0.4" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
       </svg>
-      <div>
+      <div class="newsletter-texte">
         <span class="eyebrow">Newsletter</span>
         <h2 id="newsletter-titre">L'actu du Tarn dans votre boîte mail, tous les jeudis</h2>
         <p id="newsletter-texte">Les articles de la semaine, les infos près de chez vous et les coulisses de la rédaction. Et en plus, c'est gratuit.</p>
         <button class="btn btn-primary newsletter-open-btn" type="button">Recevoir la newsletter</button>
       </div>
+      <figure class="newsletter-tel">
+        <div class="newsletter-tel-cadre"><img src="assets/substack-app.jpg" width="540" height="960" loading="lazy" alt="Une newsletter d'Ipsum Média lue sur un téléphone"></div>
+      </figure>
       <div class="editions-cartes" id="editions-cartes" hidden></div>
       <div class="editions" hidden>
         <h3>Dernières éditions</h3>
@@ -234,30 +237,6 @@
     </div>
   </section>
 
-  <section class="suivre-app" id="suivre-app">
-    <div class="wrap">
-      <div class="suivre-app-carte">
-        <div class="suivre-app-texte">
-          <span class="eyebrow">Suivez-nous dans l'appli</span>
-          <h2>Nos articles, directement dans votre poche</h2>
-          <p class="suivre-app-chapo">Ipsum Média est sur Substack, la plateforme des médias et des auteurs indépendants. Avec l'appli gratuite, vous retrouvez chacun de nos articles et chaque newsletter, et vous pourrez réagir, interagir.</p>
-          <ul class="suivre-app-liste">
-            <li><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></span><span><b>Une notification</b> à chaque article et chaque newsletter.</span></li>
-            <li><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span><b>Discutez avec nos journalistes</b> : commentaires, messages privés, et un chat réservé aux abonnés.</span></li>
-            <li><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg></span><span><b>Bientôt</b> : podcasts, reportages et lives, au même endroit.</span></li>
-          </ul>
-          <div class="suivre-app-boutons">
-            <a class="btn btn-primary" href="https://substack.com/app/app-store-redirect?utm_campaign=app-marketing&amp;utm_content=author-post-insert&amp;utm_source=ipsummedia" target="_blank" rel="noopener"><svg class="btn-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3"/><line x1="11" y1="18" x2="13" y2="18"/></svg> Télécharger l'appli Substack</a>
-          </div>
-          <p class="suivre-app-suivre">Une fois l'appli téléchargée, tapez <b>Ipsum Média</b> dans la recherche et abonnez-vous à la rédaction de votre choix.</p>
-          <p class="suivre-app-note">Pas envie de l'appli ? Le site fonctionne aussi dans votre navigateur, et la newsletter arrive par e-mail.</p>
-        </div>
-        <div class="suivre-app-tel">
-          <div class="suivre-app-cadre"><img src="assets/substack-app.jpg" width="540" height="960" loading="lazy" alt="Un article d'Ipsum Média dans l'application Substack"></div>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <div class="modal-backdrop" id="newsletter-modal" hidden>
     <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="newsletter-modal-title">
