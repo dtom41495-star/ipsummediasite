@@ -348,8 +348,10 @@
       if (classes.length < 3) { plusLus.hidden = true; return; }   // pas assez de données pour un classement utile
       plusLusListe.innerHTML = classes.map(function (x, i) {
         var s = surtitre(x.a);
-        return '<li><a' + lien(x.a) + '><span class="rang">' + (i + 1) + '</span><span class="plus-lus-texte">' +
-          (s ? '<span class="kicker">' + s + '</span>' : '') + '<span class="plus-lus-titre">' + x.a.title + '</span></span></a></li>';
+        var photo = i === 0 && x.a.image ? '<span class="pl-img"><img src="' + x.a.image + '" alt="" decoding="async" loading="lazy" onerror="this.parentNode.hidden=true"></span>' : '';
+        return '<li class="pl-' + (i + 1) + '"><a' + lien(x.a) + '>' + photo +
+          '<span class="pl-corps"><span class="rang">' + (i + 1) + '</span><span class="plus-lus-texte">' +
+          (s ? '<span class="kicker">' + s + '</span>' : '') + '<span class="plus-lus-titre">' + x.a.title + '</span></span></span></a></li>';
       }).join('');
       plusLus.hidden = false;
     });
