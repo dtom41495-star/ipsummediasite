@@ -62,36 +62,49 @@
 
 <main>
 
-<section class="hero" style="min-height:auto; padding: 70px 0 50px; background: var(--cream);">
-<div class="wrap" style="text-align:left;">
-<span class="eyebrow" style="color:var(--orange);">À propos</span>
-<h1 style="color:var(--ink);">Un média <em style="text-decoration:none; color:var(--orange);">associatif</em>, fait par des bénévoles de tous âges</h1>
-<p class="lead" style="color:var(--ink-soft);">Pas besoin d'être journaliste pour nous rejoindre. Pas besoin de diplôme. Pas besoin de carte de presse.</p>
-<div class="hero-actions" style="justify-content:flex-start; margin-top:24px;">
+<!-- 1. En-tête : l'accroche et les visages -->
+<section class="ap-band ap-hero">
+<div class="wrap ap-hero-grille">
+<div>
+<span class="eyebrow">À propos</span>
+<h1>Un média <em>associatif</em>, fait par des bénévoles de tous âges et de tous parcours</h1>
+<p class="ap-lead">Pas besoin d'être journaliste pour nous rejoindre. Pas besoin de diplôme. Pas besoin de carte de presse.</p>
+<div class="hero-actions" style="justify-content:flex-start;">
 <a class="btn btn-primary" href="#rejoindre">Nous rejoindre</a>
-<a class="btn btn-outline" style="color:var(--ink); border-color:var(--ink-soft);" href="#proposer">Proposer une info</a>
-<a class="btn btn-outline" style="color:var(--ink); border-color:var(--ink-soft);" href="index.html#soutenir">Nous soutenir</a>
+<a class="btn btn-outline ap-btn-sombre" href="#proposer">Proposer une info</a>
+<a class="btn btn-outline ap-btn-sombre" href="index.html#soutenir">Nous soutenir</a>
+</div>
+</div>
+<div class="ap-visages" aria-label="Quelques bénévoles d'Ipsum Média">
+<img src="assets/team/leopold.jpg" alt="Bénévole Ipsum Média" width="700" height="575">
+<img src="assets/team/benevole-a.jpg" alt="Bénévole Ipsum Média" width="480" height="598">
+<img src="assets/team/gabriel.jpg" alt="Bénévole Ipsum Média" width="428" height="700">
+<img src="assets/team/benevole-b.jpg" alt="Bénévole Ipsum Média" width="480" height="600">
+<img src="assets/team/leo.jpg" alt="Bénévole Ipsum Média" width="525" height="700">
 </div>
 </div>
 </section>
 
-<section class="stats">
+<!-- 2. Les chiffres -->
+<section class="ap-band ap-sombre">
+<div class="wrap ap-carres ap-carres-chiffres">
+<div class="ap-carre ap-carre-chiffre"><span class="ap-gros">800+</span><span class="ap-petit">abonnés réseaux sociaux et newsletter</span></div>
+<div class="ap-carre ap-carre-chiffre"><span class="ap-gros">500 000+</span><span class="ap-petit">vues depuis notre lancement en 2024</span></div>
+<div class="ap-carre ap-carre-chiffre"><span class="ap-gros">25k</span><span class="ap-petit">vues en moyenne par mois</span></div>
+<div class="ap-carre ap-carre-chiffre" id="stat-benevoles" hidden><span class="ap-gros" id="stat-benevoles-n">20</span><span class="ap-petit">bénévoles actifs</span></div>
+</div>
+</section>
+
+<!-- 3. Des profils différents -->
+<section class="ap-band" id="profils">
 <div class="wrap">
-<div>
-<div class="stat-num">800+</div>
-<div class="stat-label">Abonnés réseaux sociaux et newsletter</div>
-</div>
-<div>
-<div class="stat-num">500 000+</div>
-<div class="stat-label">Vues depuis notre lancement en 2024</div>
-</div>
-<div>
-<div class="stat-num">25k</div>
-<div class="stat-label">Vues en moyenne par mois</div>
-</div>
-<div id="stat-benevoles" hidden>
-<div class="stat-num" id="stat-benevoles-n">20</div>
-<div class="stat-label">Bénévoles actifs</div>
+<span class="eyebrow">Qui nous sommes</span>
+<h2 class="ap-titre">Des profils différents, une seule équipe</h2>
+<div class="ap-carres">
+<div class="ap-carre"><span class="ap-picto">01</span><h3>Tous âges</h3><p>Lycéens, étudiants, jeunes actifs : l'âge médian est de 20 ans, mais on y croise aussi des bénévoles bien plus âgés.</p></div>
+<div class="ap-carre"><span class="ap-picto">02</span><h3>Tous parcours</h3><p>Lycée, formation en communication, journalisme, audiovisuel, vie active : chacun arrive avec son histoire.</p></div>
+<div class="ap-carre"><span class="ap-picto">03</span><h3>Tous niveaux</h3><p>L'expérience n'est pas un prérequis. Chaque bénévole est formé et accompagné en interne.</p></div>
+<div class="ap-carre"><span class="ap-picto">04</span><h3>Pour tous</h3><p>Nous nous adaptons à chacun, y compris aux personnes en situation de handicap mental.</p></div>
 </div>
 </div>
 </section>
@@ -111,121 +124,96 @@
     </div>
   </section>
 
-<section class="about" id="histoire">
+<!-- 4. L'expérience associative -->
+<section class="ap-band ap-creme" id="association">
 <div class="wrap">
-<div>
-<span class="eyebrow">Un peu d'histoire</span>
-<h2>Qui sommes-nous ?</h2>
-</div>
-<div class="about-text">
-<p>Avant Ipsum Média, c'était d'abord des lycéens passionnés de journalisme qui réalisaient un journal trimestriel, toutes classes confondues. En juin 2024, quatre d'entre eux donnent naissance à Ipsum Média avec la création d'une newsletter hebdomadaire sur l'actualité du Tarn.</p>
-<p>Nous sommes Ipsum Média, un collectif de jeunes qui avons lancé fin juin 2024 un média d'information local ayant pour but de réconcilier les habitants avec une vision négative du journalisme. En février 2026, nous avons franchi un cap en devenant un média associatif, ouvert aux étudiants et jeunes qui veulent se lancer dans le journalisme.</p>
-<p>Nous avons pour but de promouvoir ce qui fait vivre nos territoires à travers des interviews, des reportages, des articles qui les mettent en valeur. Avec un âge médian de 20 ans, notre équipe retransmet des infos variées avec des sources comme des mairies, des institutions gouvernementales ou encore des entreprises.</p>
-<p>Ipsum Média compte aujourd'hui trois rédactions : le Tarn, la Haute-Garonne et une rédaction nationale, qui traite les sujets d'actualité nationale et a sa propre newsletter. Elle ne couvre pas encore toute la France : cela viendra plus tard.</p>
-<p>Vous souhaitez communiquer vos infos ou collaborer avec nous ? <a href="#proposer">Écrivez-nous</a>.</p>
+<span class="eyebrow">L'expérience associative</span>
+<h2 class="ap-titre">Ici, on ne vient pas travailler pour un média : on le fait vivre ensemble</h2>
+<div class="ap-carres">
+<div class="ap-carre ap-carre-accent"><h3>Loi 1901</h3><p>Sans actionnaire, sans intérêt commercial ou politique à défendre. Nos choix éditoriaux n'appartiennent qu'à la rédaction.</p></div>
+<div class="ap-carre"><h3>Économie sociale et solidaire</h3><p>Utilité sociale avant profit, gouvernance démocratique, engagement au service de nos territoires.</p></div>
+<div class="ap-carre"><h3>Apprendre en faisant</h3><p>Reportages, interviews, articles publiés dans une vraie rédaction. Pas des exercices théoriques.</p></div>
+<div class="ap-carre"><h3>Découvrir le métier</h3><p>Des ateliers, des immersions dans des rédactions, des interventions au sein de l'association.</p></div>
+<div class="ap-carre"><h3>Une vie d'équipe</h3><p>Organisation interne, événements, secrétariat de rédaction : la vie associative est un pôle à part entière.</p></div>
+<div class="ap-carre ap-carre-accent"><h3>Souveraine et indépendante</h3><p>Ipsum Média reprend la main sur ses outils : statistiques, supervision et gestionnaire de mots de passe tournent déjà sur notre propre machine, et le reste suit.</p></div>
+<div class="ap-carre ap-carre-double"><h3>Gratuit pour les lecteurs</h3><p>Un média indépendant, gratuit grâce à celles et ceux qui le soutiennent. <a href="index.html#soutenir">Nous soutenir →</a></p></div>
 </div>
 </div>
 </section>
 
-<section class="apropos-aventure">
-<div class="wrap">
-<figure class="apropos-photo apropos-photo-droite">
+<!-- 5. Une aventure, tous les sujets -->
+<section class="ap-band" id="aventure">
+<div class="wrap ap-duo">
+<figure class="ap-photo-carte">
 <img src="assets/apropos/tour-caravane.jpg" alt="Au bord d'une route du Tarn, au passage d'une course cycliste : voitures d'équipe, motards, spectateurs" width="1600" height="1066" loading="lazy">
-<figcaption>Au bord de la route, au passage d'une course cycliste dans le Tarn.</figcaption>
+<figcaption><strong>On couvre beaucoup de sujets</strong>Actualité locale, culture, sport, économie, société, environnement : on va là où ça se passe, d'un conseil municipal à une course cycliste.</figcaption>
 </figure>
-<div class="apropos-aventure-texte">
-<span class="eyebrow">Un média pour tous les sujets</span>
-<h2>On couvre beaucoup de sujets, parce que la vie locale en compte beaucoup</h2>
-<p>Actualité locale, culture, sport, économie, société, environnement : nos journalistes bénévoles vont là où ça se passe, d'un conseil municipal à une course cycliste, et racontent ce qui fait vivre le territoire.</p>
-</div>
-</div>
-</section>
-
-<section class="apropos-aventure apropos-aventure-inverse">
-<div class="wrap">
-<figure class="apropos-photo apropos-photo-gauche">
+<figure class="ap-photo-carte">
 <img src="assets/apropos/france3-studio.jpg" alt="Le plateau de France 3 : un grand mur d'écrans avec la carte météo de l'Occitanie" width="1600" height="1446" loading="lazy">
-<figcaption>Une visite du plateau de France 3.</figcaption>
+<figcaption><strong>Une aventure, pas seulement du journalisme</strong>Celles et ceux qui nous rejoignent découvrent le métier de l'intérieur : ateliers, immersions, interventions. Ici, une visite du plateau de France 3.</figcaption>
 </figure>
-<div class="apropos-aventure-texte">
-<span class="eyebrow">Plus qu'un média</span>
-<h2>Une aventure, pas seulement du journalisme</h2>
-<p>Ipsum Média permet à celles et ceux qui nous rejoignent de découvrir le métier de l'intérieur : des ateliers, des immersions dans des rédactions, des interventions au sein de l'association. On y vient pour écrire, on y apprend aussi à photographier, filmer, animer, organiser.</p>
-</div>
 </div>
 </section>
 
-<section class="why-join" id="valeurs">
+<!-- 6. Nos valeurs -->
+<section class="ap-band ap-creme" id="valeurs">
 <div class="wrap">
 <span class="eyebrow">Nos valeurs</span>
-<h2 style="margin-bottom:32px;">Ce qui nous anime</h2>
-<div class="why-list">
-        <div class="why-item">
-          <span class="why-num">01</span>
-          <div>
-            <h3>Indépendance</h3>
-            <p>Ipsum Média est une association loi 1901, sans actionnaire ni intérêt commercial ou politique à défendre. Nos choix éditoriaux n'appartiennent qu'à notre rédaction.</p>
-          </div>
-        </div>
-        <div class="why-item">
-          <span class="why-num">02</span>
-          <div>
-            <h3>Apprendre en faisant, sans diplôme requis</h3>
-            <p>Aucun diplôme n'est demandé pour nous rejoindre. Chaque bénévole est formé et accompagné en interne, et progresse au contact du terrain plutôt que sur des exercices théoriques.</p>
-          </div>
-        </div>
-        <div class="why-item">
-          <span class="why-num">03</span>
-          <div>
-            <h3>Ouverture à tous</h3>
-            <p>Lycéens, étudiants, jeunes actifs : notre équipe réunit des profils de tous âges et de tous horizons, unis par la même envie de raconter ce qui se passe près de chez eux.</p>
-          </div>
-        </div>
-        <div class="why-item">
-          <span class="why-num">04</span>
-          <div>
-            <h3>Accessibilité pour tous</h3>
-            <p>Nous nous adaptons à chacun, y compris aux personnes en situation de handicap mental, pour que l'engagement associatif et le journalisme restent accessibles à tous.</p>
-          </div>
-        </div>
-        <div class="why-item">
-          <span class="why-num">05</span>
-          <div>
-            <h3>Ancrage local</h3>
-            <p>On va à la rencontre de celles et ceux qui font vivre nos territoires, du Tarn à la Haute-Garonne. Nos sources sont sur le terrain, pas seulement derrière un communiqué.</p>
-          </div>
-        </div>
-        <div class="why-item">
-          <span class="why-num">06</span>
-          <div>
-            <h3>Économie sociale et solidaire</h3>
-            <p>Membres de l'ESS, nous partageons ses principes : utilité sociale avant profit, gouvernance démocratique et engagement au service de nos territoires plutôt que d'intérêts privés.</p>
-          </div>
-        </div>
-        <div class="why-item">
-          <span class="why-num">07</span>
-          <div>
-            <h3>Ipsum Média &amp; l'IA</h3>
-            <p>Nous croyons que l'IA peut être un outil utile, mais elle ne remplacera jamais le travail humain, surtout dans un média local où la confiance et la vérification sont essentielles. Elle nous assiste pour certaines tâches (corrections, traductions, structuration...), jamais pour générer un article de zéro. Son usage est toujours signalé, et tout contenu généré est relu et vérifié. <a href="charte-ia.html">Lire notre charte IA complète →</a></p>
-          </div>
-        </div>
+<h2 class="ap-titre">Ce qui nous anime</h2>
+<div class="ap-carres ap-carres-valeurs">
+<div class="ap-carre"><h3>Indépendance et souveraineté</h3><p>Aucun actionnaire, aucun intérêt à défendre, et des outils qui nous appartiennent.</p></div>
+<div class="ap-carre"><h3>Apprendre en faisant</h3><p>Aucun diplôme demandé. On progresse au contact du terrain.</p></div>
+<div class="ap-carre"><h3>Ouverture à tous</h3><p>Tous âges, tous horizons, la même envie de raconter ce qui se passe près de chez soi.</p></div>
+<div class="ap-carre"><h3>Accessibilité</h3><p>Nous nous adaptons à chacun, y compris en situation de handicap.</p></div>
+<div class="ap-carre"><h3>Ancrage local</h3><p>Nos sources sont sur le terrain, pas seulement derrière un communiqué.</p></div>
+<div class="ap-carre"><h3>Économie sociale et solidaire</h3><p>Utilité sociale avant profit.</p></div>
+<div class="ap-carre ap-carre-large"><h3>Ipsum Média &amp; l'IA</h3><p>Elle assiste (corrections, traductions, structuration), jamais pour écrire un article de zéro. Son usage est toujours signalé, et tout contenu généré est relu et vérifié. <a href="charte-ia.html">Lire notre charte IA →</a></p></div>
 </div>
 </div>
 </section>
 
-<section class="apropos-methode" id="methode">
+<!-- 7. Trois rédactions -->
+<section class="ap-band" id="redactions">
+<div class="wrap">
+<span class="eyebrow">Nos rédactions</span>
+<h2 class="ap-titre">Trois rédactions, une même association</h2>
+<div class="ap-redactions">
+<div class="ap-carres ap-carres-redactions">
+<div class="ap-carre ap-carre-accent"><h3>Tarn</h3><p>Notre rédaction historique, depuis juin 2024.</p></div>
+<div class="ap-carre"><h3>Haute-Garonne</h3><p>Notre deuxième rédaction.</p></div>
+<div class="ap-carre"><h3>National</h3><p>Les sujets d'actualité nationale, avec sa propre newsletter. Elle ne cible pas encore toute la France.</p></div>
+<div class="ap-carre ap-carre-large coverage-box" style="border-radius:var(--radius);"><span class="coverage-label">Villes couvertes dans le Tarn</span><div class="coverage-chips">
+            <span class="coverage-chip">Labruguière</span>
+            <span class="coverage-chip">Castres</span>
+            <span class="coverage-chip">Mazamet</span>
+            <span class="coverage-chip">Albi</span>
+            <span class="coverage-chip">Gaillac</span>
+            <span class="coverage-chip">Bout du Pont de l'Arn</span>
+            <span class="coverage-chip">Lavaur</span>
+            <span class="coverage-chip">Saint-Sulpice</span>
+            <span class="coverage-chip">Labastide-Rouairoux</span>
+          </div></div>
+</div>
+<div class="presence-map"><img src="assets/map/occitanie-map.svg" alt="Carte de l'Occitanie montrant la présence d'Ipsum Média dans le Tarn et en Haute-Garonne"></div>
+</div>
+</div>
+</section>
+
+<!-- 8. Notre façon de travailler -->
+<section class="ap-band ap-sombre" id="methode">
 <div class="wrap">
 <span class="eyebrow">Notre façon de travailler</span>
-<h2>Comment naît un article</h2>
-<ul class="methode-liste">
-<li><strong>Des sources identifiées.</strong> Mairies, institutions, entreprises, associations, et des rencontres sur le terrain.</li>
-<li><strong>Une relecture avant publication.</strong> Un article est relu et validé avant d'être mis en ligne.</li>
-<li><strong>Une équipe de rédaction.</strong> Rédacteurs, secrétaires de rédaction et rédacteurs en chef se partagent le travail.</li>
-<li><strong>L'IA, jamais seule.</strong> Elle assiste, elle n'écrit pas à notre place, et son usage est signalé : <a href="charte-ia.html">notre charte IA</a>.</li>
-</ul>
+<h2 class="ap-titre">Comment naît un article</h2>
+<div class="ap-carres">
+<div class="ap-carre"><h3>Des sources identifiées</h3><p>Mairies, institutions, entreprises, associations, rencontres sur le terrain.</p></div>
+<div class="ap-carre"><h3>Une relecture</h3><p>Un article est relu et validé avant d'être mis en ligne.</p></div>
+<div class="ap-carre"><h3>Une équipe de rédaction</h3><p>Rédacteurs, secrétaires de rédaction et rédacteurs en chef.</p></div>
+<div class="ap-carre"><h3>L'IA, jamais seule</h3><p>Son usage est signalé. <a href="charte-ia.html">Notre charte IA →</a></p></div>
+</div>
 </div>
 </section>
 
+<!-- 9. Les fondateurs et la rédaction -->
 <section class="team" id="equipe">
     <div class="wrap">
       <span class="eyebrow">L'équipe</span>
@@ -258,76 +246,21 @@
     </div>
   </section>
 
-<section class="presence" id="redactions">
+<!-- 10. Nous rejoindre -->
+<section class="ap-band ap-orange" id="rejoindre">
 <div class="wrap">
-<div class="presence-text">
-<span class="eyebrow">Nos rédactions</span>
-<h2>Trois rédactions, une même association</h2>
-<p><strong>Le Tarn</strong> est notre rédaction historique. <strong>La Haute-Garonne</strong> est notre deuxième rédaction. <strong>La rédaction nationale</strong> traite les sujets d'actualité nationale, avec sa propre newsletter : elle ne cible pas encore toute la France.</p>
-<div class="coverage-box">
-<span class="coverage-label">Villes couvertes dans le Tarn</span>
-<div class="coverage-chips">
-            <span class="coverage-chip">Labruguière</span>
-            <span class="coverage-chip">Castres</span>
-            <span class="coverage-chip">Mazamet</span>
-            <span class="coverage-chip">Albi</span>
-            <span class="coverage-chip">Gaillac</span>
-            <span class="coverage-chip">Bout du Pont de l'Arn</span>
-            <span class="coverage-chip">Lavaur</span>
-            <span class="coverage-chip">Saint-Sulpice</span>
-            <span class="coverage-chip">Labastide-Rouairoux</span>
-          </div>
-</div>
-<div class="presence-legend">
-<div class="legend-item"><span class="legend-swatch legend-swatch-tarn"></span>Le Tarn, notre rédaction historique</div>
-<div class="legend-item"><span class="legend-swatch legend-swatch-hg"></span>La Haute-Garonne</div>
-</div>
-</div>
-<div class="presence-map">
-<img src="assets/map/occitanie-map.svg" alt="Carte de l'Occitanie montrant la présence d'Ipsum Média dans le Tarn et en Haute-Garonne">
-</div>
-</div>
-</section>
-
-<section class="rejoindre" id="rejoindre">
-<div class="wrap" style="text-align:center;">
 <span class="eyebrow">Nous rejoindre</span>
-<h2>Pas besoin d'être journaliste. Pas besoin de diplôme. Pas besoin de carte de presse.</h2>
-<p class="rejoindre-lead">Ipsum Média est une association : on apprend en faisant, et chaque bénévole est accompagné et formé en interne, quel que soit son niveau de départ.</p>
+<h2 class="ap-titre">Pas besoin d'être journaliste. Pas besoin de diplôme. Pas besoin de carte de presse.</h2>
+<div class="ap-carres ap-carres-poles">
+<div class="ap-carre ap-carre-blanc"><h3>Rédaction</h3><p>Articles, interviews, enquêtes et reportages sur l'actualité locale.</p></div>
+<div class="ap-carre ap-carre-blanc"><h3>Photo &amp; vidéo</h3><p>Reportage terrain, montage, captation lors de nos sorties et événements.</p></div>
+<div class="ap-carre ap-carre-blanc"><h3>Communication</h3><p>Réseaux sociaux, newsletter, graphisme, relations avec nos partenaires.</p></div>
+<div class="ap-carre ap-carre-blanc"><h3>Vie associative</h3><p>Organisation interne, événements, secrétariat de rédaction.</p></div>
 </div>
-<div class="diversity">
-<div class="diversity-photos diversity-montage">
-<img src="assets/team/leopold.jpg" alt="Bénévole Ipsum Média" loading="lazy">
-<img src="assets/team/benevole-a.jpg" alt="Bénévole Ipsum Média" loading="lazy">
-<img src="assets/team/gabriel.jpg" alt="Bénévole Ipsum Média" loading="lazy">
-<img src="assets/team/benevole-b.jpg" alt="Bénévole Ipsum Média" loading="lazy">
-<img src="assets/team/leo.jpg" alt="Bénévole Ipsum Média" loading="lazy">
-</div>
-<p class="diversity-text">Des bénévoles de tout âge, venus de
-<span class="cycle-word">
-<span>lycée</span>
-<span>formation communication</span>
-<span>journalisme</span>
-<span>audiovisuel</span>
-<span>la vie active</span>
-</span>
-</p>
-</div>
-<div class="wrap">
-<div class="roles-list" style="margin-top:48px;">
-<div class="role-item"><h3>Rédaction</h3><p>Écriture d'articles, interviews, enquêtes et reportages sur l'actualité locale.</p></div>
-<div class="role-item"><h3>Photo &amp; vidéo</h3><p>Reportage terrain, montage, captation lors de nos sorties et de nos événements.</p></div>
-<div class="role-item"><h3>Communication</h3><p>Réseaux sociaux, newsletter, graphisme et relations avec nos partenaires.</p></div>
-<div class="role-item"><h3>Vie associative</h3><p>Organisation interne, événements, secrétariat de rédaction.</p></div>
-</div>
-</div>
-</section>
-
-<section class="join-cta">
-<div class="wrap">
-<h2>Postulez en quelques minutes</h2>
-<p>Toutes nos missions bénévoles sont publiées sur la plateforme Je Veux Aider.</p>
+<div class="ap-cta">
 <a class="btn btn-light" href="https://www.jeveuxaider.gouv.fr/organisations/33705-ipsum-media" target="_blank" rel="noopener">Je postule sur Je Veux Aider</a>
+<p>Toutes nos missions bénévoles sont publiées sur la plateforme Je Veux Aider.</p>
+</div>
 </div>
 </section>
 
