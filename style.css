@@ -1595,3 +1595,9 @@ a.equipe-nom:hover { color: var(--orange); text-decoration: underline; }
 .ap2-carte-photo .ap2-label { margin: 0 0 8px; padding: 0; text-align: left; color: #FFB38A; }
 .ap2-carte-photo h3 { margin: 0; color: #fff; font-size: clamp(1.4rem, 2.6vw, 2rem); line-height: 1.08; }
 @media (max-width: 900px) { .ap2-carte-photo { grid-column: auto; min-height: 280px; } }
+/* Photo d'équipe : visible en entier (photo d'un côté, texte de l'autre), sans recadrage */
+.ap2-carte-photo { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); align-items: stretch; min-height: 0; background: var(--ap-ink); }
+.ap2-carte-photo img { position: static; inset: auto; width: 100%; height: auto; object-fit: contain; opacity: 1; display: block; }
+.ap2-carte-photo figcaption { position: static; display: flex; flex-direction: column; justify-content: center; padding: 40px 44px; background: none; }
+.ap2-carte-photo h3 { font-size: clamp(1.8rem, 3.6vw, 3rem); }
+@media (max-width: 900px) { .ap2-carte-photo { grid-template-columns: 1fr; } .ap2-carte-photo figcaption { padding: 24px 22px 28px; } }
