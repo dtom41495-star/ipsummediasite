@@ -43,20 +43,34 @@
     }
   }
 
-  // Bande-annonce YouTube : rien n'est chargé chez YouTube tant qu'on n'a pas cliqué (confidentialité et rapidité)
-  var trailer = document.getElementById('ap-trailer');
-  if (trailer) {
-    trailer.addEventListener('click', function () {
-      var id = trailer.getAttribute('data-video');
-      var cadre = document.createElement('iframe');
-      cadre.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1&rel=0&modestbranding=1&playsinline=1';
-      cadre.title = "La bande-annonce d'Ipsum Média";
-      cadre.allow = 'autoplay; encrypted-media; picture-in-picture';
-      cadre.allowFullscreen = true;
-      cadre.className = 'ap-trailer-cadre';
-      trailer.parentNode.replaceChild(cadre, trailer);
-    });
+  // Vidéos YouTube (bande-annonce, Club de la presse) : sans le son, en boucle, sans commandes ni clic possible. Elles se lancent
+  // toutes seules dès qu'elles sont à l'écran (rien n'est chargé chez YouTube avant), sauf pour qui préfère moins d'animations :
+  // l'image fixe reste alors affichée.
+  var moinsDAnimations = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function lancerVideo(zone) {
+    var id = zone.getAttribute('data-video');
+    var cadre = document.createElement('iframe');
+    cadre.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1&mute=1&loop=1&playlist=' + encodeURIComponent(id) +
+      '&controls=0&disablekb=1&fs=0&iv_load_policy=3&rel=0&modestbranding=1&playsinline=1';
+    cadre.title = zone.getAttribute('aria-label') || 'Vidéo Ipsum Média';
+    cadre.setAttribute('tabindex', '-1');
+    cadre.setAttribute('aria-hidden', 'true');
+    cadre.allow = 'autoplay; encrypted-media';
+    zone.insertBefore(cadre, zone.firstChild);
   }
+  document.querySelectorAll('.ap-lite[data-video]').forEach(function (zone) {
+    var vignette = zone.querySelector('img');
+    if (vignette) vignette.addEventListener('error', function () { vignette.remove(); });   // sans vignette : fond sombre
+    if (moinsDAnimations) return;
+    if ('IntersectionObserver' in window) {
+      var vue = new IntersectionObserver(function (entrees) {
+        entrees.forEach(function (e) { if (e.isIntersecting) { vue.disconnect(); lancerVideo(zone); } });
+      }, { threshold: 0.35 });
+      vue.observe(zone);
+    } else {
+      lancerVideo(zone);
+    }
+  });
 
   var select = document.getElementById('cf-redaction');
   var form = document.getElementById('contact-form');
