@@ -18,6 +18,8 @@ exports.handler = async function (event) {
     .map((p) => `<p>${echapper(p).replace(/\n/g, '<br>')}</p>`).join('');
   const autres = tous.filter((x) => x.edition === e.edition && x.slug !== e.slug).slice(0, 4);
   const quand = `${dateLongue(e.date_debut)} · ${horaire(e)}`;
+  const aCarte = Number.isFinite(Number(e.lat)) && Number.isFinite(Number(e.lng)) && e.lat != null && e.lng != null;
+  const lat = aCarte ? Number(e.lat) : null, lng = aCarte ? Number(e.lng) : null;
 
   const main = `
   <section class="page-bandeau">
@@ -38,6 +40,9 @@ exports.handler = async function (event) {
       <div class="ev-fiche">
         <div><span class="ev-label">Quand</span>${echapper(quand)}</div>
         <div><span class="ev-label">Où</span>${echapper(e.lieu)}<br>${echapper(e.commune)}</div>
+        ${aCarte ? `<div class="ev-carte" id="ev-carte" data-lat="${lat}" data-lng="${lng}" hidden></div>
+        <button type="button" class="btn btn-outline" id="ev-voir-carte">Voir sur la carte</button>
+        <a class="btn btn-outline" href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}" target="_blank" rel="noopener">Itinéraire</a>` : ''}
         <a class="btn btn-primary" href="${echapper(lienGoogleAgenda(e))}" target="_blank" rel="noopener">Ajouter à mon agenda</a>
         <button type="button" class="btn btn-outline" id="ev-partager">Partager</button>
       </div>
@@ -45,8 +50,15 @@ exports.handler = async function (event) {
     </aside>
   </div></section>
   ${autres.length ? `<section class="journal suite"><div class="wrap"><div class="journal-tete"><h2>Autres événements ${echapper(ed.de)}</h2><a href="/agenda/${e.edition}">Tout l'agenda</a></div><div class="suite-grille">${autres.map(carte).join('')}</div></div></section>` : ''}
+  ${aCarte ? '<script src="/assets/agenda-carte.js"></script>' : ''}
   <script>
   (function () {
+    // La carte (Plan IGN) ne se charge qu'à la demande du visiteur : aucune requête vers ces services avant son clic
+    var voir = document.getElementById('ev-voir-carte'), carte = document.getElementById('ev-carte');
+    if (voir && carte) voir.addEventListener('click', function () {
+      carte.hidden = false; voir.hidden = true;
+      window.IpsumCarte.afficher(carte, Number(carte.getAttribute('data-lat')), Number(carte.getAttribute('data-lng'))).catch(function () { carte.hidden = true; voir.hidden = false; voir.textContent = 'Carte indisponible'; });
+    });
     var b = document.getElementById('ev-partager'); if (!b) return;
     b.addEventListener('click', function () {
       var lien = location.href.split('#')[0];
@@ -61,7 +73,7 @@ exports.handler = async function (event) {
     '@graph': [
       { '@type': 'Event', '@id': url + '#evenement', name: e.titre, url, startDate: e.date_debut, ...(e.date_fin ? { endDate: e.date_fin } : {}),
         eventStatus: 'https://schema.org/EventScheduled', eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
-        location: { '@type': 'Place', name: e.lieu, address: { '@type': 'PostalAddress', addressLocality: e.commune, addressCountry: 'FR' } },
+        location: { '@type': 'Place', name: e.lieu, address: { '@type': 'PostalAddress', addressLocality: e.commune, addressCountry: 'FR' }, ...(aCarte ? { geo: { '@type': 'GeoCoordinates', latitude: lat, longitude: lng } } : {}) },
         ...(e.description ? { description: String(e.description).slice(0, 500) } : {}), ...(photo ? { image: SITE + photo } : {}) },
       { '@type': 'BreadcrumbList', itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Accueil', item: SITE + '/' },

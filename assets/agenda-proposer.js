@@ -23,6 +23,75 @@
   var maintenant = new Date(), limite = new Date(); limite.setMonth(limite.getMonth() + 6);
   document.getElementById('f-debut').min = champDate(maintenant); document.getElementById('f-debut').max = champDate(limite);
 
+
+  // ===== Lieu : suggestions d'adresses et de lieux nommés (Géoplateforme IGN, cartes.gouv.fr), puis carte =====
+  var GEOCODAGE = 'https://data.geopf.fr/geocodage/search';
+  var CENTRE = [43.93, 2.15];   // Albi : les suggestions proches du Tarn et de la Haute-Garonne passent devant
+  var champLieu = document.getElementById('f-lieu'), liste = document.getElementById('f-lieu-liste'), aideLieu = document.getElementById('f-lieu-aide'), zoneCarte = document.getElementById('f-carte');
+  var position = null;             // { lat, lng } du lieu choisi dans les suggestions
+  var minuterie = null, resultats = [], actif = -1, derniere = '';
+
+  function premier(v) { return Array.isArray(v) ? v[0] : v; }
+  function libelle(f) {
+    var p = (f && f.properties) || {};
+    if (p.label) return p.label;
+    return [premier(p.name) || p.toponym || '', premier(p.city) || ''].filter(Boolean).join(', ');
+  }
+  function chercher(q, index) {
+    var url = GEOCODAGE + '?q=' + encodeURIComponent(q) + '&index=' + index + '&limit=4&autocomplete=1&lat=' + CENTRE[0] + '&lon=' + CENTRE[1];
+    return fetch(url).then(function (r) { return r.ok ? r.json() : { features: [] }; }).then(function (d) {
+      return ((d && d.features) || []).filter(function (f) { return f.geometry && f.geometry.coordinates; }).map(function (f) {
+        var p = f.properties || {};
+        return { libelle: libelle(f), lng: f.geometry.coordinates[0], lat: f.geometry.coordinates[1], commune: premier(p.city) || '' };
+      }).filter(function (r) { return r.libelle; });
+    }).catch(function () { return []; });
+  }
+  function fermer() { liste.hidden = true; champLieu.setAttribute('aria-expanded', 'false'); actif = -1; }
+  function dessiner() {
+    if (!resultats.length) { fermer(); return; }
+    liste.innerHTML = resultats.map(function (r, i) {
+      return '<li role="option" data-i="' + i + '" class="' + (i === actif ? 'actif' : '') + '">' + r.libelle.replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }) + '</li>';
+    }).join('');
+    liste.hidden = false; champLieu.setAttribute('aria-expanded', 'true');
+  }
+  function choisir(r) {
+    champLieu.value = r.libelle.slice(0, 160);
+    if (r.commune) document.getElementById('f-commune').value = r.commune;
+    position = { lat: r.lat, lng: r.lng };
+    fermer();
+    aideLieu.textContent = 'Lieu repéré sur la carte. Vous pouvez corriger le texte si besoin.';
+    zoneCarte.hidden = false;
+    window.IpsumCarte.afficher(zoneCarte, r.lat, r.lng).catch(function () { zoneCarte.hidden = true; });
+  }
+  champLieu.addEventListener('input', function () {
+    // Le texte a changé : l'ancien point ne vaut plus (sauf choix d'une suggestion, juste après)
+    if (position) { position = null; zoneCarte.hidden = true; aideLieu.textContent = 'Choisissez une suggestion pour situer le lieu sur une carte. Suggestions : cartes.gouv.fr (IGN).'; }
+    var q = champLieu.value.trim();
+    clearTimeout(minuterie);
+    if (q.length < 3) { resultats = []; fermer(); return; }
+    minuterie = setTimeout(function () {
+      derniere = q;
+      Promise.all([chercher(q, 'poi'), chercher(q, 'address')]).then(function (t) {
+        if (derniere !== q) return;
+        var vus = {}; resultats = [];
+        t[0].concat(t[1]).forEach(function (r) { if (!vus[r.libelle]) { vus[r.libelle] = 1; resultats.push(r); } });
+        resultats = resultats.slice(0, 6); actif = -1; dessiner();
+      });
+    }, 250);
+  });
+  liste.addEventListener('mousedown', function (e) {
+    var li = e.target.closest('li'); if (!li) return;
+    e.preventDefault(); choisir(resultats[+li.getAttribute('data-i')]);
+  });
+  champLieu.addEventListener('keydown', function (e) {
+    if (liste.hidden) return;
+    if (e.key === 'ArrowDown') { e.preventDefault(); actif = Math.min(actif + 1, resultats.length - 1); dessiner(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); actif = Math.max(actif - 1, 0); dessiner(); }
+    else if (e.key === 'Enter' && actif >= 0) { e.preventDefault(); choisir(resultats[actif]); }
+    else if (e.key === 'Escape') { fermer(); }
+  });
+  champLieu.addEventListener('blur', function () { setTimeout(fermer, 150); });
+
   // « 2026-12-04T19:30 » saisi en heure de Paris -> date UTC (ISO)
   function versIso(v) {
     if (!v) return null;
@@ -106,6 +175,7 @@
       edition: v('f-edition'), categorie: v('f-categorie'), titre: v('f-titre'), debut: debut, fin: fin, lieu: v('f-lieu'), commune: v('f-commune'),
       description: document.getElementById('f-description').value, lien: v('f-lien'), nom: v('f-nom'), email: v('f-email'), site: v('f-site'),
     };
+    if (position) { corps.lat = position.lat; corps.lng = position.lng; }
     if (photo) corps.photo = { type: photo.type, data: photo.data };
     fetch(CFG.SUPABASE_URL + '/functions/v1/agenda-public', {
       method: 'POST', headers: { 'Content-Type': 'application/json', apikey: CFG.SUPABASE_CLE }, body: JSON.stringify(corps),
