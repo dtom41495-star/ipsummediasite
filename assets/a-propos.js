@@ -50,7 +50,7 @@
     bouton.addEventListener('click', function () {
       var id = bouton.getAttribute('data-video');
       var cadre = document.createElement('iframe');
-      cadre.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1&rel=0&modestbranding=1&playsinline=1';
+      cadre.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1&mute=1&rel=0&modestbranding=1&playsinline=1';
       cadre.title = bouton.getAttribute('aria-label') || 'Vidéo Ipsum Média';
       cadre.allow = 'autoplay; encrypted-media; picture-in-picture';
       cadre.allowFullscreen = true;
