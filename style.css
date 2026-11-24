@@ -1579,3 +1579,17 @@ a.equipe-nom:hover { color: var(--orange); text-decoration: underline; }
 .ap2-visages-ligne img { aspect-ratio: 1 / 1; object-position: 50% 28%; }
 @media (max-width: 900px) { .ap2-visages-ligne img { aspect-ratio: 4 / 5; } }
 .ap2-visages-ligne img { aspect-ratio: 3 / 4; object-position: 50% 38%; }
+
+/* Nos sujets : cinq panneaux, couleurs qui changent */
+.ap2-univers[data-actif="3"] { --c-fond: var(--ap-ink); --c-texte: #fff; }
+.ap2-univers[data-actif="4"] { --c-fond: var(--ap-orange); --c-texte: var(--ap-ink); }
+.ap2-univers[data-actif="3"] li[data-i="3"], .ap2-univers[data-actif="4"] li[data-i="4"] { opacity: 1; }
+.ap2-carte-portrait { max-width: 440px; }
+.ap2-carte-portrait img { aspect-ratio: auto; max-height: 520px; object-fit: cover; object-position: top; }
+.ap2-carte-media figcaption a { color: var(--ap-orange); font-weight: 700; }
+.ap2-carte-photo { position: relative; grid-column: 1 / -1; min-height: 340px; margin: 0; overflow: hidden; background: var(--ap-ink); color: #fff; }
+.ap2-carte-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 22%; opacity: .85; }
+.ap2-carte-photo figcaption { position: absolute; inset: auto 0 0 0; padding: 70px 26px 24px; background: linear-gradient(to top, rgba(0,0,0,.78), transparent); }
+.ap2-carte-photo .ap2-label { margin: 0 0 8px; padding: 0; text-align: left; color: #FFB38A; }
+.ap2-carte-photo h3 { margin: 0; color: #fff; font-size: clamp(1.4rem, 2.6vw, 2rem); line-height: 1.08; }
+@media (max-width: 900px) { .ap2-carte-photo { grid-column: auto; min-height: 280px; } }
