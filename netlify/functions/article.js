@@ -551,9 +551,26 @@ ${headExtra}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.css?v=20261301">
+<link rel="stylesheet" href="/style.css?v=20261302">
 <style>
   .article-page { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+  /* Mise en page à deux colonnes sur ordinateur : l'article à gauche, une colonne qui suit le défilement à droite */
+  .article-layout { padding: 0; }
+  .article-side { max-width: 720px; margin: 0 auto; padding: 0 24px 80px; }
+  .article-side .article-subscribe { margin-top: 28px; }
+  .side-titre { margin: 0 0 14px; padding-bottom: 8px; border-bottom: 2px solid var(--ink); font-family: 'Anton', 'Arial Narrow', Impact, sans-serif; font-weight: 400; text-transform: uppercase; font-size: 1.5rem; line-height: 1.1; letter-spacing: .005em; }
+  .side-liste { list-style: none; margin: 0; padding: 0; }
+  .side-liste li + li { border-top: 1px solid var(--border); }
+  .side-liste a { display: flex; gap: 14px; align-items: flex-start; padding: 12px 0; color: var(--ink); }
+  .side-liste .side-rang { flex: none; width: 2rem; font-family: 'Anton', 'Arial Narrow', Impact, sans-serif; font-size: 2.2rem; line-height: .95; color: var(--orange); }
+  .side-liste .side-kicker { display: block; margin-bottom: 3px; font-size: .68rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--orange); }
+  .side-liste .side-titre-article { display: block; font-family: 'Bitter', Georgia, serif; font-size: .98rem; font-weight: 700; line-height: 1.3; }
+  .side-liste a:hover .side-titre-article { color: var(--orange); }
+  @media (min-width: 1100px) {
+    .article-layout { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 56px; align-items: start; max-width: 1072px; margin: 0 auto; padding: 0; }
+    .article-layout .article-page { max-width: none; margin: 0; padding: 60px 0 100px; }
+    .article-side { position: sticky; top: 96px; max-width: none; margin: 0; padding: 60px 0 40px; }
+  }
   .article-page .eyebrow { display:block; margin-bottom: 14px; }
   .article-page h1 { font-size: clamp(1.5rem, 3.4vw, 2.1rem); line-height: 1.2; margin-bottom: 14px; }
   .article-meta { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 28px; }
@@ -971,6 +988,7 @@ function renderArticle(a) {
   const chapo = sousTitreReel(sousTitre, texte) ? sousTitre : '';
   const contenu = chapo ? a.content : marquerChapo(a.content);
   const body = `
+  <div class="article-layout">
   <div class="article-page">
     <a class="article-back" href="/articles.html">&larr; Retour aux actus</a>
     <span class="eyebrow">${escapeHtml(redac.libelle)}</span>
@@ -1000,12 +1018,47 @@ function renderArticle(a) {
       <p>Cet article vous a plu ? Partagez-le, ou dites-nous ce que vous en pensez.</p>
       <div class="article-share-end-actions">${renderLike(a)}${commenter}${share}</div>
     </div>${renderSuggestions(a.suggestions)}
+  </div>
+  <aside class="article-side" aria-label="Autour de l'article">
+    <section class="side-plus-lus" id="side-plus-lus" hidden>
+      <h2 class="side-titre">Les plus lus</h2>
+      <ol class="side-liste" id="side-liste"></ol>
+    </section>
     <div class="article-subscribe">
       <h3>Envie de ne rater aucun article ?</h3>
       <p>Recevez l'actu ${escapeHtml(redac.de)} chaque jeudi directement par email.</p>
       <a class="btn btn-primary" href="${escapeHtml(redac.subscribeUrl)}" target="_blank" rel="noopener">Je m'inscris à la newsletter</a>
     </div>
+  </aside>
   </div>
+  <script>
+  // « Les plus lus » dans la colonne de droite : classement des 7 derniers jours (même source que l'accueil), l'article en cours exclu
+  (function () {
+    var CFG = window.IPSUM_CONFIG || {};
+    var bloc = document.getElementById('side-plus-lus'), liste = document.getElementById('side-liste');
+    if (!bloc || !liste || !CFG.SUPABASE_URL) return;
+    function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+    function slugDe(lien) { var m = String(lien || '').match(/\\/(?:p|articles)\\/([^/?#]+)/); return m ? m[1] : ''; }
+    var courant = (location.pathname.split('/').filter(Boolean).pop() || '').replace(/\\.html$/, '');
+    var vues = fetch(CFG.SUPABASE_URL + '/rest/v1/rpc/site_plus_lus', { method: 'POST', headers: { apikey: CFG.SUPABASE_CLE, Authorization: 'Bearer ' + CFG.SUPABASE_CLE, 'Content-Type': 'application/json' }, body: '{}' })
+      .then(function (r) { return r.ok ? r.json() : []; });
+    var articles = fetch('/.netlify/functions/substack-feed?tous=1').then(function (r) { return r.ok ? r.json() : null; });
+    Promise.all([vues, articles]).then(function (res) {
+      var lignes = Array.isArray(res[0]) ? res[0] : [], items = (res[1] && res[1].items) || [];
+      var nb = Object.create(null);
+      lignes.forEach(function (l) { if (l && l.slug) nb[l.slug] = Number(l.vues) || 0; });
+      var classes = items.filter(function (it) { return it.kind !== 'newsletter' && slugDe(it.link) && slugDe(it.link) !== courant && nb[slugDe(it.link)] > 0; })
+        .sort(function (a, b) { return nb[slugDe(b.link)] - nb[slugDe(a.link)]; }).slice(0, 5);
+      if (classes.length < 3) return;
+      liste.innerHTML = classes.map(function (it, i) {
+        var lieu = (it.communes && it.communes[0] && it.communes[0].nom) || (it.rubriques && it.rubriques[0] && it.rubriques[0].nom) || '';
+        return '<li><a href="/articles/' + encodeURIComponent(slugDe(it.link)) + '"><span class="side-rang">' + (i + 1) + '</span><span>' +
+          (lieu ? '<span class="side-kicker">' + esc(lieu) + '</span>' : '') + '<span class="side-titre-article">' + it.title + '</span></span></a></li>';
+      }).join('');
+      bloc.hidden = false;
+    }).catch(function () { /* colonne sans classement : l'inscription à la newsletter reste */ });
+  })();
+  </script>
   <script>
   (function () {
     // Appli installable : ce service worker (sw.js) ne garde rien en mémoire ; il permet seulement au navigateur
