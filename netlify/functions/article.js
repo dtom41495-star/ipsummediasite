@@ -551,7 +551,7 @@ ${headExtra}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.css?v=20261212">
+<link rel="stylesheet" href="/style.css?v=20261301">
 <style>
   .article-page { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
   .article-page .eyebrow { display:block; margin-bottom: 14px; }
@@ -605,15 +605,6 @@ ${headExtra}
   .article-body blockquote { border-left: 3px solid var(--orange); padding-left: 16px; color: var(--ink-soft); margin: 1.2em 0; }
   .article-back { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 32px; color: var(--ink); font-size: 0.95rem; font-weight: 600; transition: color 0.15s ease; }
   .article-back:hover { color: var(--orange); }
-  /* Encart « suivre dans l'appli Substack » en fin d'article */
-  .article-appli { display: flex; align-items: center; gap: 16px; margin-top: 28px; padding: 20px 22px; background: var(--white); border: 1px solid var(--border); border-left: 5px solid #FF6719; border-radius: 16px; box-shadow: var(--shadow); }
-  .article-appli-pic { flex: 0 0 52px; height: 52px; border-radius: 14px; background: #FF6719; display: flex; align-items: center; justify-content: center; }
-  .article-appli-pic svg { width: 28px; height: 28px; fill: #fff; }
-  .article-appli-t h3 { margin-bottom: 3px; font-size: 1.08rem; }
-  .article-appli-t p { margin: 0; color: var(--ink-soft); font-size: .88rem; }
-  .article-appli-btns { margin-left: auto; display: flex; flex-direction: column; gap: 7px; flex: 0 0 auto; }
-  .article-appli-btns .btn { justify-content: center; padding: 9px 14px; font-size: .82rem; white-space: nowrap; }
-  @media (max-width: 640px) { .article-appli { flex-direction: column; align-items: flex-start; } .article-appli-btns { margin-left: 0; width: 100%; } }
   .article-subscribe {
     margin-top: 48px;
     padding: 28px;
@@ -1014,14 +1005,6 @@ function renderArticle(a) {
       <p>Recevez l'actu ${escapeHtml(redac.de)} chaque jeudi directement par email.</p>
       <a class="btn btn-primary" href="${escapeHtml(redac.subscribeUrl)}" target="_blank" rel="noopener">Je m'inscris à la newsletter</a>
     </div>
-    <div class="article-appli">
-      <span class="article-appli-pic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M22.5 5.3H1.5V8h21zM1.5 10.4V24L12 18.200 22.500 24V10.400zM22.500 0H1.500v2.700h21z"/></svg></span>
-      <div class="article-appli-t"><h3>Ne ratez pas le prochain</h3><p>Suivez Ipsum Média dans l'appli Substack : une notification à chaque article, et vous pouvez commenter, liker et discuter avec nos journalistes, en message privé ou dans le chat des abonnés. Une fois l'appli téléchargée, tapez <b>Ipsum Média</b> et abonnez-vous à la rédaction de votre choix.</p></div>
-      <div class="article-appli-btns">
-        <a class="btn btn-primary" href="https://substack.com/app/app-store-redirect?utm_campaign=app-marketing&amp;utm_content=author-post-insert&amp;utm_source=ipsummedia" target="_blank" rel="noopener">Télécharger l'appli Substack</a>
-      </div>
-    </div>
-    <p style="text-align:center; margin-top:20px;"><a href="${escapeHtml(redac.archiveUrl)}" target="_blank" rel="noopener" style="color:var(--ink-soft); font-size:0.85rem;">Voir tous nos articles (archives complètes sur Substack) →</a></p>
   </div>
   <script>
   (function () {
