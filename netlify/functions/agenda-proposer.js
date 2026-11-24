@@ -21,7 +21,15 @@ exports.handler = async function () {
         <label class="ag-champ"><span class="ag-lib">Catégorie <span class="ag-req">*</span></span><select id="f-categorie" name="categorie" required>${options(CATEGORIES)}</select></label>
         <label class="ag-champ"><span class="ag-lib">Début <span class="ag-req">*</span></span><input id="f-debut" name="debut" type="datetime-local" required></label>
         <label class="ag-champ"><span class="ag-lib">Fin <small>(facultatif)</small></span><input id="f-fin" name="fin" type="datetime-local"></label>
-        <label class="ag-champ"><span class="ag-lib">Lieu <span class="ag-req">*</span></span><input id="f-lieu" name="lieu" maxlength="160" required placeholder="Ex. Salle des fêtes, 12 rue de la Mairie"></label>
+        <div class="ag-champ ag-large ag-lieu">
+          <label for="f-lieu"><span class="ag-lib">Lieu <span class="ag-req">*</span></span></label>
+          <div class="ag-lieu-boite">
+            <input id="f-lieu" name="lieu" maxlength="160" required autocomplete="off" role="combobox" aria-expanded="false" aria-controls="f-lieu-liste" aria-autocomplete="list" placeholder="Tapez une adresse ou le nom du lieu (salle des fêtes, mairie…)">
+            <ul id="f-lieu-liste" class="ag-suggestions" role="listbox" hidden></ul>
+          </div>
+          <p class="ag-aide" id="f-lieu-aide">Choisissez une suggestion pour situer le lieu sur une carte. Suggestions : cartes.gouv.fr (IGN).</p>
+          <div id="f-carte" class="ag-carte-apercu" hidden></div>
+        </div>
         <label class="ag-champ"><span class="ag-lib">Commune <span class="ag-req">*</span></span><input id="f-commune" name="commune" maxlength="80" required placeholder="Ex. Albi"></label>
         <label class="ag-champ ag-large"><span class="ag-lib">Description <small>(quelques lignes : programme, tarifs, public…)</small></span><textarea id="f-description" name="description" rows="6" maxlength="2000"></textarea></label>
         <label class="ag-champ ag-large"><span class="ag-lib">Lien pour en savoir plus <small>(facultatif)</small></span><input id="f-lien" name="lien" type="url" maxlength="300" placeholder="https://"></label>
@@ -45,6 +53,7 @@ exports.handler = async function () {
       <p><a class="btn btn-primary" href="/agenda/tarn">Agenda du Tarn</a> <a class="btn btn-outline" href="/agenda/haute-garonne">Agenda de la Haute-Garonne</a></p>
     </div>
   </div></section>
+  <script src="/assets/agenda-carte.js"></script>
   <script src="/assets/agenda-proposer.js"></script>`;
   return {
     statusCode: 200,

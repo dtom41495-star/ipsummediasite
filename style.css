@@ -1877,3 +1877,13 @@ section.ag-jour { padding: 0; }
 .ag-lib { display: block; }
 .ag-apercu[hidden] { display: none; }
 @media (max-width: 720px) { .na-select select { min-width: 0; } .ag-actions { flex-direction: column; align-items: flex-start; } }
+
+/* Agenda : suggestions d'adresses du formulaire et cartes */
+.ag-lieu-boite { position: relative; }
+.ag-suggestions { position: absolute; z-index: 30; left: 0; right: 0; top: 100%; margin: 0; padding: 0; list-style: none; background: var(--white); border: 2px solid var(--ink); border-top: 0; max-height: 280px; overflow-y: auto; box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+.ag-suggestions[hidden] { display: none; }
+.ag-suggestions li { padding: 10px 12px; font-weight: 400; cursor: pointer; border-top: 1px solid var(--border); }
+.ag-suggestions li:first-child { border-top: 0; }
+.ag-suggestions li:hover, .ag-suggestions li.actif { background: var(--orange-light); }
+.ag-carte-apercu, .ev-carte { height: 260px; margin-top: 8px; background: var(--border); border: 1px solid var(--border); }
+.ag-carte-apercu[hidden], .ev-carte[hidden] { display: none; }
