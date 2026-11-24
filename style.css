@@ -1601,3 +1601,24 @@ a.equipe-nom:hover { color: var(--orange); text-decoration: underline; }
 .ap2-carte-photo figcaption { position: static; display: flex; flex-direction: column; justify-content: center; padding: 40px 44px; background: none; }
 .ap2-carte-photo h3 { font-size: clamp(1.8rem, 3.6vw, 3rem); }
 @media (max-width: 900px) { .ap2-carte-photo { grid-template-columns: 1fr; } .ap2-carte-photo figcaption { padding: 24px 22px 28px; } }
+/* Fondateurs : deux grandes cartes de couleur qui remplissent la largeur (photo + texte) */
+.ap2 #equipe .team-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.ap2 #equipe .team-card { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 0 28px; align-items: center; padding: 28px; border: 0; border-radius: 0; box-shadow: none; }
+.ap2 #equipe .team-card:nth-child(1) { background: var(--ap-orange); color: var(--ap-ink); }
+.ap2 #equipe .team-card:nth-child(2) { background: var(--ap-framboise); color: #fff; }
+.ap2 #equipe .avatar-photo { grid-row: 1 / span 3; width: 170px; height: 210px; margin: 0; border: 0; border-radius: 0; object-fit: cover; }
+.ap2 #equipe .team-card h3 { margin: 0 0 6px; font-family: 'Anton', 'Arial Narrow', Impact, sans-serif; font-weight: 400; text-transform: uppercase; font-size: clamp(1.8rem, 3vw, 2.4rem); line-height: 1.05; color: inherit; }
+.ap2 #equipe .team-card .role { margin: 0 0 12px; font-size: .85rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: inherit; opacity: .9; }
+.ap2 #equipe .team-card p:not(.role) { margin: 0; font-size: 1rem; line-height: 1.5; color: inherit; }
+.ap2 #equipe .team-note { color: var(--ink-soft); }
+@media (max-width: 900px) {
+  .ap2 #equipe .team-grid { grid-template-columns: 1fr; }
+  .ap2 #equipe .team-card { grid-template-columns: 110px minmax(0, 1fr); gap: 0 18px; padding: 20px; }
+  .ap2 #equipe .avatar-photo { width: 110px; height: 140px; }
+}
+.ap2 #equipe .team-card { align-content: center; }
+.ap2 #equipe .team-card { grid-template-rows: 1fr auto auto auto 1fr; align-content: normal; }
+.ap2 #equipe .avatar-photo { grid-column: 1; grid-row: 1 / -1; }
+.ap2 #equipe .team-card h3 { grid-column: 2; grid-row: 2; }
+.ap2 #equipe .team-card .role { grid-column: 2; grid-row: 3; }
+.ap2 #equipe .team-card p:not(.role) { grid-column: 2; grid-row: 4; }
