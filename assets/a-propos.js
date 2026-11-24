@@ -43,20 +43,30 @@
     }
   }
 
-  // Vidéos YouTube (bande-annonce, Club de la presse) : rien n'est chargé chez YouTube tant qu'on n'a pas cliqué (confidentialité et rapidité)
+  // Vidéos YouTube (bande-annonce, Club de la presse), toujours sans le son. Par défaut rien n'est chargé chez YouTube tant qu'on n'a pas
+  // cliqué (confidentialité et rapidité) ; la vidéo marquée data-auto se lance toute seule, en boucle, dès qu'elle est à l'écran
+  // (sauf pour qui préfère moins d'animations : elle reste alors au clic).
+  var moinsDAnimations = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function lancerVideo(bouton) {
+    var id = bouton.getAttribute('data-video');
+    var cadre = document.createElement('iframe');
+    cadre.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1&mute=1&loop=1&playlist=' + encodeURIComponent(id) + '&rel=0&modestbranding=1&playsinline=1';
+    cadre.title = bouton.getAttribute('aria-label') || 'Vidéo Ipsum Média';
+    cadre.allow = 'autoplay; encrypted-media; picture-in-picture';
+    cadre.allowFullscreen = true;
+    cadre.className = bouton.getAttribute('data-format') === 'vertical' ? 'ap-short-cadre' : 'ap-trailer-cadre';
+    if (bouton.parentNode) bouton.parentNode.replaceChild(cadre, bouton);
+  }
   document.querySelectorAll('button.ap-lite[data-video]').forEach(function (bouton) {
     var vignette = bouton.querySelector('img');
     if (vignette) vignette.addEventListener('error', function () { vignette.remove(); });   // sans vignette : fond sombre avec le bouton de lecture
-    bouton.addEventListener('click', function () {
-      var id = bouton.getAttribute('data-video');
-      var cadre = document.createElement('iframe');
-      cadre.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1&mute=1&rel=0&modestbranding=1&playsinline=1';
-      cadre.title = bouton.getAttribute('aria-label') || 'Vidéo Ipsum Média';
-      cadre.allow = 'autoplay; encrypted-media; picture-in-picture';
-      cadre.allowFullscreen = true;
-      cadre.className = bouton.getAttribute('data-format') === 'vertical' ? 'ap-short-cadre' : 'ap-trailer-cadre';
-      bouton.parentNode.replaceChild(cadre, bouton);
-    });
+    bouton.addEventListener('click', function () { lancerVideo(bouton); });
+    if (bouton.hasAttribute('data-auto') && !moinsDAnimations && 'IntersectionObserver' in window) {
+      var vue = new IntersectionObserver(function (entrees) {
+        entrees.forEach(function (e) { if (e.isIntersecting) { vue.disconnect(); lancerVideo(bouton); } });
+      }, { threshold: 0.35 });
+      vue.observe(bouton);
+    }
   });
 
   var select = document.getElementById('cf-redaction');
