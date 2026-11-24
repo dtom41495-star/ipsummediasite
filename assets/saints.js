@@ -1,5 +1,5 @@
 // Saint du jour : calendrier des prénoms (usage courant en France), indexé [mois 0-11][jour 0-30].
-// Liste écrite de mémoire : à relire. Le 29 février a sa propre entrée (Auguste).
+// Le 29 février a sa propre entrée (Auguste).
 window.SAINTS_DU_JOUR = [
 [
 "Jour de l'An",

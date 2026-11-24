@@ -605,7 +605,29 @@
   // le plus récemment. On classe par date du dernier article et non par nombre d'articles : sinon les
   // mêmes communes, les plus fournies depuis toujours, gardent leur place et une commune qui vient de
   // faire l'actu n'apparaît jamais.
+  // La commune choisie par le visiteur est retenue dans son navigateur (rien n'est envoyé à un serveur, pas de compte)
+  var CLE_COMMUNE = 'ipsum_ma_commune';
+  var memoCommune = document.getElementById('villes-memo');
+  var dernieresCommunes = null;
+  function maCommune() {
+    try { return localStorage.getItem(CLE_COMMUNE) || ''; } catch (e) { return ''; }
+  }
+  function retenirCommune(slug) {
+    try { if (slug) localStorage.setItem(CLE_COMMUNE, slug); else localStorage.removeItem(CLE_COMMUNE); } catch (e) { /* navigateur qui refuse : on ne retient simplement rien */ }
+  }
+  if (villes) villes.addEventListener('click', function (ev) {
+    var a = ev.target && ev.target.closest ? ev.target.closest('a[href^="/commune/"]') : null;
+    if (a) { retenirCommune(a.getAttribute('href').replace('/commune/', '').replace(/[/?#].*$/, '')); return; }
+    var oubli = ev.target && ev.target.closest ? ev.target.closest('[data-oublier-commune]') : null;
+    if (oubli) {
+      ev.preventDefault();
+      retenirCommune('');
+      if (dernieresCommunes) afficherCommunes(dernieresCommunes.articles, dernieresCommunes.utilises);
+    }
+  });
+
   function afficherCommunes(articles, utilises) {
+    dernieresCommunes = { articles: articles, utilises: utilises };
     var parCommune = Object.create(null);
     articles.forEach(function (a) {
       (a.communes || []).forEach(function (c) {
@@ -618,22 +640,35 @@
       .sort(function (x, y) { return y.derniere - x.derniere || y.articles.length - x.articles.length || (x.slug < y.slug ? -1 : 1); });
     if (!liste.length) return;   // pas d'étiquettes de commune (flux de secours) : on ne montre pas cette partie
 
+    // La commune du visiteur passe en premier (pastille et colonne), même avec un seul article, même si l'article est déjà à la une
+    var choisie = maCommune();
+    var ma = choisie ? parCommune[choisie] : null;
+    if (ma) liste = [ma].concat(liste.filter(function (c) { return c !== ma; }));
+
     var colonnes = liste.map(function (c) {
-      return { commune: c, dispo: c.articles.filter(function (a) { return utilises.indexOf(a) === -1; }).slice(0, PAR_VILLE) };
-    }).filter(function (c) { return c.dispo.length >= MIN_VILLE; }).slice(0, NB_VILLES);
+      var neufs = c.articles.filter(function (a) { return utilises.indexOf(a) === -1; });
+      return { commune: c, dispo: (c === ma && neufs.length < MIN_VILLE ? c.articles : neufs).slice(0, PAR_VILLE) };
+    }).filter(function (c) { return c.dispo.length >= (c.commune === ma ? 1 : MIN_VILLE); }).slice(0, NB_VILLES);
     if (!colonnes.length) return;   // pas assez d'articles par commune : les pastilles seules n'ont pas d'intérêt
 
     villesPastilles.innerHTML = liste.map(function (c) {
-      return '<a href="/commune/' + c.slug + '">' + c.nom + '</a>';
+      return '<a href="/commune/' + c.slug + '"' + (c === ma ? ' class="ma-commune"' : '') + '>' + c.nom + '</a>';
     }).join('');
 
     villesGrille.innerHTML = colonnes.map(function (c) {
-      return '<div class="ville">' +
+      return '<div class="ville' + (c.commune === ma ? ' ville-ma' : '') + '">' +
         '<div class="ville-tete"><h3>' + c.commune.nom + '</h3><a href="/commune/' + c.commune.slug + '">Tout voir</a></div>' +
         htmlCarte(c.dispo[0], 'h4', true) +
         '<ul class="fil">' + c.dispo.slice(1).map(function (a) { return htmlLigne(a, true); }).join('') + '</ul>' +
         '</div>';
     }).join('');
+
+    if (memoCommune) {
+      memoCommune.hidden = false;
+      memoCommune.innerHTML = ma
+        ? 'Votre commune : <strong>' + ma.nom + '</strong>, retenue sur cet appareil. <a href="#" data-oublier-commune>Changer</a>'
+        : 'Choisissez une commune : on s\'en souviendra la prochaine fois, sur cet appareil.';
+    }
     villes.hidden = false;
   }
 

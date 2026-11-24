@@ -1620,6 +1620,16 @@ a.equipe-nom:hover { color: var(--orange); text-decoration: underline; }
   .newsletter-tel-cadre { width: 210px; }
 }
 
+/* Près de chez vous : gros titre, commune retenue en premier */
+#villes { padding-top: 56px; }
+.villes-titre { margin: 0 0 12px; text-align: center; font-family: 'Anton', 'Arial Narrow', Impact, sans-serif; font-weight: 400; text-transform: uppercase; font-size: clamp(2.4rem, 7vw, 4.6rem); line-height: 1.02; color: var(--ink); }
+.villes-memo { margin: 0 0 22px; text-align: center; color: var(--ink-soft); font-size: .95rem; }
+.villes-memo a { color: var(--orange); font-weight: 600; }
+.villes-memo[hidden] { display: none; }
+#villes .villes-pastilles { justify-content: center; }
+.villes-pastilles a.ma-commune { background: var(--orange); border-color: var(--orange); color: #fff; font-weight: 700; }
+.villes-pastilles a.ma-commune:hover { color: #fff; opacity: .9; }
+.ville-ma .ville-tete { border-left-color: var(--orange); }
 /* ===== Les plus lus : un gros n°1 avec sa photo, les n°2 à 5 en cartes de couleur avec un gros chiffre ===== */
 .plus-lus-liste { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: repeat(2, auto); gap: 16px; }
 .plus-lus-liste li { display: flex; }
@@ -1673,3 +1683,5 @@ a.equipe-nom:hover { color: var(--orange); text-decoration: underline; }
 .ap2-visages-ligne img { height: auto; min-width: 0; aspect-ratio: 3 / 4; object-fit: cover; object-position: 50% 30%; }
 @media (max-width: 900px) { .ap2-visages-ligne { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; } .ap2-visages-ligne img { aspect-ratio: 3 / 4; } }
 @media (max-width: 480px) { .ap2-visages-ligne { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ap2-visages-ligne img:last-child { grid-column: 1 / -1; aspect-ratio: 16 / 10; object-position: 50% 28%; } }
+/* Pastilles de communes sur téléphone : une seule ligne qui défile, alignée à gauche (centrée, les premières sortiraient de l'écran) */
+@media (max-width: 720px) { #villes .villes-pastilles { justify-content: flex-start; } }
