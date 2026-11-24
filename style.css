@@ -1685,3 +1685,99 @@ a.equipe-nom:hover { color: var(--orange); text-decoration: underline; }
 @media (max-width: 480px) { .ap2-visages-ligne { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ap2-visages-ligne img:last-child { grid-column: 1 / -1; aspect-ratio: 16 / 10; object-position: 50% 28%; } }
 /* Pastilles de communes sur téléphone : une seule ligne qui défile, alignée à gauche (centrée, les premières sortiraient de l'écran) */
 @media (max-width: 720px) { #villes .villes-pastilles { justify-content: flex-start; } }
+
+/* ===== Accueil : même dessin partout, pleine largeur (inspiré de la presse régionale) ===== */
+/* Sections en bandes pleine largeur, contenu aligné sur la une (marges réduites, plus de colonne centrale étroite) */
+.journal { padding: 44px 0 40px; }
+.journal + .journal { padding-top: 44px; }
+.journal > .wrap { max-width: none; padding-left: clamp(16px, 3vw, 44px); padding-right: clamp(16px, 3vw, 44px); }
+.journal.suite, .journal.plus-lus, .journal.meteo { background: var(--white); }
+.journal.villes, .journal.rubriques, .journal.national { background: var(--cream); }
+.journal.suite { border-bottom: 1px solid var(--border); }
+
+/* Titre de section : filet épais, titre en capitales condensées, lien à droite */
+.journal-tete { align-items: center; margin-bottom: 24px; padding: 14px 0 0; border-bottom: 0; border-top: 4px solid var(--ink); }
+.journal-tete::after { top: -4px; bottom: auto; width: 96px; height: 4px; border-radius: 0; background: var(--orange); }
+.journal-tete h2 { font-family: 'Anton', 'Arial Narrow', Impact, sans-serif; font-weight: 400; text-transform: uppercase; letter-spacing: .01em; font-size: clamp(1.7rem, 3vw, 2.5rem); line-height: 1.05; }
+.journal-tete a { padding: 8px 14px; border: 2px solid var(--ink); color: var(--ink); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; transition: background .15s, color .15s; }
+.journal-tete a:hover { background: var(--ink); color: #fff; text-decoration: none; }
+.journal-tete a::after { content: ' →'; }
+
+/* Une carte, partout : grande photo, étiquette orange, titre. Fini les cartes colorées de « Dernières actus » */
+.une-card .une-img { border-radius: 0; margin-bottom: 14px; }
+.suite-grille { gap: 28px 24px; }
+.suite-grille .une-card, .suite-grille .une-card:nth-child(n) { display: block; min-height: 0; padding: 0; overflow: visible; background: transparent; color: var(--ink); }
+.suite-grille .une-card .kicker { order: 0; margin: 0 0 8px; text-align: left; opacity: 1; color: var(--orange); }
+.suite-grille .une-card h3 { order: 0; margin: 0; font-family: 'Bitter', Georgia, serif; font-weight: 700; text-transform: none; font-size: 1.22rem; line-height: 1.25; color: var(--ink); }
+.suite-grille .une-card .une-meta { order: 0; margin: 8px 0 0; color: var(--ink-soft); opacity: 1; }
+.suite-grille .une-card .une-img { order: 0; margin: 0 0 14px; aspect-ratio: 3 / 2; background: var(--border); }
+.suite-grille .une-card:hover h3, .suite-grille .une-card:focus-visible h3 { color: var(--orange); text-decoration: none; }
+.une-card:not(:has(.une-img))::before { content: ''; display: block; aspect-ratio: 3 / 2; margin-bottom: 14px; background: var(--orange); }
+.une-card:nth-child(4n+2):not(:has(.une-img))::before { background: var(--ink); }
+.une-card:nth-child(4n+3):not(:has(.une-img))::before { background: var(--framboise, #E7436E); }
+.une-card:nth-child(4n+4):not(:has(.une-img))::before { background: #FDD9C6; }
+.une-card .kicker, .une-card .pastille { margin-bottom: 8px; }
+
+/* Colonnes des communes et des rubriques : bandeau de nom, grande photo, puis les autres titres avec leur vignette */
+.villes-grille { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 40px 32px; }
+.ville { background: var(--white); border-top: 4px solid var(--ink); padding: 0 0 6px; }
+.ville-tete { margin: 0; padding: 12px 16px; border-left: 0; background: var(--ink); color: #fff; }
+.ville-tete h3 { font-family: 'Anton', 'Arial Narrow', Impact, sans-serif; font-weight: 400; text-transform: uppercase; letter-spacing: .02em; font-size: 1.35rem; color: #fff; }
+.ville-tete a { color: var(--orange-light, #FDD9C6); font-size: .74rem; text-transform: uppercase; letter-spacing: .06em; }
+.ville-ma { border-top-color: var(--orange); }
+.ville-ma .ville-tete { background: var(--orange); }
+.ville-ma .ville-tete a, .ville-ma .ville-tete h3 { color: var(--ink); }
+.ville > .une-card { margin: 0; padding: 0 16px 16px; border-bottom: 0; }
+.ville > .une-card .une-img { margin: 0 -16px 14px; }
+.ville > .une-card:not(:has(.une-img))::before { margin: 0 -16px 14px; }
+.ville .fil { margin: 0; padding: 0 16px; border-top: 1px solid var(--border); }
+.ville .fil li:first-child a { padding-top: 12px; }
+.fil a.avec-vignette { display: grid; grid-template-columns: minmax(0, 1fr) 92px; gap: 12px; align-items: start; }
+.fil a.avec-vignette .fil-vignette { grid-column: 2; grid-row: 1; aspect-ratio: 4 / 3; overflow: hidden; background: var(--border); }
+.fil a.avec-vignette .fil-vignette img { width: 100%; height: 100%; object-fit: cover; }
+.fil a.avec-vignette .fil-corps { grid-column: 1; grid-row: 1; }
+.villes-pastilles a { border-radius: 0; border: 2px solid var(--ink); background: transparent; font-weight: 600; }
+.villes-pastilles a:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+.villes-pastilles a.ma-commune { background: var(--orange); border-color: var(--orange); color: var(--ink); }
+.villes.national .ville-tete { background: #2748E0; border-left: 0; }
+.villes.national { }
+
+/* Les plus lus : mêmes cartes que le reste, avec le rang en grand */
+.plus-lus-liste .pl-1 a, .plus-lus-liste .pl-2 a, .plus-lus-liste .pl-3 a, .plus-lus-liste .pl-4 a { background: var(--cream); color: var(--ink); }
+.plus-lus-liste .pl-1 a { background: var(--ink); color: #fff; }
+.plus-lus-liste .pl-1 .plus-lus-titre { color: #fff; }
+.plus-lus-liste .rang { color: var(--orange); }
+
+/* Météo : même bandeau */
+.meteo-jours li { border-radius: 0; border: 0; border-top: 4px solid var(--orange); background: var(--cream); }
+
+/* « On peut aussi travailler avec vous » : même univers que la page À propos (bande prune, titres condensés, angles droits) */
+.institutions { background: #3B1A2B; border: 0; padding: 72px 0; color: #fff; }
+.institutions .eyebrow { color: var(--orange); }
+.institutions h2 { font-family: 'Anton', 'Arial Narrow', Impact, sans-serif; font-weight: 400; text-transform: uppercase; color: #fff; font-size: clamp(2rem, 5vw, 3.4rem); letter-spacing: .01em; }
+.institutions .lead { color: rgba(255,255,255,.82); }
+.offres-onglet { border-radius: 0; background: transparent; border: 2px solid rgba(255,255,255,.35); color: #fff; }
+.offres-onglet:hover { border-color: var(--orange); color: #fff; }
+.offres-onglet[aria-selected="true"] { background: var(--orange); border-color: var(--orange); color: var(--ink); }
+.offres-onglet[aria-selected="true"] .ico { color: var(--ink); }
+.offres-diapos { border-radius: 0; border: 0; box-shadow: none; background: var(--ink); }
+.offre-visuel { background: var(--orange); }
+.offre:nth-child(2) .offre-visuel { background: #E7436E; }
+.offre:nth-child(3) .offre-visuel { background: #FDD9C6; color: var(--ink); }
+.offre-nombre { font-family: 'Anton', 'Arial Narrow', Impact, sans-serif; font-weight: 400; color: rgba(32,26,23,.18); }
+.offre-compteur { color: var(--orange); }
+.offre-texte h3 { font-family: 'Anton', 'Arial Narrow', Impact, sans-serif; font-weight: 400; text-transform: uppercase; color: #fff; }
+.offre-texte p { color: rgba(255,255,255,.82); }
+.offres-btn { border-radius: 0; background: transparent; border-color: rgba(255,255,255,.4); color: #fff; }
+.offres-btn:hover { border-color: var(--orange); color: var(--orange); }
+
+@media (max-width: 720px) {
+  .journal { padding: 32px 0 28px; }
+  .journal-tete a { padding: 6px 10px; }
+  .fil a.avec-vignette { grid-template-columns: minmax(0, 1fr) 80px; }
+}
+@media (max-width: 720px) {
+  .suite-grille { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 14px; }
+  .suite-grille .une-card h3 { font-size: 1rem; }
+  .suite-grille .une-card .kicker { font-size: .62rem; }
+}
