@@ -1622,3 +1622,13 @@ a.equipe-nom:hover { color: var(--orange); text-decoration: underline; }
 .ap2 #equipe .team-card h3 { grid-column: 2; grid-row: 2; }
 .ap2 #equipe .team-card .role { grid-column: 2; grid-row: 3; }
 .ap2 #equipe .team-card p:not(.role) { grid-column: 2; grid-row: 4; }
+
+/* Panneau « Festival de journalisme » : photo de groupe avec le badge en vignette */
+.ap2-univers[data-actif="5"] { --c-fond: var(--ap-framboise); --c-texte: #fff; }
+.ap2-univers[data-actif="5"] li[data-i="5"] { opacity: 1; }
+.ap2-collage { position: relative; }
+.ap2-collage > img:first-child { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; object-position: 50% 40%; }
+.ap2-collage-badge { position: absolute; right: 16px; bottom: -22px; width: 38%; height: auto; border: 5px solid #fff; box-shadow: 0 10px 28px rgba(0,0,0,.3); transform: rotate(3deg); }
+.ap2-collage + figcaption { padding-top: 34px; }
+.ap2-carte-media .ap2-collage-badge { position: absolute; right: 16px; bottom: -22px; left: auto; top: auto; width: 40%; height: auto; aspect-ratio: auto; object-fit: contain; }
+.ap2-carte-media .ap2-collage > img:first-child { aspect-ratio: 4 / 3; }
