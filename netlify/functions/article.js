@@ -1029,10 +1029,7 @@ function renderArticle(a) {
       <p>Recevez l'actu ${escapeHtml(redac.de)} chaque jeudi directement par email.</p>
       <a class="btn btn-primary" href="${escapeHtml(redac.subscribeUrl)}" target="_blank" rel="noopener">Je m'inscris à la newsletter</a>
     </div>
-<<<<<<< HEAD
   </aside>
-=======
->>>>>>> origin/master
   </div>
   <script>
   // « Les plus lus » dans la colonne de droite : classement des 7 derniers jours (même source que l'accueil), l'article en cours exclu
