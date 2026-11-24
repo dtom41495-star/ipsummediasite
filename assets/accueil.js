@@ -5,12 +5,12 @@
   var zoneUne = document.getElementById('une-main');
   if (!zoneUne) return;
 
-  var NB_DIAPOS = 5;        // articles du bandeau (le dernier publié en premier)
+  var NB_DIAPOS = 1;        // article du grand bandeau : le dernier publié (plus de défilement)
   var NB_MINI = 3;          // mini cartes fixes à droite du bandeau
   var DUREE_DIAPO = 10000;  // 10 secondes par article
   var SB_URL = (window.IPSUM_CONFIG || {}).SUPABASE_URL;
   var SB_CLE = (window.IPSUM_CONFIG || {}).SUPABASE_CLE;   // clé publique (anon), la même que dans les autres pages
-  var NB_SUITE = 8;         // la suite des actus, sous le bandeau
+  var NB_SUITE = 4;         // les 4 articles suivants, juste sous la une
   var NB_VILLES = 4;        // colonnes "commune"
   var PAR_VILLE = 3;        // articles par commune
   var MIN_VILLE = 2;        // il faut au moins 2 articles (hors la une) pour ouvrir la colonne d'une commune
