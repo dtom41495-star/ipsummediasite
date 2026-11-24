@@ -45,7 +45,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Montserrat:wght@700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261210">
+<link rel="stylesheet" href="style.css?v=20261215">
 <!-- Statistiques d'audience sans cookies (Umami, hébergé par Ipsum Média) -->
 <script defer src="https://stats.ipsummedia.fr/script.js" data-website-id="02190f37-9db9-421b-b0c2-f71b803e2ccb"></script>
 </head>
@@ -140,6 +140,16 @@
     </div>
   </section>
 
+  <!-- Près de chez vous : juste sous la une. La commune choisie par le visiteur est retenue dans son navigateur (voir assets/accueil.js) -->
+  <section class="journal villes" id="villes" hidden>
+    <div class="wrap">
+      <h2 class="villes-titre">Près de chez vous</h2>
+      <p class="villes-memo" id="villes-memo" hidden></p>
+      <nav class="villes-pastilles" id="villes-pastilles" aria-label="Choisir une commune"></nav>
+      <div class="villes-grille" id="villes-grille"></div>
+    </div>
+  </section>
+
   <!-- La suite des actus, sous le bandeau -->
   <section class="journal suite" id="suite" hidden>
     <div class="wrap">
@@ -173,13 +183,6 @@
     </div>
   </section>
 
-  <section class="journal villes" id="villes" hidden>
-    <div class="wrap">
-      <div class="journal-tete"><h2>Près de chez vous</h2><a href="articles.html">Toutes les actus</a></div>
-      <nav class="villes-pastilles" id="villes-pastilles" aria-label="Choisir une commune"></nav>
-      <div class="villes-grille" id="villes-grille"></div>
-    </div>
-  </section>
 
   <section class="journal rubriques" id="rubriques" hidden>
     <div class="wrap">
@@ -556,7 +559,7 @@
 </script>
 
 <script src="assets/saints.js?v=20261117"></script>
-<script src="assets/accueil.js?v=20261124"></script>
+<script src="assets/accueil.js?v=20261215"></script>
 <script src="assets/videos.js"></script>
 <script src="assets/nav-rubriques.js"></script>
 <script src="assets/utm-substack.js"></script>

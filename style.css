@@ -1639,3 +1639,15 @@ a.equipe-nom:hover { color: var(--orange); text-decoration: underline; }
   .journal-newsletter .wrap > .editions, .journal-newsletter .wrap > .editions-cartes { grid-column: 1; grid-row: auto; }
   .newsletter-tel-cadre { width: 210px; }
 }
+
+/* Près de chez vous : gros titre, commune retenue en premier */
+#villes { padding-top: 56px; }
+.villes-titre { margin: 0 0 12px; text-align: center; font-family: 'Anton', 'Arial Narrow', Impact, sans-serif; font-weight: 400; text-transform: uppercase; font-size: clamp(2.4rem, 7vw, 4.6rem); line-height: 1.02; color: var(--ink); }
+.villes-memo { margin: 0 0 22px; text-align: center; color: var(--ink-soft); font-size: .95rem; }
+.villes-memo a { color: var(--orange); font-weight: 600; }
+.villes-memo[hidden] { display: none; }
+#villes .villes-pastilles { justify-content: center; }
+.villes-pastilles a.ma-commune { background: var(--orange); border-color: var(--orange); color: #fff; font-weight: 700; }
+.villes-pastilles a.ma-commune:hover { color: #fff; opacity: .9; }
+.ville-ma .ville-tete { border-left-color: var(--orange); }
+.ville-ma .ville-tete h3::after { content: ' \2605'; color: var(--orange); }
