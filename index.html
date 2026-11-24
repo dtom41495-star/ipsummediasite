@@ -45,7 +45,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Montserrat:wght@700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261207">
+<link rel="stylesheet" href="style.css?v=20261208">
 <!-- Statistiques d'audience sans cookies (Umami, hébergé par Ipsum Média) -->
 <script defer src="https://stats.ipsummedia.fr/script.js" data-website-id="02190f37-9db9-421b-b0c2-f71b803e2ccb"></script>
 </head>
@@ -444,56 +444,44 @@
   </section>
 
   <section class="contact" id="contact">
-    <div class="wrap">
-      <div>
-        <h2>Contactez-nous</h2>
-        <p>Une info à nous transmettre, une envie de collaborer, une question ?</p>
-
-        <form id="contact-form" class="contact-form">
-          <div class="form-row">
-            <label for="cf-nom">Nom</label>
-            <input type="text" id="cf-nom" name="nom" required>
-          </div>
-          <div class="form-row">
-            <label for="cf-email">Email</label>
-            <input type="email" id="cf-email" name="email" required>
-          </div>
-          <div class="form-row">
-            <label for="cf-redaction">Rédaction concernée</label>
-            <select id="cf-redaction" name="redaction_id" required>
-              <option value="" disabled selected>Chargement des rédactions...</option>
-            </select>
-          </div>
-          <div class="form-row">
-            <label for="cf-message">Message</label>
-            <textarea id="cf-message" name="message" rows="4" required></textarea>
-          </div>
-          <!-- Champ piège anti-robot : invisible, jamais rempli par une personne (la fonction ignore alors le message) -->
-          <div class="cf-piege" aria-hidden="true">
-            <label for="cf-site">Ne pas remplir ce champ</label>
-            <input type="text" id="cf-site" name="site" tabindex="-1" autocomplete="off">
-          </div>
-          <button type="submit" class="btn btn-primary" id="cf-submit">Envoyer</button>
-          <p class="form-status" id="cf-status" role="status"></p>
-        </form>
-      </div>
-      <div class="contact-alt">
-        <p><strong>Autres moyens de nous joindre</strong></p>
-        <a class="contact-alt-item" href="https://wa.me/33782218117" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.35 5.08L2 22l5.05-1.32A9.94 9.94 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm5.2 14.2c-.22.62-1.28 1.18-1.77 1.24-.45.06-1.02.08-1.65-.1-.38-.11-.87-.28-1.5-.55-2.63-1.14-4.35-3.8-4.48-3.98-.13-.18-1.07-1.42-1.07-2.7 0-1.28.67-1.9.9-2.16.24-.26.52-.32.7-.32.18 0 .35 0 .5.01.16.01.38-.06.6.46.22.53.75 1.82.82 1.95.07.13.11.29.02.47-.09.18-.14.29-.27.45-.13.16-.28.35-.4.47-.13.13-.27.27-.12.53.16.26.7 1.15 1.5 1.86 1.03.92 1.9 1.21 2.16 1.35.26.13.41.11.56-.07.16-.18.66-.77.84-1.04.18-.26.36-.22.6-.13.24.09 1.53.72 1.8.85.26.13.44.2.5.31.06.12.06.68-.16 1.3z"/></svg>
-          <span>WhatsApp</span>
-        </a>
-        <a class="contact-alt-item" href="mailto:contact@ipsummedia.fr">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
-          <span>contact@ipsummedia.fr</span>
-        </a>
-        <a class="contact-alt-item" href="tel:+33782218117">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6.6 10.8c1.4 2.8 3.8 5.2 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.5.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.4c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.5.1.4 0 .8-.3 1z"/></svg>
-          <span>07 82 21 81 17</span>
-        </a>
-      </div>
-    </div>
-  </section>
+<div class="wrap">
+<div>
+<h2>Une info à nous signaler ?</h2>
+<p>Un événement, une histoire, un problème dans votre commune, un sujet qu'on devrait traiter : racontez-nous. Une personne de la rédaction vous répond.</p>
+<form id="contact-form" class="contact-form">
+<div class="form-row">
+<label for="cf-nom">Nom</label>
+<input type="text" id="cf-nom" name="nom" required>
+</div>
+<div class="form-row">
+<label for="cf-email">Email</label>
+<input type="email" id="cf-email" name="email" required>
+</div>
+<div class="form-row">
+<label for="cf-redaction">Rédaction concernée</label>
+<select id="cf-redaction" name="redaction_id" required>
+<option value="" disabled selected>Chargement des rédactions...</option>
+</select>
+</div>
+<div class="form-row">
+<label for="cf-message">Votre info ou votre message</label>
+<textarea id="cf-message" name="message" rows="4" required></textarea>
+</div>
+<div class="cf-piege" aria-hidden="true">
+<label for="cf-site">Ne pas remplir ce champ</label>
+<input type="text" id="cf-site" name="site" tabindex="-1" autocomplete="off">
+</div>
+<button type="submit" class="btn btn-primary" id="cf-submit">Envoyer</button>
+<p class="form-status" id="cf-status" role="status"></p>
+</form>
+</div>
+<div class="contact-alt">
+<p><strong>Autres moyens de nous joindre</strong></p>
+<a class="contact-alt-item" href="mailto:contact@ipsummedia.fr"><span>contact@ipsummedia.fr</span></a>
+<a class="contact-alt-item" href="https://wa.me/33782218117" target="_blank" rel="noopener"><span>WhatsApp</span></a>
+</div>
+</div>
+</section>
 
 </main>
 
