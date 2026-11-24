@@ -944,13 +944,6 @@ section { padding: 88px 0; }
   .feed-type { padding: 8px 12px; font-size: 0.84rem; }
 }
 
-/* ---- Page "Nos actus" : archives par rédaction ---- */
-.archive-cta { margin-top: 56px; padding: 36px 28px; text-align: center; background: var(--orange-light); border-radius: var(--radius); }
-.archive-cta[hidden] { display: none; }
-.archive-cta h2 { font-size: clamp(1.4rem, 2.6vw, 1.8rem); margin-bottom: 8px; }
-.archive-cta p { max-width: 52ch; margin: 0 auto 24px; color: var(--ink-soft); }
-.archive-cta-choices { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; }
-@media (max-width: 640px) { .archive-cta-choices .btn { width: 100%; justify-content: center; } }
 
 /* ---- Soutenir : un don, ou du temps ; sérieux (sombre, engagements) et associatif (visages, coeur) ---- */
 .support .wrap h2 { font-size: clamp(1.8rem, 3vw, 2.4rem); margin-bottom: 12px; text-align: center; }
