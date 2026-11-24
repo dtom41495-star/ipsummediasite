@@ -551,7 +551,7 @@ ${headExtra}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.css?v=20261210">
+<link rel="stylesheet" href="/style.css?v=20261302">
 <style>
   .article-page { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
   /* Mise en page à deux colonnes sur ordinateur : l'article à gauche, une colonne qui suit le défilement à droite */
@@ -1029,7 +1029,10 @@ function renderArticle(a) {
       <p>Recevez l'actu ${escapeHtml(redac.de)} chaque jeudi directement par email.</p>
       <a class="btn btn-primary" href="${escapeHtml(redac.subscribeUrl)}" target="_blank" rel="noopener">Je m'inscris à la newsletter</a>
     </div>
+<<<<<<< HEAD
   </aside>
+=======
+>>>>>>> origin/master
   </div>
   <script>
   // « Les plus lus » dans la colonne de droite : classement des 7 derniers jours (même source que l'accueil), l'article en cours exclu
