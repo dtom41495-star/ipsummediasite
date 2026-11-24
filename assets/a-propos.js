@@ -19,6 +19,15 @@
       .catch(function () {});
   }
 
+  // Nos sujets : le fond change de couleur selon le panneau qui occupe l'écran (sur grand écran)
+  var univers = document.querySelector('.ap2-univers');
+  if (univers && 'IntersectionObserver' in window) {
+    var obs = new IntersectionObserver(function (entrees) {
+      entrees.forEach(function (e) { if (e.isIntersecting) univers.setAttribute('data-actif', e.target.getAttribute('data-i')); });
+    }, { rootMargin: '-45% 0px -45% 0px' });
+    univers.querySelectorAll('.ap2-panneau').forEach(function (p) { obs.observe(p); });
+  }
+
   // Vidéo muette : elle ne joue que lorsqu'elle est à l'écran, et pas du tout pour qui préfère moins d'animations (commandes visibles à la place)
   var video = document.getElementById('ap-reportage');
   if (video) {

@@ -19,7 +19,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261128">
+<link rel="stylesheet" href="style.css?v=20261129">
 <!-- Statistiques d'audience sans cookies (Umami, hébergé par Ipsum Média) -->
 <script defer src="https://stats.ipsummedia.fr/script.js" data-website-id="02190f37-9db9-421b-b0c2-f71b803e2ccb"></script>
 </head>
@@ -60,15 +60,15 @@
   </div>
 </div>
 
-<main>
+<main class="ap2">
 
-<!-- 1. En-tête : l'accroche et les visages -->
-<section class="ap-band ap-hero">
-<div class="wrap ap-hero-grille">
+<!-- 1. En-tête -->
+<section class="ap2-band ap2-hero">
+<div class="wrap ap2-hero-grille">
 <div>
-<span class="eyebrow">À propos</span>
-<h1>Un média <em>associatif</em>, fait par des bénévoles de tous âges et de tous parcours</h1>
-<p class="ap-lead">Pas besoin d'être journaliste pour nous rejoindre. Pas besoin de diplôme. Pas besoin de carte de presse.</p>
+<p class="ap2-etiquette">À propos</p>
+<h1>Un média associatif, fait par des bénévoles de tous âges</h1>
+<p class="ap2-lead">Pas besoin d'être journaliste pour nous rejoindre. Pas besoin de diplôme. Pas besoin de carte de presse.</p>
 <div class="hero-actions" style="justify-content:flex-start;">
 <a class="btn btn-primary" href="#rejoindre">Nous rejoindre</a>
 <a class="btn btn-outline ap-btn-sombre" href="#proposer">Proposer une info</a>
@@ -86,25 +86,82 @@
 </section>
 
 <!-- 2. Les chiffres -->
-<section class="ap-band ap-sombre">
-<div class="wrap ap-carres ap-carres-chiffres">
-<div class="ap-carre ap-carre-chiffre"><span class="ap-gros">800+</span><span class="ap-petit">abonnés réseaux sociaux et newsletter</span></div>
-<div class="ap-carre ap-carre-chiffre"><span class="ap-gros">1 million+</span><span class="ap-petit">vues depuis notre lancement en 2024</span></div>
-<div class="ap-carre ap-carre-chiffre"><span class="ap-gros">25k</span><span class="ap-petit">vues en moyenne par mois</span></div>
-<div class="ap-carre ap-carre-chiffre" id="stat-benevoles" hidden><span class="ap-gros" id="stat-benevoles-n">20</span><span class="ap-petit">bénévoles actifs</span></div>
+<section class="ap2-band ap2-ink ap2-carre-motif">
+<div class="wrap ap2-chiffres">
+<div><span class="ap2-gros">800+</span><span class="ap2-petit">abonnés réseaux sociaux et newsletter</span></div>
+<div><span class="ap2-gros">1M+</span><span class="ap2-petit">vues depuis notre lancement en 2024</span></div>
+<div><span class="ap2-gros">25k</span><span class="ap2-petit">vues en moyenne par mois</span></div>
+<div id="stat-benevoles" hidden><span class="ap2-gros" id="stat-benevoles-n">20</span><span class="ap2-petit">bénévoles actifs</span></div>
 </div>
 </section>
 
-<!-- 3. Des profils différents -->
-<section class="ap-band" id="profils">
+<!-- 3. Nos sujets : la couleur change en défilant -->
+<section class="ap2-band ap2-univers" id="aventure" data-actif="0">
 <div class="wrap">
-<span class="eyebrow">Qui nous sommes</span>
-<h2 class="ap-titre">Des profils différents, une seule équipe</h2>
-<div class="ap-carres">
-<div class="ap-carre"><span class="ap-picto">01</span><h3>Tous âges</h3><p>Lycéens, étudiants, jeunes actifs : l'âge médian est de 20 ans, mais on y croise aussi des bénévoles bien plus âgés.</p></div>
-<div class="ap-carre"><span class="ap-picto">02</span><h3>Tous parcours</h3><p>Lycée, formation en communication, journalisme, audiovisuel, vie active : chacun arrive avec son histoire.</p></div>
-<div class="ap-carre"><span class="ap-picto">03</span><h3>Tous niveaux</h3><p>L'expérience n'est pas un prérequis. Chaque bénévole est formé et accompagné en interne.</p></div>
-<div class="ap-carre"><span class="ap-picto">04</span><h3>Pour tous</h3><p>Nous nous adaptons à chacun, y compris aux personnes en situation de handicap mental.</p></div>
+<h2 class="ap2-titre">Nos sujets</h2>
+<p class="ap2-intro">Des sujets très différents, une même aventure. On couvre l'actualité locale, la culture, le sport, l'économie, la société, l'environnement.</p>
+<div class="ap2-univers-grille">
+<ul class="ap2-univers-liste" aria-hidden="true">
+<li data-i="0">Culture et société</li>
+<li data-i="1">Sport et terrain</li>
+<li data-i="2">Une aventure</li>
+</ul>
+<div class="ap2-univers-panneaux">
+<article class="ap2-panneau" data-i="0">
+<figure class="ap2-carte-media">
+<video id="ap-reportage" muted loop playsinline preload="none" poster="assets/apropos/reportage-sujets.jpg" aria-label="Extraits d'un reportage d'Ipsum Média sur le casting Miss Tarn, sans le son" disablepictureinpicture>
+<source src="assets/apropos/reportage-sujets.mp4" type="video/mp4">
+</video>
+<figcaption><h3>Un casting Miss Tarn</h3><p>Un extrait de notre reportage, des coulisses du casting aux premières candidates.</p></figcaption>
+</figure>
+</article>
+<article class="ap2-panneau" data-i="1">
+<figure class="ap2-carte-media">
+<img src="assets/apropos/tour-caravane.jpg" alt="Au bord d'une route du Tarn, au passage d'une course cycliste : voitures d'équipe, motards, spectateurs" width="1600" height="1066" loading="lazy">
+<figcaption><h3>D'un conseil municipal à une course cycliste</h3><p>On va là où ça se passe, et on raconte ce qui fait vivre le territoire.</p></figcaption>
+</figure>
+</article>
+<article class="ap2-panneau" data-i="2">
+<figure class="ap2-carte-media">
+<img src="assets/apropos/france3-studio.jpg" alt="Le plateau de France 3 : un grand mur d'écrans avec la carte météo de l'Occitanie" width="1600" height="1446" loading="lazy">
+<figcaption><h3>Découvrir le métier de l'intérieur</h3><p>Ateliers, immersions, interventions : ici, une visite du plateau de France 3.</p></figcaption>
+</figure>
+</article>
+</div>
+</div>
+</div>
+</section>
+
+<!-- 4. Pourquoi Ipsum Média -->
+<section class="ap2-band ap2-prune ap2-carre-motif" id="pourquoi">
+<div class="wrap">
+<h2 class="ap2-titre">Pourquoi Ipsum Média ?</h2>
+<p class="ap2-intro">Parce qu'un média local peut appartenir à celles et ceux qui le font, et rester libre.</p>
+<div class="ap2-quatre">
+<div class="ap2-colonne ap2-colonne-accent"><h3>Associatif</h3><p>Association loi 1901, sans actionnaire ni intérêt commercial ou politique à défendre.</p></div>
+<div class="ap2-colonne"><h3>Indépendant et souverain</h3><p>Nos outils nous appartiennent : statistiques, supervision et mots de passe tournent déjà sur notre propre machine, et le reste suit.</p></div>
+<div class="ap2-colonne"><h3>Gratuit pour les lecteurs</h3><p>Un média gratuit grâce à celles et ceux qui le soutiennent. <a href="index.html#soutenir">Nous soutenir →</a></p></div>
+<div class="ap2-colonne"><h3>Ouvert à tous</h3><p>Aucun diplôme demandé : chaque bénévole est formé et accompagné en interne.</p></div>
+</div>
+</div>
+</section>
+
+<!-- 5. Des profils différents -->
+<section class="ap2-band ap2-blanc" id="profils">
+<div class="wrap">
+<h2 class="ap2-titre">Des profils différents, une seule équipe</h2>
+<p class="ap2-intro">Lycéens, étudiants, jeunes actifs, et des bénévoles bien plus âgés : l'âge médian est de 20 ans, mais l'équipe n'a pas d'âge.</p>
+<div class="ap2-cartes ap2-cartes-trois">
+<div class="ap2-carte ap2-c-peche"><span class="ap2-label">Tous âges</span><h3>Des lycéens aux plus expérimentés</h3><ul><li>Des lycéens, des étudiants, des jeunes actifs.</li><li>Et des bénévoles plus expérimentés.</li></ul></div>
+<div class="ap2-carte ap2-c-orange"><span class="ap2-label">Tous parcours</span><h3>Chacun arrive avec son histoire</h3><ul><li>Lycée, formation en communication, journalisme, audiovisuel, vie active.</li></ul></div>
+<div class="ap2-carte ap2-c-framboise"><span class="ap2-label">Tous niveaux</span><h3>L'expérience n'est pas un prérequis</h3><ul><li>On apprend en faisant, accompagné et formé en interne.</li><li>Nous nous adaptons à chacun, y compris en situation de handicap.</li></ul></div>
+</div>
+<div class="ap2-visages-ligne">
+<img src="assets/team/benevole-a.jpg" alt="Bénévole Ipsum Média" loading="lazy" width="480" height="598">
+<img src="assets/team/leopold.jpg" alt="Bénévole Ipsum Média" loading="lazy" width="700" height="575">
+<img src="assets/team/gabriel.jpg" alt="Bénévole Ipsum Média" loading="lazy" width="428" height="700">
+<img src="assets/team/benevole-b.jpg" alt="Bénévole Ipsum Média" loading="lazy" width="480" height="600">
+<img src="assets/team/leo.jpg" alt="Bénévole Ipsum Média" loading="lazy" width="525" height="700">
 </div>
 </div>
 </section>
@@ -124,75 +181,46 @@
     </div>
   </section>
 
-<!-- 4. L'expérience associative -->
-<section class="ap-band ap-creme" id="association">
+<!-- 6. L'expérience associative -->
+<section class="ap2-band ap2-creme" id="association">
 <div class="wrap">
-<span class="eyebrow">L'expérience associative</span>
-<h2 class="ap-titre">Ici, on ne vient pas travailler pour un média : on le fait vivre ensemble</h2>
-<div class="ap-carres">
-<div class="ap-carre ap-carre-accent"><h3>Loi 1901</h3><p>Sans actionnaire, sans intérêt commercial ou politique à défendre. Nos choix éditoriaux n'appartiennent qu'à la rédaction.</p></div>
-<div class="ap-carre"><h3>Économie sociale et solidaire</h3><p>Utilité sociale avant profit, gouvernance démocratique, engagement au service de nos territoires.</p></div>
-<div class="ap-carre"><h3>Apprendre en faisant</h3><p>Reportages, interviews, articles publiés dans une vraie rédaction. Pas des exercices théoriques.</p></div>
-<div class="ap-carre"><h3>Découvrir le métier</h3><p>Des ateliers, des immersions dans des rédactions, des interventions au sein de l'association.</p></div>
-<div class="ap-carre"><h3>Une vie d'équipe</h3><p>Organisation interne, événements, secrétariat de rédaction : la vie associative est un pôle à part entière.</p></div>
-<div class="ap-carre ap-carre-accent"><h3>Souveraine et indépendante</h3><p>Ipsum Média reprend la main sur ses outils : statistiques, supervision et gestionnaire de mots de passe tournent déjà sur notre propre machine, et le reste suit.</p></div>
-<div class="ap-carre ap-carre-double"><h3>Gratuit pour les lecteurs</h3><p>Un média indépendant, gratuit grâce à celles et ceux qui le soutiennent. <a href="index.html#soutenir">Nous soutenir →</a></p></div>
+<h2 class="ap2-titre">L'expérience associative</h2>
+<p class="ap2-intro">Ici, on ne vient pas travailler pour un média : on le fait vivre ensemble.</p>
+<div class="ap2-cartes">
+<div class="ap2-carte ap2-c-orange"><span class="ap2-label">Économie sociale et solidaire</span><h3>Utilité sociale avant profit</h3><ul><li>Gouvernance démocratique.</li><li>Un engagement au service de nos territoires.</li></ul></div>
+<div class="ap2-carte ap2-c-ink"><span class="ap2-label">Apprendre en faisant</span><h3>Une vraie rédaction, pas des exercices</h3><ul><li>Reportages, interviews, articles publiés.</li></ul></div>
+<div class="ap2-carte ap2-c-framboise"><span class="ap2-label">Découvrir le métier</span><h3>Ateliers, immersions, interventions</h3><ul><li>Dans des rédactions, et au sein de l'association.</li></ul></div>
+<div class="ap2-carte ap2-c-peche"><span class="ap2-label">Vie d'équipe</span><h3>La vie associative, un pôle à part entière</h3><ul><li>Organisation interne, événements, secrétariat de rédaction.</li></ul></div>
 </div>
 </div>
 </section>
 
-<!-- 5. Des sujets très différents, une aventure -->
-<section class="ap-band" id="aventure">
+<!-- 7. Nos valeurs -->
+<section class="ap2-band ap2-blanc" id="valeurs">
 <div class="wrap">
-<span class="eyebrow">Ce qu'on fait</span>
-<h2 class="ap-titre">Des sujets très différents, une même aventure</h2>
-<div class="ap-duo">
-<figure class="ap-photo-carte ap-photo-video">
-<video id="ap-reportage" muted loop playsinline preload="none" poster="assets/apropos/reportage-sujets.jpg" aria-label="Extraits d'un reportage d'Ipsum Média sur le casting Miss Tarn, sans le son" disablepictureinpicture>
-<source src="assets/apropos/reportage-sujets.mp4" type="video/mp4">
-</video>
-<figcaption><strong>Un casting Miss Tarn, des conseils municipaux, des courses cycliques…</strong>On couvre beaucoup de sujets : actualité locale, culture, sport, économie, société, environnement. Ici, un extrait de notre reportage sur le casting Miss Tarn.</figcaption>
-</figure>
-<figure class="ap-photo-carte">
-<img src="assets/apropos/tour-caravane.jpg" alt="Au bord d'une route du Tarn, au passage d'une course cycliste : voitures d'équipe, motards, spectateurs" width="1600" height="1066" loading="lazy">
-<figcaption><strong>Sur le terrain</strong>On va là où ça se passe, d'un conseil municipal à une course cycliste.</figcaption>
-</figure>
-<figure class="ap-photo-carte">
-<img src="assets/apropos/france3-studio.jpg" alt="Le plateau de France 3 : un grand mur d'écrans avec la carte météo de l'Occitanie" width="1600" height="1446" loading="lazy">
-<figcaption><strong>Une aventure, pas seulement du journalisme</strong>Celles et ceux qui nous rejoignent découvrent le métier de l'intérieur : ateliers, immersions, interventions. Ici, une visite du plateau de France 3.</figcaption>
-</figure>
-</div>
+<h2 class="ap2-titre">Nos valeurs</h2>
+<ul class="ap2-valeurs">
+<li><h3>Indépendance et souveraineté</h3><p>Aucun actionnaire, aucun intérêt à défendre, et des outils qui nous appartiennent.</p></li>
+<li><h3>Apprendre en faisant</h3><p>Aucun diplôme demandé. On progresse au contact du terrain.</p></li>
+<li><h3>Ouverture à tous</h3><p>Tous âges, tous horizons, la même envie de raconter ce qui se passe près de chez soi.</p></li>
+<li><h3>Accessibilité</h3><p>Nous nous adaptons à chacun, y compris en situation de handicap.</p></li>
+<li><h3>Ancrage local</h3><p>Nos sources sont sur le terrain, pas seulement derrière un communiqué.</p></li>
+<li><h3>Économie sociale et solidaire</h3><p>Utilité sociale avant profit.</p></li>
+<li class="ap2-valeur-large"><h3>Ipsum Média &amp; l'IA</h3><p>Elle assiste (corrections, traductions, structuration), jamais pour écrire un article de zéro. Son usage est toujours signalé, et tout contenu généré est relu et vérifié. <a href="charte-ia.html">Lire notre charte IA →</a></p></li>
+</ul>
 </div>
 </section>
 
-<!-- 6. Nos valeurs -->
-<section class="ap-band ap-creme" id="valeurs">
+<!-- 8. Rédactions -->
+<section class="ap2-band ap2-creme" id="redactions">
 <div class="wrap">
-<span class="eyebrow">Nos valeurs</span>
-<h2 class="ap-titre">Ce qui nous anime</h2>
-<div class="ap-carres ap-carres-valeurs">
-<div class="ap-carre"><h3>Indépendance et souveraineté</h3><p>Aucun actionnaire, aucun intérêt à défendre, et des outils qui nous appartiennent.</p></div>
-<div class="ap-carre"><h3>Apprendre en faisant</h3><p>Aucun diplôme demandé. On progresse au contact du terrain.</p></div>
-<div class="ap-carre"><h3>Ouverture à tous</h3><p>Tous âges, tous horizons, la même envie de raconter ce qui se passe près de chez soi.</p></div>
-<div class="ap-carre"><h3>Accessibilité</h3><p>Nous nous adaptons à chacun, y compris en situation de handicap.</p></div>
-<div class="ap-carre"><h3>Ancrage local</h3><p>Nos sources sont sur le terrain, pas seulement derrière un communiqué.</p></div>
-<div class="ap-carre"><h3>Économie sociale et solidaire</h3><p>Utilité sociale avant profit.</p></div>
-<div class="ap-carre ap-carre-large"><h3>Ipsum Média &amp; l'IA</h3><p>Elle assiste (corrections, traductions, structuration), jamais pour écrire un article de zéro. Son usage est toujours signalé, et tout contenu généré est relu et vérifié. <a href="charte-ia.html">Lire notre charte IA →</a></p></div>
-</div>
-</div>
-</section>
-
-<!-- 7. Trois rédactions -->
-<section class="ap-band" id="redactions">
-<div class="wrap">
-<span class="eyebrow">Nos rédactions</span>
-<h2 class="ap-titre">Trois rédactions, une même association</h2>
-<div class="ap-redactions">
-<div class="ap-carres ap-carres-redactions">
-<div class="ap-carre ap-carre-accent"><h3>Tarn</h3><p>Notre rédaction historique, depuis juin 2024.</p></div>
-<div class="ap-carre"><h3>Haute-Garonne</h3><p>Notre deuxième rédaction.</p></div>
-<div class="ap-carre"><h3>National</h3><p>Les sujets d'actualité nationale, avec sa propre newsletter. Elle ne cible pas encore toute la France.</p></div>
-<div class="ap-carre ap-carre-large coverage-box" style="border-radius:var(--radius);"><span class="coverage-label">Villes couvertes dans le Tarn</span><div class="coverage-chips">
+<h2 class="ap2-titre">Trois rédactions, une même association</h2>
+<div class="ap2-redactions">
+<div class="ap2-cartes ap2-cartes-col">
+<div class="ap2-carte ap2-c-orange"><span class="ap2-label">Depuis juin 2024</span><h3>Tarn</h3><ul><li>Notre rédaction historique.</li></ul></div>
+<div class="ap2-carte ap2-c-framboise"><span class="ap2-label">Deuxième rédaction</span><h3>Haute-Garonne</h3></div>
+<div class="ap2-carte ap2-c-ink"><span class="ap2-label">Avec sa propre newsletter</span><h3>National</h3><ul><li>Les sujets d'actualité nationale. Elle ne cible pas encore toute la France.</li></ul></div>
+<div class="ap2-carte ap2-c-blanche coverage-box"><span class="coverage-label">Villes couvertes dans le Tarn</span><div class="coverage-chips">
             <span class="coverage-chip">Labruguière</span>
             <span class="coverage-chip">Castres</span>
             <span class="coverage-chip">Mazamet</span>
@@ -209,21 +237,20 @@
 </div>
 </section>
 
-<!-- 8. Notre façon de travailler -->
-<section class="ap-band ap-sombre" id="methode">
+<!-- 9. Notre façon de travailler -->
+<section class="ap2-band ap2-ink ap2-carre-motif" id="methode">
 <div class="wrap">
-<span class="eyebrow">Notre façon de travailler</span>
-<h2 class="ap-titre">Comment naît un article</h2>
-<div class="ap-carres">
-<div class="ap-carre"><h3>Des sources identifiées</h3><p>Mairies, institutions, entreprises, associations, rencontres sur le terrain.</p></div>
-<div class="ap-carre"><h3>Une relecture</h3><p>Un article est relu et validé avant d'être mis en ligne.</p></div>
-<div class="ap-carre"><h3>Une équipe de rédaction</h3><p>Rédacteurs, secrétaires de rédaction et rédacteurs en chef.</p></div>
-<div class="ap-carre"><h3>L'IA, jamais seule</h3><p>Son usage est signalé. <a href="charte-ia.html">Notre charte IA →</a></p></div>
+<h2 class="ap2-titre">Comment naît un article</h2>
+<div class="ap2-quatre">
+<div class="ap2-colonne ap2-colonne-accent"><h3>Des sources identifiées</h3><p>Mairies, institutions, entreprises, associations, rencontres sur le terrain.</p></div>
+<div class="ap2-colonne"><h3>Une relecture</h3><p>Un article est relu et validé avant d'être mis en ligne.</p></div>
+<div class="ap2-colonne"><h3>Une équipe de rédaction</h3><p>Rédacteurs, secrétaires de rédaction et rédacteurs en chef.</p></div>
+<div class="ap2-colonne"><h3>L'IA, jamais seule</h3><p>Son usage est signalé. <a href="charte-ia.html">Notre charte IA →</a></p></div>
 </div>
 </div>
 </section>
 
-<!-- 9. Les fondateurs et la rédaction -->
+<!-- 10. Fondateurs et journalistes -->
 <section class="team" id="equipe">
     <div class="wrap">
       <span class="eyebrow">L'équipe</span>
@@ -256,11 +283,10 @@
     </div>
   </section>
 
-<!-- 10. Nous rejoindre -->
-<section class="ap-band ap-orange" id="rejoindre">
+<!-- 11. Nous rejoindre -->
+<section class="ap2-band ap2-orange" id="rejoindre">
 <div class="wrap">
-<span class="eyebrow">Nous rejoindre</span>
-<h2 class="ap-titre">Pas besoin d'être journaliste. Pas besoin de diplôme. Pas besoin de carte de presse.</h2>
+<h2 class="ap2-titre">Pas besoin d'être journaliste. Pas besoin de diplôme. Pas besoin de carte de presse.</h2>
 <div class="ap-trailer">
 <button type="button" class="ap-trailer-bouton" id="ap-trailer" data-video="88N6Ty7wkvQ" aria-label="Lire la bande-annonce d'Ipsum Média">
 <img src="https://i.ytimg.com/vi/88N6Ty7wkvQ/hqdefault.jpg" alt="" width="480" height="360" loading="lazy">
@@ -268,11 +294,11 @@
 <span class="ap-trailer-legende">La bande-annonce d'Ipsum Média</span>
 </button>
 </div>
-<div class="ap-carres ap-carres-poles">
-<div class="ap-carre ap-carre-blanc"><h3>Rédaction</h3><p>Articles, interviews, enquêtes et reportages sur l'actualité locale.</p></div>
-<div class="ap-carre ap-carre-blanc"><h3>Photo &amp; vidéo</h3><p>Reportage terrain, montage, captation lors de nos sorties et événements.</p></div>
-<div class="ap-carre ap-carre-blanc"><h3>Communication</h3><p>Réseaux sociaux, newsletter, graphisme, relations avec nos partenaires.</p></div>
-<div class="ap-carre ap-carre-blanc"><h3>Vie associative</h3><p>Organisation interne, événements, secrétariat de rédaction.</p></div>
+<div class="ap2-cartes ap2-cartes-poles">
+<div class="ap2-carte ap2-c-blanche"><span class="ap2-label">Pôle</span><h3>Rédaction</h3><ul><li>Articles, interviews, enquêtes, reportages.</li></ul></div>
+<div class="ap2-carte ap2-c-blanche"><span class="ap2-label">Pôle</span><h3>Photo et vidéo</h3><ul><li>Reportage terrain, montage, captation.</li></ul></div>
+<div class="ap2-carte ap2-c-blanche"><span class="ap2-label">Pôle</span><h3>Communication</h3><ul><li>Réseaux sociaux, newsletter, graphisme, partenaires.</li></ul></div>
+<div class="ap2-carte ap2-c-blanche"><span class="ap2-label">Pôle</span><h3>Vie associative</h3><ul><li>Organisation interne, événements, secrétariat de rédaction.</li></ul></div>
 </div>
 <div class="ap-cta">
 <a class="btn btn-light" href="https://www.jeveuxaider.gouv.fr/organisations/33705-ipsum-media" target="_blank" rel="noopener">Je postule sur Je Veux Aider</a>
