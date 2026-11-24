@@ -374,12 +374,13 @@
   }
 
   // Ligne de liste : date (ou heure), commune, titre
-  function htmlLigne(a, sansCommune) {
+  function htmlLigne(a, sansCommune, avecVignette) {
     var s = surtitre(a, sansCommune);
-    return '<li><a' + lien(a) + '>' +
+    var vignette = avecVignette && a.image ? '<span class="fil-vignette"><img src="' + a.image + '" alt="" loading="lazy" decoding="async"></span>' : '';
+    return '<li><a' + lien(a) + (vignette ? ' class="avec-vignette"' : '') + '>' + vignette + '<span class="fil-corps">' +
       '<span class="fil-meta"><span>' + quand(a.pubDate) + '</span>' + (s ? '<span>' + s + '</span>' : '') + '</span>' +
       '<span class="fil-titre">' + a.title + '</span>' +
-      '</a></li>';
+      '</span></a></li>';
   }
 
   // ===== Édition choisie (/tarn, /haute-garonne, /national) : l'accueil ne montre que ses articles =====
@@ -513,7 +514,9 @@
     afficherRubriques(enNational ? nationaux : locaux, utilises.concat(suite));
     afficherCommunes(locaux, utilises);
     if (!enNational) afficherNational(nationaux, utilises.concat(suite));
-    afficherEditions(items, items.some(function (i) { return i.kind !== 'newsletter' && i.edition === 'national'; }));
+    var editionsAvecArticles = {};
+    items.forEach(function (i) { if (i.kind !== 'newsletter' && i.edition) editionsAvecArticles[i.edition] = true; });
+    afficherEditions(items, Object.keys(editionsAvecArticles).length > 1);
 
     // Dernières newsletters
     newsletters = items.filter(function (i) { return i.kind === 'newsletter'; });
@@ -551,7 +554,7 @@
       return '<div class="ville">' +
         '<div class="ville-tete"><h3>' + c.rubrique.nom + '</h3><a href="articles.html?edition=national&rubrique=' + c.rubrique.slug + '">Tout voir</a></div>' +
         htmlCarte(c.dispo[0], 'h4', true) +
-        '<ul class="fil">' + c.dispo.slice(1).map(function (a) { return htmlLigne(a, true); }).join('') + '</ul>' +
+        '<ul class="fil">' + c.dispo.slice(1).map(function (a) { return htmlLigne(a, true, true); }).join('') + '</ul>' +
         '</div>';
     }).join('');
     national.hidden = false;
@@ -601,7 +604,7 @@
       return '<div class="ville rubrique">' +
         '<div class="ville-tete"><h3>' + r.nom + '</h3><a href="/rubrique/' + r.slug + '">Tout voir</a></div>' +
         htmlCarte(liste[0], 'h4') +
-        '<ul class="fil">' + liste.slice(1).map(function (a) { return htmlLigne(a); }).join('') + '</ul>' +
+        '<ul class="fil">' + liste.slice(1).map(function (a) { return htmlLigne(a, false, true); }).join('') + '</ul>' +
         '</div>';
     }).join('');
     rubriques.hidden = false;
@@ -665,7 +668,7 @@
       return '<div class="ville' + (c.commune === ma ? ' ville-ma' : '') + '">' +
         '<div class="ville-tete"><h3>' + c.commune.nom + '</h3><a href="/commune/' + c.commune.slug + '">Tout voir</a></div>' +
         htmlCarte(c.dispo[0], 'h4', true) +
-        '<ul class="fil">' + c.dispo.slice(1).map(function (a) { return htmlLigne(a, true); }).join('') + '</ul>' +
+        '<ul class="fil">' + c.dispo.slice(1).map(function (a) { return htmlLigne(a, true, true); }).join('') + '</ul>' +
         '</div>';
     }).join('');
 

@@ -10,9 +10,8 @@
 const SITE = 'https://ipsummedia.fr';
 const PAS = 12;
 
-const ICONE_MAIL = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>';
-const ICONE_EXTERNE = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M8 7h9v9"/></svg>';
-const MOTS = { tout: ['publication', 'publications'], article: ['article', 'articles'], newsletter: ['newsletter', 'newsletters'] };
+const B = require('../../lib/blocs');
+const { carte, blocUne, genre } = B;
 
 exports.handler = async function () {
   try {
@@ -35,89 +34,46 @@ function entetes(avecDonnees) {
 }
 
 function pluriel(n, mots) { return n + ' ' + (n > 1 ? mots[1] : mots[0]); }
-function genre(item) { return item.kind === 'newsletter' ? 'newsletter' : 'article'; }
 
-function formatDate(iso) {
-  try {
-    return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-  } catch (e) { return ''; }
+
+// Rubriques et communes des articles (pas des newsletters), les plus fournies d'abord
+function compter(items, champ) {
+  const noms = {}, n = {};
+  items.forEach((i) => (i[champ] || []).forEach((t) => { n[t.slug] = (n[t.slug] || 0) + 1; noms[t.slug] = noms[t.slug] || t.nom; }));
+  return Object.keys(n).map((slug) => ({ slug, nom: noms[slug], n: n[slug] })).sort((a, b) => b.n - a.n || (a.slug < b.slug ? -1 : 1));
 }
 
-// Les articles récents ont leur page sur le site ; les plus anciens renvoient vers Substack
-function lien(item) {
-  const m = item.link && item.link.match(/\/(?:p|articles)\/([^/?#]+)/);
-  if (!m || item.surLeSite === false) return { href: item.link || '#', externe: true };
-  return { href: '/articles/' + m[1], externe: false };
-}
-
-// Identique à carte() côté client (articles.html) : les champs viennent déjà échappés de substack-feed.
-function carte(item) {
-  const l = lien(item);
-  const newsletter = genre(item) === 'newsletter';
-  let etiquettes = '';
-  if (newsletter) {
-    etiquettes = '<span class="feed-tag feed-tag-newsletter">' + ICONE_MAIL + 'Newsletter</span>';
-  } else {
-    (item.communes || []).slice(0, 2).forEach((c) => { etiquettes += '<span class="feed-tag">' + c.nom + '</span>'; });
-    if (item.rubriques && item.rubriques.length) etiquettes += '<span class="feed-tag feed-tag-rubrique">' + item.rubriques[0].nom + '</span>';
-  }
-  const img = (!newsletter && item.image)
-    ? '<img src="' + item.image + '" alt="" class="feed-card-img" loading="lazy" decoding="async">'
-    : '';
-  return '<a class="feed-card' + (newsletter ? ' feed-card-newsletter' : '') + '" href="' + l.href + '"' + (l.externe ? ' target="_blank" rel="noopener"' : '') + '>' +
-    img +
-    '<div class="feed-card-body">' +
-    (etiquettes ? '<div class="feed-tags">' + etiquettes + '</div>' : '') +
-    '<span class="feed-card-date">' + formatDate(item.pubDate) + (item.author ? ' · ' + item.author : '') + (item.minutes ? ' · ' + item.minutes + ' min' : '') + (item.likes ? ' · ♥ ' + item.likes : '') + '</span>' +
-    '<h3>' + item.title + '</h3>' +
-    (item.description ? '<p>' + item.description + '</p>' : '') +
-    (l.externe ? '<span class="feed-card-ext">Lire sur Substack ' + ICONE_EXTERNE + '</span>' : '') +
-    '</div></a>';
-}
-
-function boutonType(type, libelle, actif, n) {
-  return '<button type="button" class="feed-type" data-type="' + type + '" aria-pressed="' + actif + '">' + libelle +
-    ' <span class="feed-count">' + n + '</span></button>';
-}
-
-// Le corps de la page (dans <main>) : la vue de départ, exactement ce que le script produirait comme
-// premier rendu (type "article" par défaut, 12 cartes). Communes et rubriques restent au script : ce
-// sont des filtres, pas du contenu à indexer.
+// Le corps de la page : la vue de départ, exactement ce que le script produit au premier rendu (la une, puis les cartes)
 function corpsArticles(items) {
   if (!items.length) {
     return '<div id="articles-container"><p class="feed-loading">Impossible de charger les articles pour le moment. Réessayez dans un instant.</p></div>';
   }
+  const articles = items.filter((i) => genre(i) === 'article');
+  const nbNews = items.length - articles.length;
+  const rubriques = compter(articles, 'rubriques');
+  const communes = compter(articles, 'communes');
+  const editions = [...new Set(articles.map((i) => i.edition).filter(Boolean))];
+  const onglet = (cle, libelle, actif) => `<button type="button" class="na-onglet" data-rub="${cle}" aria-pressed="${actif}">${libelle}</button>`;
 
-  const nbArticles = items.filter((i) => genre(i) === 'article').length;
-  const nbNewsletters = items.length - nbArticles;
-  const typeDefaut = nbArticles ? 'article' : 'tout';
-  const visibles = items.filter((i) => typeDefaut === 'tout' || genre(i) === typeDefaut);
-  const premiere = visibles.slice(0, PAS);
-  const reste = visibles.length - premiere.length;
+  const outils = '<div class="na-outils" id="feed-filters"><div class="wrap">' +
+    '<div class="na-onglets" id="na-onglets" role="group" aria-label="Rubriques">' + onglet('', 'Tout', true) +
+    rubriques.map((r) => onglet(r.slug, r.nom, false)).join('') + (nbNews ? onglet('newsletters', 'Newsletters', false) : '') + '</div>' +
+    '<div class="na-selects">' +
+    '<label class="na-select" id="na-commune-zone"' + (communes.length ? '' : ' hidden') + '><span>Commune</span><select id="na-commune"><option value="">Toutes les communes</option>' +
+    communes.map((c) => `<option value="${c.slug}">${c.nom} (${c.n})</option>`).join('') + '</select></label>' +
+    '<label class="na-select" id="na-edition-zone"' + (editions.length > 1 ? '' : ' hidden') + '><span>Édition</span><select id="na-edition"><option value="">Toutes les éditions</option>' +
+    '<option value="tarn">Tarn</option><option value="haute-garonne">Haute-Garonne</option><option value="national">National</option></select></label>' +
+    '</div></div></div>';
 
-  const typesHtml = (nbArticles && nbNewsletters)
-    ? '<div class="feed-types" id="feed-types" role="group" aria-label="Type de publication">' +
-      boutonType('tout', 'Tout', typeDefaut === 'tout', items.length) +
-      boutonType('article', 'Articles', typeDefaut === 'article', nbArticles) +
-      boutonType('newsletter', 'Newsletters', typeDefaut === 'newsletter', nbNewsletters) +
-      '</div>'
-    : '<div class="feed-types" id="feed-types" role="group" aria-label="Type de publication" hidden>' +
-      boutonType('tout', 'Tout', typeDefaut === 'tout', items.length) +
-      boutonType('article', 'Articles', typeDefaut === 'article', nbArticles) +
-      boutonType('newsletter', 'Newsletters', typeDefaut === 'newsletter', nbNewsletters) +
-      '</div>';
-
-  return (
-    '<div class="feed-filters" id="feed-filters">' +
-    typesHtml +
-    '<div class="feed-chips" id="feed-communes" role="group" aria-label="Filtrer par commune" hidden></div>' +
-    '</div>' +
-    '<p class="feed-status" id="feed-status" aria-live="polite">' + pluriel(visibles.length, MOTS[typeDefaut]) + '</p>' +
-    '<div id="articles-container"><div class="feed-grid">' + premiere.map(carte).join('') + '</div></div>' +
-    '<div class="feed-more" id="feed-more"' + (reste > 0 ? '' : ' hidden') + '>' +
-    '<button type="button" class="btn btn-outline" id="feed-more-btn">Afficher plus (' + pluriel(reste, ['restant', 'restants']) + ')</button>' +
-    '</div>'
-  );
+  const dessus = articles.slice(0, 4);
+  const suite = articles.slice(4, 4 + PAS);
+  const reste = articles.length - dessus.length - suite.length;
+  return outils +
+    '<div id="articles-container">' + blocUne(dessus) +
+    '<section class="journal na-liste"><div class="wrap"><div class="journal-tete"><h2 id="na-titre">Les plus récents</h2><span class="na-statut" id="feed-status" aria-live="polite"></span></div>' +
+    '<div class="suite-grille" id="na-grille">' + suite.map((i) => carte(i)).join('') + '</div>' +
+    '<div class="feed-more" id="feed-more"' + (reste > 0 ? '' : ' hidden') + '><button type="button" class="btn btn-outline" id="feed-more-btn">Afficher plus (' + pluriel(reste, ['restant', 'restants']) + ')</button></div>' +
+    '</div></section></div>';
 }
 
 function rendrePage(items) {
@@ -143,7 +99,7 @@ function rendrePage(items) {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.css?v=20261402">
+<link rel="stylesheet" href="/style.css?v=20261406">
 <!-- Statistiques d'audience sans cookies (Umami, hébergé par Ipsum Média) -->
 <script defer src="https://stats.ipsummedia.fr/script.js" data-website-id="02190f37-9db9-421b-b0c2-f71b803e2ccb"></script>
 </head>
@@ -187,19 +143,15 @@ function rendrePage(items) {
 
 <main>
 
-  <section class="hero" style="min-height:auto; padding: 70px 0 40px; background: var(--cream);">
-    <div class="wrap" style="text-align:center; margin:0 auto;">
-      <span class="eyebrow" style="color:var(--orange);">Nos actus</span>
-      <h1 style="color:var(--ink);">Tous nos articles</h1>
-      <p class="lead" style="color:var(--ink-soft); margin:0 auto;">Reportages, interviews et actualités du Tarn, publiés par la rédaction.</p>
+  <section class="page-bandeau">
+    <div class="wrap">
+      <span class="page-bandeau-eyebrow">Nos actus</span>
+      <h1>Tous nos articles</h1>
+      <p class="page-bandeau-lead">Reportages, interviews et actualités du Tarn, de la Haute-Garonne et du national, publiés par la rédaction.</p>
     </div>
   </section>
 
-  <section class="articles-list">
-    <div class="wrap">
-      ${corpsArticles(items)}
-    </div>
-  </section>
+  ${corpsArticles(items)}
 
 </main>
 
@@ -281,301 +233,148 @@ function rendrePage(items) {
 
 <script>
   (function() {
-    var PAS = 12;           // nombre de cartes affichées à chaque fois
-    var MAX_COMMUNES = 8;   // pastilles de communes visibles avant le bouton "+ autres"
+    var PAS = 12;   // cartes ajoutées à chaque « Afficher plus »
+    // Les mêmes fonctions que le serveur (lib/blocs.js) : le premier affichage et les suivants sont identiques
+    ${[B.formatDate, B.lienItem, B.attrsLien, B.surtitre, B.sansPhoto, B.carte, B.blocUne, B.genre].map((f) => f.toString()).join('\n    ')}
 
     var container = document.getElementById('articles-container');
-    var zoneFiltres = document.getElementById('feed-filters');
-    var zoneTypes = document.getElementById('feed-types');
-    var zoneCommunes = document.getElementById('feed-communes');
+    var onglets = document.getElementById('na-onglets');
+    var selCommune = document.getElementById('na-commune'), zoneCommune = document.getElementById('na-commune-zone');
+    var selEdition = document.getElementById('na-edition'), zoneEdition = document.getElementById('na-edition-zone');
     var statut = document.getElementById('feed-status');
-    var zonePlus = document.getElementById('feed-more');
-    var boutonPlus = document.getElementById('feed-more-btn');
-
-    var ICONE_MAIL = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>';
-    var ICONE_EXTERNE = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M8 7h9v9"/></svg>';
-    var MOTS = { tout: ['publication', 'publications'], article: ['article', 'articles'], newsletter: ['newsletter', 'newsletters'] };
-    var TYPES_URL = { articles: 'article', newsletters: 'newsletter', tout: 'tout' };
-    var TYPES_ADRESSE = { article: 'articles', newsletter: 'newsletters', tout: 'tout' };
-
-    var tous = [];
-    var deja = 0;   // nombre de cartes déjà affichées
-    // La page s'ouvre sur les articles ; les newsletters et le "tout" se choisissent
-    var typeDefaut = 'article';
-    var etat = { type: typeDefaut, commune: '', rubrique: '', edition: '', nb: PAS, toutesCommunes: false };
-    // Éditions connues (?edition=national) : sert au filtre et au nom affiché
     var NOMS_EDITIONS = { 'tarn': 'Tarn', 'haute-garonne': 'Haute-Garonne', 'national': 'National' };
 
-    function formatDate(iso) {
-      try {
-        return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-      } catch (e) { return ''; }
-    }
+    var tous = [];
+    var etat = { newsletters: false, rubrique: '', commune: '', edition: '', nb: PAS };
+    var COMPTEURS_FAITS = false;
 
+    function aSlug(item, champ, slug) { return (item[champ] || []).some(function(t) { return t.slug === slug; }); }
     function pluriel(n, mots) { return n + ' ' + (n > 1 ? mots[1] : mots[0]); }
 
-    function genre(item) { return item.kind === 'newsletter' ? 'newsletter' : 'article'; }
-
-    function aLaCommune(item, slug) {
-      return (item.communes || []).some(function(c) { return c.slug === slug; });
-    }
-
-    // Pour un lien reçu du sous-menu "Rubriques" du menu (?rubrique=culture) : pas de pastilles
-    // ici (Tom : trop de pastilles à la fois avec les communes), juste le filtre et son nom affiché.
-    function aLaRubrique(item, slug) {
-      return (item.rubriques || []).some(function(r) { return r.slug === slug; });
-    }
-
-    // Nom de la rubrique demandée, ou null si elle n'existe pas (ou plus) dans les articles actuels
-    function nomRubrique(slug) {
-      var trouve = null;
-      tous.forEach(function(item) {
-        (item.rubriques || []).forEach(function(r) { if (r.slug === slug) trouve = r.nom; });
-      });
-      return trouve;
-    }
-
-    // Les articles récents ont leur page sur le site ; les plus anciens renvoient vers Substack
-    function lien(item) {
-      var m = item.link && item.link.match(/\\/(?:p|articles)\\/([^/?#]+)/);
-      if (!m || item.surLeSite === false) return { href: item.link || '#', externe: true };
-      return { href: '/articles/' + m[1], externe: false };
-    }
-
-    function carte(item) {
-      var l = lien(item);
-      var newsletter = genre(item) === 'newsletter';
-      var etiquettes = '';
-      if (newsletter) {
-        etiquettes = '<span class="feed-tag feed-tag-newsletter">' + ICONE_MAIL + 'Newsletter</span>';
-      } else {
-        (item.communes || []).slice(0, 2).forEach(function(c) { etiquettes += '<span class="feed-tag">' + c.nom + '</span>'; });
-        if (item.rubriques && item.rubriques.length) etiquettes += '<span class="feed-tag feed-tag-rubrique">' + item.rubriques[0].nom + '</span>';
-      }
-      // Une newsletter a le logo (ou une photo au hasard) en couverture : on n'affiche pas d'image
-      var img = (!newsletter && item.image)
-        ? '<img src="' + item.image + '" alt="" class="feed-card-img" loading="lazy" decoding="async">'
-        : '';
-      return '<a class="feed-card' + (newsletter ? ' feed-card-newsletter' : '') + '" href="' + l.href + '"' + (l.externe ? ' target="_blank" rel="noopener"' : '') + '>' +
-        img +
-        '<div class="feed-card-body">' +
-        (etiquettes ? '<div class="feed-tags">' + etiquettes + '</div>' : '') +
-        '<span class="feed-card-date">' + formatDate(item.pubDate) + (item.author ? ' · ' + item.author : '') + (item.minutes ? ' · ' + item.minutes + ' min' : '') + (item.likes ? ' · ♥ ' + item.likes : '') + '</span>' +
-        '<h3>' + item.title + '</h3>' +
-        (item.description ? '<p>' + item.description + '</p>' : '') +
-        (l.externe ? '<span class="feed-card-ext">Lire sur Substack ' + ICONE_EXTERNE + '</span>' : '') +
-        '</div></a>';
-    }
-
-    // Les articles qui passent les filtres choisis
-    function filtrer() {
+    // Les publications qui passent les choix faits
+    function filtrer(sans) {
       return tous.filter(function(item) {
-        if (etat.type !== 'tout' && genre(item) !== etat.type) return false;
+        if (etat.newsletters) return genre(item) === 'newsletter';
+        if (genre(item) !== 'article') return false;
         if (etat.edition && item.edition !== etat.edition) return false;
-        if (etat.commune && !aLaCommune(item, etat.commune)) return false;
-        if (etat.rubrique && !aLaRubrique(item, etat.rubrique)) return false;
+        if (sans !== 'rubrique' && etat.rubrique && !aSlug(item, 'rubriques', etat.rubrique)) return false;
+        if (sans !== 'commune' && etat.commune && !aSlug(item, 'communes', etat.commune)) return false;
         return true;
       });
     }
 
-    // Communes de la liste, avec leur nombre d'articles (selon le type choisi), les plus fournies d'abord
-    function communesDuType() {
-      var compte = {};
-      var noms = {};
-      tous.forEach(function(item) {
-        if (etat.type !== 'tout' && genre(item) !== etat.type) return;
-        (item.communes || []).forEach(function(c) {
-          compte[c.slug] = (compte[c.slug] || 0) + 1;
-          if (!noms[c.slug]) noms[c.slug] = c.nom;
-        });
+    function nomDe(champ, slug) {
+      var nom = '';
+      tous.forEach(function(item) { (item[champ] || []).forEach(function(t) { if (t.slug === slug) nom = t.nom; }); });
+      return nom;
+    }
+
+    // Les communes proposées dans la liste : celles de la rubrique choisie, avec leur nombre d'articles
+    function majCommunes() {
+      var compte = {}, noms = {};
+      filtrer('commune').forEach(function(item) {
+        (item.communes || []).forEach(function(c) { compte[c.slug] = (compte[c.slug] || 0) + 1; noms[c.slug] = c.nom; });
       });
-      return Object.keys(compte).map(function(s) { return { slug: s, nom: noms[s], n: compte[s] }; })
+      var liste = Object.keys(compte).map(function(s) { return { slug: s, nom: noms[s], n: compte[s] }; })
         .sort(function(a, b) { return b.n - a.n || (a.slug < b.slug ? -1 : 1); });
+      if (etat.commune && !compte[etat.commune]) etat.commune = '';
+      selCommune.innerHTML = '<option value="">Toutes les communes</option>' + liste.map(function(c) {
+        return '<option value="' + c.slug + '"' + (c.slug === etat.commune ? ' selected' : '') + '>' + c.nom + ' (' + c.n + ')</option>';
+      }).join('');
+      zoneCommune.hidden = etat.newsletters || !liste.length;
     }
 
-    function pastille(slug, nom, n) {
-      return '<button type="button" class="feed-chip" data-commune="' + slug + '" aria-pressed="' + (etat.commune === slug) + '">' +
-        nom + (n ? ' <span class="feed-count">' + n + '</span>' : '') + '</button>';
-    }
-
-    function dessinerCommunes() {
-      var liste = communesDuType();
-      if (etat.type === 'newsletter' || !liste.length) {
-        zoneCommunes.hidden = true;
-        zoneCommunes.innerHTML = '';
-        return;
-      }
-      var rang = -1;
-      liste.forEach(function(c, i) { if (c.slug === etat.commune) rang = i; });
-      var longue = liste.length > MAX_COMMUNES + 2;
-      var depliee = !longue || etat.toutesCommunes || rang >= MAX_COMMUNES;
-      var montrees = depliee ? liste : liste.slice(0, MAX_COMMUNES);
-
-      var html = '<span class="feed-communes-label">Communes</span>' + pastille('', 'Toutes', 0);
-      montrees.forEach(function(c) { html += pastille(c.slug, c.nom, c.n); });
-      if (longue && !depliee) {
-        html += '<button type="button" class="feed-chip feed-chip-more" data-action="deplier">+ ' + (liste.length - MAX_COMMUNES) + ' autres</button>';
-      } else if (longue && etat.toutesCommunes) {
-        html += '<button type="button" class="feed-chip feed-chip-more" data-action="replier">Moins de communes</button>';
-      }
-      zoneCommunes.innerHTML = html;
-      zoneCommunes.hidden = false;
-      centrerCommune();
-    }
-
-    // Sur téléphone la ligne des communes défile : on amène la commune choisie au milieu
-    function centrerCommune() {
-      var choisie = zoneCommunes.querySelector('[data-commune][aria-pressed="true"]:not([data-commune=""])');
-      if (choisie && zoneCommunes.scrollWidth > zoneCommunes.clientWidth) {
-        zoneCommunes.scrollLeft = choisie.offsetLeft - (zoneCommunes.clientWidth - choisie.offsetWidth) / 2;
-      }
+    function majOnglets() {
+      onglets.querySelectorAll('.na-onglet').forEach(function(b) {
+        var cle = b.getAttribute('data-rub');
+        b.setAttribute('aria-pressed', String(cle === 'newsletters' ? etat.newsletters : (!etat.newsletters && cle === etat.rubrique)));
+      });
     }
 
     function dessiner(ajout) {
       var liste = filtrer();
-      var grille = container.querySelector('.feed-grid');
-
+      var filtre = etat.newsletters || etat.rubrique || etat.commune || etat.edition;
+      var html = '';
+      var depart = 0;
+      // Sans filtre : le dernier article en grand, les trois suivants à côté, puis la suite
+      if (!filtre && liste.length) { html += blocUne(liste.slice(0, 4)); depart = Math.min(4, liste.length); }
+      var visibles = liste.slice(depart, depart + etat.nb);
+      var restant = liste.length - depart - visibles.length;
+      var titre = etat.newsletters ? 'Les newsletters' : (filtre ? 'Les articles' : 'Les plus récents');
+      var etiquettes = [];
+      if (!etat.newsletters && etat.rubrique) etiquettes.push(nomDe('rubriques', etat.rubrique));
+      if (etat.commune) etiquettes.push(nomDe('communes', etat.commune));
+      if (etat.edition) etiquettes.push(NOMS_EDITIONS[etat.edition]);
+      html += '<section class="journal na-liste"><div class="wrap"><div class="journal-tete"><h2 id="na-titre">' + titre + (etiquettes.length ? ' · ' + etiquettes.join(' · ') : '') + '</h2>' +
+        '<span class="na-statut" id="feed-status" aria-live="polite">' + (filtre ? pluriel(liste.length, etat.newsletters ? ['newsletter', 'newsletters'] : ['article', 'articles']) : '') + '</span></div>';
       if (!liste.length) {
-        container.innerHTML = '<div class="feed-empty"><p>Aucun résultat pour ce filtre.</p>' +
-          '<button type="button" class="btn btn-outline" data-action="reinit">Réinitialiser les filtres</button></div>';
-        zonePlus.hidden = true;
-        deja = 0;
+        html += '<div class="feed-empty"><p>Aucun article pour ce choix.</p><button type="button" class="btn btn-outline" data-action="reinit">Tout afficher</button></div>';
       } else {
-        var visibles = liste.slice(0, etat.nb);
-        if (ajout && grille) {
-          grille.insertAdjacentHTML('beforeend', visibles.slice(deja).map(carte).join(''));
-        } else {
-          container.innerHTML = '<div class="feed-grid">' + visibles.map(carte).join('') + '</div>';
-        }
-        deja = visibles.length;
-        zonePlus.hidden = liste.length <= visibles.length;
-        boutonPlus.textContent = 'Afficher plus (' + pluriel(liste.length - visibles.length, ['restant', 'restants']) + ')';
+        html += '<div class="suite-grille" id="na-grille">' + visibles.map(function(i) { return carte(i); }).join('') + '</div>' +
+          '<div class="feed-more" id="feed-more"' + (restant > 0 ? '' : ' hidden') + '><button type="button" class="btn btn-outline" id="feed-more-btn">Afficher plus (' + pluriel(restant, ['restant', 'restants']) + ')</button></div>';
       }
-
-      var texte = pluriel(liste.length, MOTS[etat.type]);
-      if (etat.edition) texte += ' · ' + NOMS_EDITIONS[etat.edition];
-      if (etat.commune) {
-        communesDuType().forEach(function(c) { if (c.slug === etat.commune) texte += ' · ' + c.nom; });
-      }
-      if (etat.rubrique) {
-        var nomRub = nomRubrique(etat.rubrique);
-        if (nomRub) texte += ' · ' + nomRub;
-      }
-      statut.innerHTML = texte;
-      statut.hidden = false;
+      html += '</div></section>';
+      container.innerHTML = html;
     }
 
-    // L'adresse garde les filtres choisis (?type=newsletters&commune=castres&rubrique=culture) : on
-    // peut partager la vue. La vue de départ (les articles) n'ajoute rien à l'adresse.
+    // L'adresse garde les choix faits (?rubrique=culture&commune=castres) : on peut partager la vue
     function majAdresse() {
       if (!window.history || !history.replaceState) return;
       var q = [];
-      if (etat.type !== typeDefaut) q.push('type=' + TYPES_ADRESSE[etat.type]);
-      if (etat.edition) q.push('edition=' + encodeURIComponent(etat.edition));
-      if (etat.commune) q.push('commune=' + encodeURIComponent(etat.commune));
-      if (etat.rubrique) q.push('rubrique=' + encodeURIComponent(etat.rubrique));
+      if (etat.newsletters) q.push('type=newsletters');
+      if (!etat.newsletters && etat.edition) q.push('edition=' + encodeURIComponent(etat.edition));
+      if (!etat.newsletters && etat.commune) q.push('commune=' + encodeURIComponent(etat.commune));
+      if (!etat.newsletters && etat.rubrique) q.push('rubrique=' + encodeURIComponent(etat.rubrique));
       try { history.replaceState(null, '', location.pathname + (q.length ? '?' + q.join('&') : '') + location.hash); } catch (e) {}
     }
 
-    function majBoutonsType() {
-      zoneTypes.querySelectorAll('.feed-type').forEach(function(b) {
-        b.setAttribute('aria-pressed', String(b.getAttribute('data-type') === etat.type));
-      });
-    }
+    function toutMettreAJour() { etat.nb = PAS; majCommunes(); majOnglets(); dessiner(false); majAdresse(); }
 
-    function reinitialiser() {
-      etat.type = typeDefaut;
-      etat.commune = '';
-      etat.rubrique = '';
-      etat.nb = PAS;
-      majBoutonsType();
-      dessinerCommunes();
-      dessiner(false);
-      majAdresse();
-    }
-
-    zoneTypes.addEventListener('click', function(e) {
-      var b = e.target.closest('.feed-type');
+    onglets.addEventListener('click', function(e) {
+      var b = e.target.closest('.na-onglet');
       if (!b) return;
-      etat.type = b.getAttribute('data-type');
-      if (etat.type === 'newsletter') { etat.commune = ''; etat.rubrique = ''; }   // les newsletters n'ont ni commune ni rubrique
-      etat.nb = PAS;
-      majBoutonsType();
-      dessinerCommunes();
-      dessiner(false);
-      majAdresse();
+      var cle = b.getAttribute('data-rub');
+      etat.newsletters = cle === 'newsletters';
+      etat.rubrique = etat.newsletters ? '' : cle;
+      if (etat.newsletters) etat.commune = '';
+      toutMettreAJour();
     });
-
-    zoneCommunes.addEventListener('click', function(e) {
-      var b = e.target.closest('button');
-      if (!b) return;
-      var action = b.getAttribute('data-action');
-      if (action) {
-        etat.toutesCommunes = (action === 'deplier');
-        dessinerCommunes();
-        var bascule = zoneCommunes.querySelector('[data-action]');
-        if (bascule) bascule.focus();
-        return;
-      }
-      etat.commune = b.getAttribute('data-commune') || '';
-      etat.nb = PAS;
-      // Les pastilles sont mises à jour sur place, pour que le clavier garde le focus
-      zoneCommunes.querySelectorAll('[data-commune]').forEach(function(p) {
-        p.setAttribute('aria-pressed', String(p.getAttribute('data-commune') === etat.commune));
-      });
-      dessiner(false);
-      majAdresse();
-    });
-
-    boutonPlus.addEventListener('click', function() {
-      etat.nb += PAS;
-      dessiner(true);
-    });
+    selCommune.addEventListener('change', function() { etat.commune = selCommune.value; etat.nb = PAS; dessiner(false); majAdresse(); });
+    selEdition.addEventListener('change', function() { etat.edition = selEdition.value; toutMettreAJour(); });
 
     container.addEventListener('click', function(e) {
-      if (e.target.closest('[data-action="reinit"]')) reinitialiser();
+      if (e.target.closest('[data-action="reinit"]')) { etat.newsletters = false; etat.rubrique = ''; etat.commune = ''; etat.edition = ''; selEdition.value = ''; toutMettreAJour(); return; }
+      if (e.target.closest('#feed-more-btn')) {
+        var avant = filtrer().length;
+        etat.nb += PAS;
+        var vus = container.querySelector('#na-grille').children.length;
+        var liste = filtrer(), filtre = etat.newsletters || etat.rubrique || etat.commune || etat.edition;
+        var depart = !filtre ? Math.min(4, liste.length) : 0;
+        var visibles = liste.slice(depart, depart + etat.nb);
+        container.querySelector('#na-grille').insertAdjacentHTML('beforeend', visibles.slice(vus).map(function(i) { return carte(i); }).join(''));
+        var restant = liste.length - depart - visibles.length;
+        var zone = container.querySelector('#feed-more');
+        zone.hidden = restant <= 0;
+        container.querySelector('#feed-more-btn').textContent = 'Afficher plus (' + pluriel(restant, ['restant', 'restants']) + ')';
+      }
     });
 
     fetch('/.netlify/functions/substack-feed?tous=1')
       .then(function(r) { return r.json(); })
       .then(function(data) {
         tous = (data && data.items) || [];
-        if (!tous.length) {
-          container.innerHTML = '<p class="feed-loading">Aucun article pour le moment.</p>';
-          return;
-        }
-
-        var nbArticles = tous.filter(function(i) { return genre(i) === 'article'; }).length;
-        var nbNewsletters = tous.length - nbArticles;
-        zoneTypes.querySelector('[data-type="tout"] .feed-count').textContent = tous.length;
-        zoneTypes.querySelector('[data-type="article"] .feed-count').textContent = nbArticles;
-        zoneTypes.querySelector('[data-type="newsletter"] .feed-count').textContent = nbNewsletters;
-        // Le choix du type n'a d'intérêt que s'il y a des articles ET des newsletters
-        zoneTypes.hidden = !(nbArticles && nbNewsletters);
-
-        // Vue de départ : les articles (le "tout" seulement s'il n'y a que des newsletters)
-        typeDefaut = nbArticles ? 'article' : 'tout';
-        etat.type = typeDefaut;
-
-        // Filtres demandés dans l'adresse (liens partagés)
+        if (!tous.length) { container.innerHTML = '<p class="feed-loading">Aucun article pour le moment.</p>'; return; }
+        // Choix demandés dans l'adresse (liens partagés, menu des rubriques)
         var params = new URLSearchParams(location.search);
-        var demande = params.get('type');
-        var type = Object.prototype.hasOwnProperty.call(TYPES_URL, demande) ? TYPES_URL[demande] : null;
         var edition = params.get('edition');
-        if (edition && Object.prototype.hasOwnProperty.call(NOMS_EDITIONS, edition)) etat.edition = edition;
-        if (type === 'tout' || (type === 'article' && nbArticles) || (type === 'newsletter' && nbNewsletters)) etat.type = type;
-        if (etat.type !== 'newsletter') {
-          var commune = params.get('commune');
-          if (commune) { communesDuType().forEach(function(c) { if (c.slug === commune) etat.commune = commune; }); }
-          var rubrique = params.get('rubrique');
-          if (rubrique && nomRubrique(rubrique)) etat.rubrique = rubrique;
-        }
-
-        majBoutonsType();
-        dessinerCommunes();
-        zoneFiltres.hidden = zoneTypes.hidden && zoneCommunes.hidden;
-        centrerCommune();   // à refaire une fois les filtres visibles (sinon les largeurs sont nulles)
-        dessiner(false);
+        if (edition && Object.prototype.hasOwnProperty.call(NOMS_EDITIONS, edition)) { etat.edition = edition; selEdition.value = edition; }
+        if (params.get('type') === 'newsletters' && tous.some(function(i) { return genre(i) === 'newsletter'; })) etat.newsletters = true;
+        var rubrique = params.get('rubrique');
+        if (!etat.newsletters && rubrique && nomDe('rubriques', rubrique)) etat.rubrique = rubrique;
+        var commune = params.get('commune');
+        if (!etat.newsletters && commune && nomDe('communes', commune)) etat.commune = commune;
+        majCommunes(); majOnglets();
+        if (etat.rubrique || etat.commune || etat.edition || etat.newsletters) dessiner(false);
       })
       .catch(function() {
         container.innerHTML = '<p class="feed-loading">Impossible de charger les articles pour le moment. Réessayez dans un instant.</p>';
@@ -593,5 +392,4 @@ function rendrePage(items) {
 `;
 }
 
-// Réutilisée par les pages de commune, de rubrique et d'auteur (netlify/functions/theme.js, auteur.js)
-exports.carte = carte;
+
