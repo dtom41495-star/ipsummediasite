@@ -19,6 +19,21 @@
       .catch(function () {});
   }
 
+  // Vidéo muette : elle ne joue que lorsqu'elle est à l'écran, et pas du tout pour qui préfère moins d'animations (commandes visibles à la place)
+  var video = document.getElementById('ap-reportage');
+  if (video) {
+    video.muted = true;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      video.controls = true;
+    } else if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (entrees) {
+        entrees.forEach(function (e) { if (e.isIntersecting) { var p = video.play(); if (p && p.catch) p.catch(function () { video.controls = true; }); } else video.pause(); });
+      }, { threshold: 0.4 }).observe(video);
+    } else {
+      video.controls = true;
+    }
+  }
+
   var select = document.getElementById('cf-redaction');
   var form = document.getElementById('contact-form');
   if (!select || !form || !CFG.SUPABASE_URL) return;
