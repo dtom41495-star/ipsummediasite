@@ -14,10 +14,8 @@ const SITE = 'https://ipsummedia.fr';
 const PAGES_FIXES = [
   ['/', 'weekly', '1.0'],
   ['/a-propos.html', 'monthly', '0.9'],
-  ['/nos-valeurs.html', 'monthly', '0.8'],
   ['/charte-ia.html', 'monthly', '0.6'],
   ['/articles.html', 'daily', '0.9'],
-  ['/nous-rejoindre.html', 'monthly', '0.8'],
 ];
 
 function isoJour(d) {
