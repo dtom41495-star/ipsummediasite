@@ -18,6 +18,37 @@
       ' <span class="nav-rubrique-count">' + r.n + '</span></a></li>';
   }
 
+  function ouvrir(conteneur) {
+    var toggle = conteneur.querySelector('.nav-rubriques-toggle');
+    var menu = conteneur.querySelector('.nav-rubriques-menu');
+    if (!toggle || !menu) return;
+    toggle.setAttribute('aria-expanded', 'true');
+    menu.hidden = false;
+  }
+
+  // Un petit bouton ouvre le sous-menu ; sur ordinateur, le survol de la souris l'ouvre aussi
+  var survol = window.matchMedia && window.matchMedia('(hover: hover) and (min-width: 901px)').matches;
+  function brancher(conteneur) {
+    var toggle = conteneur.querySelector('.nav-rubriques-toggle');
+    var menu = conteneur.querySelector('.nav-rubriques-menu');
+    if (!toggle || !menu || toggle._branche) return;
+    toggle._branche = true;
+    toggle.addEventListener('click', function (e) {
+      e.preventDefault();
+      var ouvert = toggle.getAttribute('aria-expanded') === 'true';
+      conteneurs.forEach(fermer);   // un seul sous-menu ouvert à la fois
+      if (!ouvert) ouvrir(conteneur);
+    });
+    if (survol) {
+      var minuterie = null;
+      conteneur.addEventListener('mouseenter', function () { clearTimeout(minuterie); conteneurs.forEach(function (c) { if (c !== conteneur) fermer(c); }); ouvrir(conteneur); });
+      conteneur.addEventListener('mouseleave', function () { minuterie = setTimeout(function () { fermer(conteneur); }, 250); });
+    }
+  }
+
+  // Le sous-menu de l'agenda est écrit dans la page : on le branche tout de suite
+  conteneurs.filter(function (c) { return c.classList.contains('nav-agenda'); }).forEach(brancher);
+
   fetch('/.netlify/functions/substack-feed?tous=1')
     .then(function (r) { return r.json(); })
     .then(function (data) {
@@ -35,21 +66,13 @@
       if (!liste.length) return;   // pas de rubrique en ce moment : le petit bouton reste caché
 
       conteneurs.forEach(function (conteneur) {
+        if (conteneur.classList.contains('nav-agenda')) return;
         var toggle = conteneur.querySelector('.nav-rubriques-toggle');
         var menu = conteneur.querySelector('.nav-rubriques-menu');
         if (!toggle || !menu) return;
         menu.innerHTML = liste.map(lien).join('');
         toggle.hidden = false;
-
-        toggle.addEventListener('click', function (e) {
-          e.preventDefault();
-          var ouvert = toggle.getAttribute('aria-expanded') === 'true';
-          conteneurs.forEach(fermer);   // un seul sous-menu ouvert à la fois
-          if (!ouvert) {
-            toggle.setAttribute('aria-expanded', 'true');
-            menu.hidden = false;
-          }
-        });
+        brancher(conteneur);
       });
     })
     .catch(function () {});   // le bouton reste caché : "Nos actus" fonctionne comme avant

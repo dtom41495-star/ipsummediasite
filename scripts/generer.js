@@ -154,6 +154,30 @@ async function main() {
     taches.push(() => page(`${type}/${s}.html`, theme, { path: `/.netlify/functions/theme/${type}/${s}` }))));
   auteurs.forEach((s) => taches.push(() => page(`auteurs/${s}.html`, auteur, { path: '/.netlify/functions/auteur/' + s })));
   taches.push(() => page('articles.html', liste, {}));
+
+  // Agenda public : deux pages d'agenda, une page par événement à venir, la page du formulaire, et les photos copiées sur le site
+  // (les visiteurs ne sollicitent jamais le stockage de Supabase). Si la base ne répond pas, on garde les pages d'agenda sans événements.
+  const agendaEv = await compo.agenda(8000);
+  if (!agendaEv) problemes.push('agenda : la base ne répond pas, pages d\'événements non générées');
+  const agendaH = require('../netlify/functions/agenda').handler;
+  const evenementH = require('../netlify/functions/evenement').handler;
+  const proposerH = require('../netlify/functions/agenda-proposer').handler;
+  ['tarn', 'haute-garonne'].forEach((e) => taches.push(() => page(`agenda/${e}.html`, agendaH, { path: '/agenda/' + e })));
+  taches.push(() => page('agenda/proposer.html', proposerH, {}));
+  (agendaEv || []).forEach((e) => {
+    taches.push(() => page(`evenement/${e.slug}.html`, evenementH, { path: '/evenement/' + e.slug }));
+    if (e.photo) taches.push(async () => {
+      try {
+        const r = await fetchReel(`${compo.COMPO_URL}/storage/v1/object/public/site-images/${e.photo.split('/').map(encodeURIComponent).join('/')}`);
+        if (!r.ok) throw new Error('réponse ' + r.status);
+        const nom = e.photo.split('/').pop();
+        const cible = path.join(SORTIE, 'agenda', 'photos', nom);
+        fs.mkdirSync(path.dirname(cible), { recursive: true });
+        fs.writeFileSync(cible, Buffer.from(await r.arrayBuffer()));
+        ecrites.push(path.join('agenda', 'photos', nom));
+      } catch (err) { problemes.push(`photo de l'événement ${e.slug} : ${err.message}`); }
+    });
+  });
   await enParallele(taches);
 
   const sm = await sitemap({});
@@ -167,7 +191,7 @@ async function main() {
   if (DOMAINE) ecrire('CNAME', DOMAINE + '\n');
 
   console.log(`Terminé en ${Math.round((Date.now() - t0) / 1000)} s : ${ecrites.length} fichiers dans ${path.relative(process.cwd(), SORTIE) || '.'}`);
-  console.log(`  articles : ${slugsArticles.size} · communes : ${Object.keys(groupes.communes).length} · rubriques : ${Object.keys(groupes.rubriques).length} · journalistes : ${auteurs.length}`);
+  console.log(`  articles : ${slugsArticles.size} · communes : ${Object.keys(groupes.communes).length} · rubriques : ${Object.keys(groupes.rubriques).length} · journalistes : ${auteurs.length} · événements : ${(agendaEv || []).length}`);
   if (problemes.length) { console.log(`${problemes.length} problème(s) :`); problemes.slice(0, 40).forEach((p) => console.log('  - ' + p)); }
   process.exit(0);
 }

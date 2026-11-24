@@ -550,7 +550,7 @@ ${headExtra}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.css?v=20261406">
+<link rel="stylesheet" href="/style.css?v=20261407">
 <style>
   .article-page { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
   /* Mise en page à deux colonnes sur ordinateur : l'article à gauche, une colonne qui suit le défilement à droite */
@@ -693,6 +693,13 @@ ${headExtra}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
           </button>
           <ul class="nav-rubriques-menu" id="nav-rubriques-menu" hidden></ul>
+        </li>
+        <li class="nav-rubriques nav-agenda">
+          <a href="/agenda/tarn">Agenda</a>
+          <button type="button" class="nav-rubriques-toggle" aria-expanded="false" aria-controls="nav-agenda-menu" aria-label="Choisir un agenda">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <ul class="nav-rubriques-menu" id="nav-agenda-menu" hidden><li><a href="/agenda/tarn">Tarn</a></li><li><a href="/agenda/haute-garonne">Haute-Garonne</a></li></ul>
         </li>
         <li><a href="/a-propos.html">À propos</a></li>
         <li><a href="/index.html#contact">Contact</a></li>
