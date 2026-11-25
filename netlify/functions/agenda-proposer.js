@@ -27,7 +27,7 @@ exports.handler = async function () {
         <li>Les simples offres commerciales (promotions, ventes, démarchage) qui ne sont pas un événement.</li>
       </ul>
       <h3>Relecture et responsabilité</h3>
-      <p>Notre équipe relit chaque proposition. Elle peut l'accepter, la corriger (fautes, longueur), la refuser ou la retirer plus tard, sans avoir à se justifier. Publier un événement ne veut pas dire le cautionner : l'organisateur reste responsable de ce qu'il annonce.</p>
+      <p>Notre équipe relit chaque proposition. Elle peut l'accepter, la corriger (fautes, longueur), la refuser ou la retirer plus tard, sans avoir à se justifier. Publier un événement ne signifie pas qu'Ipsum Média le soutient ou en garantit le contenu : l'organisateur reste responsable de ce qu'il annonce.</p>
       <h3>Vos engagements</h3>
       <p>Les informations (date, lieu, tarif) sont exactes, la photo ou l'affiche vous appartient ou vous avez le droit de l'utiliser, et vous nous prévenez à <a href="mailto:contact@ipsummedia.fr">contact@ipsummedia.fr</a> si l'événement est annulé ou modifié.</p>
     </aside>
