@@ -569,7 +569,7 @@ section { padding: 88px 0; }
 .ad-slot { padding: 24px 0; text-align: center; }
 /* Zone de publicité qui garde sa place : cadre délimité avec le logo d'Ipsum Média en gris, remplacé par
    l'annonce dès qu'il y en a une (assets/pub.js ajoute la classe is-filled) */
-.pub-boite { position: relative; display: flex; align-items: center; justify-content: center; min-height: 90px; overflow: hidden; background: rgba(255, 255, 255, 0.7); border: 1px dashed #D8CABF; border-radius: 10px; }
+.pub-boite { position: relative; display: flex; align-items: center; justify-content: center; min-height: 90px; overflow: hidden; background: rgba(255, 255, 255, 0.7); border: 1px solid #D8CABF; border-radius: 0; }
 .pub-zone .pub-logo { position: absolute; top: 50%; left: 50%; display: block; width: auto; max-width: none; height: 38px; margin: 0; border-radius: 0; transform: translate(-50%, -50%); filter: grayscale(1); opacity: 0.4; pointer-events: none; }
 .pub-boite ins.adsbygoogle { position: relative; z-index: 1; display: block; width: 100%; }
 .pub-zone.is-filled .pub-logo { display: none; }
