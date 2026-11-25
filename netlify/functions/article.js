@@ -423,7 +423,7 @@ function insertInlineAd(html) {
   // Le cadre garde sa place, avec le logo en gris, tant qu'il n'y a pas d'annonce (voir assets/pub.js)
   const adBlock = `
   <div class="ad-slot ad-slot-inline pub-zone">
-    <span class="ad-slot-label">Avec cette pub, Ipsum Média reste gratuit</span>
+    <span class="ad-slot-label">Publicité</span>
     <div class="pub-boite">
       <img class="pub-logo" src="/assets/logo.png" alt="">
       <ins class="adsbygoogle"

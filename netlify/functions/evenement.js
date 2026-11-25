@@ -7,7 +7,7 @@ const { EDITIONS, CATEGORIES, dateLongue, horaire, heure, urlPhoto, carte, lienG
 const PUB = `  <!-- Publicité : le cadre garde sa place (logo en gris) tant qu'il n'y a pas d'annonce ; assets/pub.js l'anime -->
   <aside class="pub-zone pub-haut pub-milieu" data-encart="partenaire" aria-label="Publicité">
     <div class="wrap">
-      <span class="ad-slot-label">Avec cette pub, Ipsum Média reste gratuit</span>
+      <span class="ad-slot-label">Publicité</span>
       <div class="pub-boite">
         <img class="pub-logo" src="/assets/logo.png" alt="">
         <ins class="adsbygoogle"
