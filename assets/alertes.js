@@ -110,7 +110,40 @@
   }
 
   var boutons = [];
-  function majBoutons(actif) { boutons.forEach(function (b) { b.textContent = actif ? 'Alertes activées' : 'Recevoir les alertes'; b.classList.toggle('alertes-actives', !!actif); }); }
+  var cloches = [], invitations = [];
+  function majBoutons(actif) {
+    boutons.forEach(function (b) { b.textContent = actif ? 'Alertes activées' : 'Recevoir les alertes'; b.classList.toggle('alertes-actives', !!actif); });
+    cloches.forEach(function (b) { b.classList.toggle('alertes-actives', !!actif); b.title = actif ? 'Alertes activées (modifier)' : 'Recevoir les alertes'; });
+    if (actif) invitations.forEach(function (n) { n.hidden = true; });
+  }
+  function lireRappel() { try { return parseInt(localStorage.getItem('ipsum-alertes-plus-tard') || '0', 10); } catch (e) { return 0; } }
+  function noterRappel() { try { localStorage.setItem('ipsum-alertes-plus-tard', String(Date.now())); } catch (e) {} }
+  // Cloche dans l'en-tête : visible sur toutes les pages, sans prendre de place dans le menu
+  function poserCloche() {
+    var cta = document.querySelector('.header-cta');
+    if (!cta || cta.querySelector('.alertes-cloche')) return;
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'alertes-cloche'; b.title = 'Recevoir les alertes'; b.setAttribute('aria-label', 'Recevoir les alertes de nouveaux articles');
+    b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="alertes-point" aria-hidden="true"></span>';
+    b.addEventListener('click', ouvrir);
+    cta.insertBefore(b, cta.firstChild); cloches.push(b);
+  }
+  // Fin d'un article : le moment où le lecteur est convaincu. Une seule carte, discrète, qui disparaît 30 jours si on dit « Plus tard ».
+  function poserInvitation() {
+    var corps = document.querySelector('.article-body');
+    if (!corps || document.querySelector('.alertes-invit')) return;
+    if (Date.now() - lireRappel() < 30 * 86400000) return;
+    var n = document.createElement('aside');
+    n.className = 'alertes-invit'; n.hidden = true;
+    n.innerHTML = '<div class="alertes-invit-texte"><strong>Ne ratez pas le prochain article.</strong><span>Une notification à chaque nouvel article de votre édition (Tarn, Haute-Garonne ou National). Sans compte, sans email.</span></div>' +
+      '<div class="alertes-invit-actions"><button type="button" class="alertes-invit-ok">Choisir mes alertes</button><button type="button" class="alertes-invit-non">Plus tard</button></div>';
+    n.querySelector('.alertes-invit-ok').addEventListener('click', ouvrir);
+    n.querySelector('.alertes-invit-non').addEventListener('click', function () { noterRappel(); n.hidden = true; });
+    corps.parentNode.insertBefore(n, corps.nextSibling); invitations.push(n);
+    if (!capable) { n.hidden = false; return; }
+    if (Notification.permission === 'denied') return;
+    inscription().then(function (x) { if (!x.sub) n.hidden = false; }).catch(function () { n.hidden = false; });
+  }
   function poser() {
     [].slice.call(document.querySelectorAll('.footer-social-group')).forEach(function (g) {
       if (g.querySelector('.alertes-btn')) return;
@@ -119,6 +152,7 @@
       b.addEventListener('click', ouvrir);
       g.appendChild(b); boutons.push(b);
     });
+    poserCloche(); poserInvitation();
     if (capable && Notification.permission === 'granted') inscription().then(function (x) { if (x.sub) majBoutons(true); }).catch(function () {});
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', poser); else poser();
