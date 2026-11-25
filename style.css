@@ -1894,3 +1894,24 @@ section.ag-jour { padding: 0; }
   .journal > .wrap, .page-bandeau .wrap, .na-outils .wrap, .ag-liste > .wrap, .ag-formulaire > .wrap, .ev-corps > .wrap { max-width: 1680px; margin-left: auto; margin-right: auto; }
   .bandeau, .une-cote { height: 640px; }
 }
+
+/* Alertes « nouvel article » (notifications web) */
+.alertes-btn { display: block; margin: 14px 0 0; padding: 9px 16px; background: transparent; color: inherit; border: 1.5px solid currentColor; font: 700 .8rem/1 'Anton', 'Impact', sans-serif; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
+.alertes-btn:hover, .alertes-btn.alertes-actives { background: #EA5B1C; border-color: #EA5B1C; color: #fff; }
+.alertes-fond { position: fixed; inset: 0; z-index: 2147483647; background: rgba(32, 26, 23, .6); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.alertes-fond[hidden] { display: none; }
+.alertes-boite { position: relative; width: 100%; max-width: 440px; background: #FFF8F1; color: #201A17; padding: 28px 24px 22px; border-top: 8px solid #EA5B1C; }
+.alertes-boite h2 { margin: 0 0 8px; font: 400 1.7rem/1.1 'Anton', 'Impact', sans-serif; text-transform: uppercase; }
+.alertes-fermer { position: absolute; top: 6px; right: 10px; background: none; border: 0; font-size: 1.8rem; line-height: 1; cursor: pointer; color: inherit; }
+.alertes-editions { display: grid; gap: 8px; margin: 12px 0; }
+.alertes-editions label { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #FDD9C6; font-weight: 600; cursor: pointer; }
+.alertes-editions input { width: 18px; height: 18px; accent-color: #E7436E; }
+.alertes-statut { min-height: 1.4em; margin: 6px 0; font-weight: 600; }
+.alertes-erreur { color: #B91C1C; }
+.alertes-actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0; }
+.alertes-actions button { padding: 11px 18px; border: 0; font: 400 .95rem/1 'Anton', 'Impact', sans-serif; letter-spacing: .05em; text-transform: uppercase; cursor: pointer; }
+.alertes-principal { background: #EA5B1C; color: #fff; }
+.alertes-stop { background: transparent; color: #201A17; box-shadow: inset 0 0 0 1.5px #201A17; }
+.alertes-actions button[disabled] { opacity: .6; cursor: default; }
+.alertes-note { margin: 8px 0 0; font-size: .8rem; opacity: .75; }
+.alertes-ouvert { overflow: hidden; }
