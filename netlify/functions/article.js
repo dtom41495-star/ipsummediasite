@@ -155,6 +155,8 @@ async function chercherSurSubstack(redactions, slug) {
 
 // Largeur et hauteur des photos de l'article (couverture et corps) : voir lib/images.js
 async function avecImages(a) {
+  // Prochains événements de la ville de l'article, pour la colonne de droite (vide si la base ne répond pas)
+  try { a.agenda = await require('../../lib/agenda').bientot(a.communes, 3); } catch (e) { a.agenda = null; }
   try {
     const { dimensions, avecDimensions } = require('../../lib/images');
     const out = { ...a, content: await avecDimensions(a.content) };
@@ -922,6 +924,17 @@ function renderAuteurs(a) {
     : escapeHtml(x.nom)).join(', ');
 }
 
+// Colonne de droite : les 3 prochains événements de la ville de l'article (voir lib/agenda.js : bientot)
+function renderAgendaCote(ag) {
+  if (!ag || !ag.items || !ag.items.length) return '';
+  const { CATEGORIES, jourCourt, lienEvenement, cheminVille, horaire } = require('../../lib/agenda');
+  return `<section class="side-agenda" aria-label="Événements à venir">
+      <h2 class="side-titre">Bientôt à ${escapeHtml(ag.nom)}</h2>
+      <ul class="side-liste">${ag.items.map((e) => { const j = jourCourt(e.date_debut); return `<li><a href="${lienEvenement(e)}"><span class="side-date"><b>${escapeHtml(j.jour)}</b>${escapeHtml(j.mois)}</span><span><span class="side-kicker">${escapeHtml(CATEGORIES[e.categorie] || 'Événement')}</span><span class="side-titre-article">${escapeHtml(e.titre)}</span><span class="side-lieu">${escapeHtml(horaire(e))} · ${escapeHtml(e.lieu)}</span></span></a></li>`; }).join('')}</ul>
+      <a class="side-tout" href="${cheminVille(ag.edition, ag.slug)}">Tout l'agenda à ${escapeHtml(ag.nom)}${ag.total > ag.items.length ? ` (${ag.total})` : ''}</a>
+    </section>`;
+}
+
 function renderLike(a) {
   if (typeof a.likes !== 'number') return '';
   const api = compo.COMPO_URL + '/functions/v1/site-like';
@@ -1044,6 +1057,7 @@ function renderArticle(a) {
     ${renderSuggestions(a.suggestions)}
   </div>
   <aside class="article-side" aria-label="Autour de l'article">
+    ${renderAgendaCote(a.agenda)}
     <section class="side-plus-lus" id="side-plus-lus" hidden>
       <h2 class="side-titre">Les plus lus</h2>
       <ol class="side-liste" id="side-liste"></ol>
@@ -1058,7 +1072,7 @@ function renderArticle(a) {
     if (!bloc || !liste || !CFG.SUPABASE_URL) return;
     function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
     function slugDe(lien) { var m = String(lien || '').match(/\\/(?:p|articles)\\/([^/?#]+)/); return m ? m[1] : ''; }
-    function sansCote() { var mise = document.querySelector('.article-layout'); if (mise) mise.classList.add('sans-cote'); }
+    function sansCote() { if (document.querySelector('.side-agenda')) return; var mise = document.querySelector('.article-layout'); if (mise) mise.classList.add('sans-cote'); }
     var courant = (location.pathname.split('/').filter(Boolean).pop() || '').replace(/\\.html$/, '');
     var vues = fetch(CFG.SUPABASE_URL + '/rest/v1/rpc/site_plus_lus', { method: 'POST', headers: { apikey: CFG.SUPABASE_CLE, Authorization: 'Bearer ' + CFG.SUPABASE_CLE, 'Content-Type': 'application/json' }, body: '{}' })
       .then(function (r) { return r.ok ? r.json() : []; });

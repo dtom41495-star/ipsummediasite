@@ -168,6 +168,11 @@ async function main() {
   const villeH = require('../netlify/functions/agenda-ville').handler;
   AG.contexte.communesActus = new Set(Object.keys(groupes.communes));
   const memoire = AG.retenirVilles(Object.fromEntries(['tarn', 'haute-garonne'].map((e) => [e, [...AG.villes(agendaEv || [], e).values()]])));
+  // Flux lu par l'accueil (« Ça se passe chez vous ») : aucun appel à la base depuis le navigateur du visiteur
+  if (agendaEv) ecrire('flux/agenda.json', JSON.stringify(agendaEv.map((e) => ({
+    slug: e.slug, titre: e.titre, categorie: e.categorie, commune: e.commune, edition: e.edition, lieu: e.lieu,
+    date_debut: e.date_debut, date_fin: e.date_fin || null, photo: e.photo ? AG.urlPhoto(e) : '',
+  }))));
   let nbVilles = 0;
   ['tarn', 'haute-garonne'].forEach((e) => Object.keys(memoire[e] || {}).forEach((slug) => {
     nbVilles++; taches.push(() => page(`agenda/${e}/${slug}.html`, villeH, { path: `/agenda/${e}/${slug}` }));
