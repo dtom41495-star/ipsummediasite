@@ -7,9 +7,9 @@
 //
 // Dès qu'une vraie annonce s'affiche dans l'emplacement (remplie et visible), l'encart disparaît
 // tout seul et l'annonce prend sa place : rien à retirer le jour où AdSense valide.
-// Pour couper les encarts avant : mettre ENCARTS_MAISON à false.
+// Les encarts maison sont COUPÉS (ENCARTS_MAISON = false) : tant qu’aucune annonce ne s’affiche, le cadre ne montre que le logo Ipsum Média en gris.
 (function () {
-  var ENCARTS_MAISON = true;
+  var ENCARTS_MAISON = false;   // plus de faux encarts : le cadre garde seulement le logo Ipsum Média en gris
 
   var CONTACT = '/#contact';
   var ENCARTS = {

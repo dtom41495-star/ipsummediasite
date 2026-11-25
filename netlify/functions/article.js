@@ -845,7 +845,7 @@ ${bodyHtml}
   })();
 </script>
 
-<script src="/assets/pub.js"></script>
+<script src="/assets/pub.js?v=20261501"></script>
 <script src="/assets/nav-rubriques.js"></script>
 <script src="/assets/utm-substack.js"></script>
 <script src="/assets/ticker.js"></script>

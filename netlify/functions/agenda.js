@@ -20,7 +20,7 @@ const PUB = `  <!-- Publicité : le cadre garde sa place (logo en gris) tant qu'
     </div>
   </aside>
   <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-  <script src="/assets/pub.js"></script>
+  <script src="/assets/pub.js?v=20261501"></script>
 `;
 
 exports.handler = async function (event) {
