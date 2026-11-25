@@ -153,6 +153,16 @@ async function chercherSurSubstack(redactions, slug) {
   return essais.find(Boolean) || null;
 }
 
+// Largeur et hauteur des photos de l'article (couverture et corps) : voir lib/images.js
+async function avecImages(a) {
+  try {
+    const { dimensions, avecDimensions } = require('../../lib/images');
+    const out = { ...a, content: await avecDimensions(a.content) };
+    if (a.image) { const d = await dimensions(a.image); if (d) out.imageDim = d; }
+    return out;
+  } catch (e) { return a; }
+}
+
 exports.handler = async function (event) {
   const parts = event.path.split('/').filter(Boolean);
   const slug = parts[parts.length - 1];
@@ -184,7 +194,7 @@ exports.handler = async function (event) {
       return {
         statusCode: 200,
         headers: { ...entetesHtml, 'Cache-Control': 'public, max-age=900' },
-        body: renderArticle((() => { const a = depuisPublication(publication, etiquettesTous, tousLesItems); return { ...a, likes, auteurs: auteursLies(a.author, equipePublique) }; })()),
+        body: renderArticle(await avecImages((() => { const a = depuisPublication(publication, etiquettesTous, tousLesItems); return { ...a, likes, auteurs: auteursLies(a.author, equipePublique) }; })())),
       };
     }
 
@@ -241,8 +251,8 @@ exports.handler = async function (event) {
       statusCode: 200,
       headers: { ...entetesHtml, 'Cache-Control': 'public, max-age=900' },
       // Copie d'un article de Substack : la balise canonical désigne l'original (Substack)
-      body: renderArticle({ title, link, pubDate, author, auteurs: auteursLies(author, equipePublique), description, content, image, legende, slug, redac, communes, rubriques, suggestions,
-                            canonical: lienAutorise(link), commentairesUrl: redac.base + '/p/' + encodeURIComponent(slug) + '/comments' }),
+      body: renderArticle(await avecImages({ title, link, pubDate, author, auteurs: auteursLies(author, equipePublique), description, content, image, legende, slug, redac, communes, rubriques, suggestions,
+                            canonical: lienAutorise(link), commentairesUrl: redac.base + '/p/' + encodeURIComponent(slug) + '/comments' })),
     };
   } catch (e) {
     return {
@@ -1019,7 +1029,7 @@ function renderArticle(a) {
         ${share}
       </div>
     </div>
-    ${a.image ? `<figure class="article-cover-fig"><img class="article-cover" src="${escapeHtml(redimensionnerImage(a.image, 1400))}" alt="${escapeHtml(a.legende || '')}">${a.legende ? `<figcaption class="article-cover-legende">${escapeHtml(a.legende)}</figcaption>` : ''}</figure>` : ''}
+    ${a.image ? `<figure class="article-cover-fig"><img class="article-cover" src="${escapeHtml(redimensionnerImage(a.image, 1400))}"${a.imageDim ? ` width="${a.imageDim.w}" height="${a.imageDim.h}"` : ''} alt="${escapeHtml(a.legende || '')}">${a.legende ? `<figcaption class="article-cover-legende">${escapeHtml(a.legende)}</figcaption>` : ''}</figure>` : ''}
     <div class="article-body">${insertInlineAd(contenu)}</div>
     <div class="article-share-end">
       <p>Cet article vous a plu ? Partagez-le, ou dites-nous ce que vous en pensez.</p>
