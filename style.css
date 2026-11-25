@@ -1887,3 +1887,10 @@ section.ag-jour { padding: 0; }
 .ag-suggestions li:hover, .ag-suggestions li.actif { background: var(--orange-light); }
 .ag-carte-apercu, .ev-carte { height: 260px; margin-top: 8px; background: var(--border); border: 1px solid var(--border); }
 .ag-carte-apercu[hidden], .ev-carte[hidden] { display: none; }
+
+/* ===== Très grands écrans : le contenu garde une largeur raisonnable, centrée (la une n'est plus étirée en bandeau) ===== */
+@media (min-width: 1800px) {
+  .une-haut { max-width: 1592px; margin-left: auto; margin-right: auto; }   /* même largeur que le texte des sections (1680 px moins les marges) */
+  .journal > .wrap, .page-bandeau .wrap, .na-outils .wrap, .ag-liste > .wrap, .ag-formulaire > .wrap, .ev-corps > .wrap { max-width: 1680px; margin-left: auto; margin-right: auto; }
+  .bandeau, .une-cote { height: 640px; }
+}
