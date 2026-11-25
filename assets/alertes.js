@@ -135,11 +135,13 @@
     if (Date.now() - lireRappel() < 30 * 86400000) return;
     var n = document.createElement('aside');
     n.className = 'alertes-invit'; n.hidden = true;
-    n.innerHTML = '<div class="alertes-invit-texte"><strong>Ne ratez pas le prochain article.</strong><span>Une notification à chaque nouvel article de votre édition (Tarn, Haute-Garonne ou National). Sans compte, sans email.</span></div>' +
+    n.innerHTML = '<div class="alertes-invit-texte"><strong>Une alerte à chaque nouvel article</strong><span>Pas le temps d’attendre le jeudi ? Recevez une notification dès qu’un article paraît dans votre édition (Tarn, Haute-Garonne ou National). Sans compte, sans email.</span></div>' +
       '<div class="alertes-invit-actions"><button type="button" class="alertes-invit-ok">Choisir mes alertes</button><button type="button" class="alertes-invit-non">Plus tard</button></div>';
     n.querySelector('.alertes-invit-ok').addEventListener('click', ouvrir);
     n.querySelector('.alertes-invit-non').addEventListener('click', function () { noterRappel(); n.hidden = true; });
-    corps.parentNode.insertBefore(n, corps.nextSibling); invitations.push(n);
+    // La newsletter passe en premier : la carte se place après son bloc d'inscription quand il existe
+    var apres = document.querySelector('.article-subscribe') || corps;
+    apres.parentNode.insertBefore(n, apres.nextSibling); invitations.push(n);
     if (!capable) { n.hidden = false; return; }
     if (Notification.permission === 'denied') return;
     inscription().then(function (x) { if (!x.sub) n.hidden = false; }).catch(function () { n.hidden = false; });
