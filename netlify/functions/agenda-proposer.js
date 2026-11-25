@@ -14,6 +14,23 @@ exports.handler = async function () {
     </div>
   </section>
   <section class="journal ag-formulaire"><div class="wrap">
+    <aside class="ag-reglement" aria-labelledby="ag-reglement-titre">
+      <h2 id="ag-reglement-titre">Règlement de l'agenda</h2>
+      <p>L'agenda d'Ipsum Média est un service gratuit, relu par notre équipe. Avant de proposer un événement, merci de lire ces règles.</p>
+      <h3>Ce que nous publions</h3>
+      <p>Des événements à venir dans le Tarn ou en Haute-Garonne : concerts, sport, culture, marchés et fêtes, réunions d'information locales (mairie, intercommunalité, associations…), ouverts au public.</p>
+      <h3>Ce que nous refusons</h3>
+      <ul>
+        <li><strong>Les événements politiques</strong> : meetings, réunions ou rassemblements de partis, de candidats ou de listes, événements de campagne électorale, manifestations militantes ou partisanes, quel que soit le bord. Ipsum Média est un média associatif : nous ne relayons pas d'événement politique. Les réunions d'information organisées par une commune ou une institution (réunion publique sur un projet, concertation, conseil municipal) restent acceptées.</li>
+        <li>Les contenus discriminatoires, haineux, injurieux ou diffamatoires.</li>
+        <li>Les événements illégaux ou dangereux.</li>
+        <li>Les simples offres commerciales (promotions, ventes, démarchage) qui ne sont pas un événement.</li>
+      </ul>
+      <h3>Relecture et responsabilité</h3>
+      <p>Notre équipe relit chaque proposition. Elle peut l'accepter, la corriger (fautes, longueur), la refuser ou la retirer plus tard, sans avoir à se justifier. Publier un événement ne veut pas dire le cautionner : l'organisateur reste responsable de ce qu'il annonce.</p>
+      <h3>Vos engagements</h3>
+      <p>Les informations (date, lieu, tarif) sont exactes, la photo ou l'affiche vous appartient ou vous avez le droit de l'utiliser, et vous nous prévenez à <a href="mailto:contact@ipsummedia.fr">contact@ipsummedia.fr</a> si l'événement est annulé ou modifié.</p>
+    </aside>
     <form id="ag-form" class="ag-form" novalidate>
       <div class="ag-champs">
         <label class="ag-champ ag-large"><span class="ag-lib">Titre de l'événement <span class="ag-req">*</span></span><input id="f-titre" name="titre" maxlength="120" required placeholder="Ex. Concert de printemps de la chorale"></label>
@@ -43,6 +60,7 @@ exports.handler = async function () {
         <label class="ag-champ"><span class="ag-lib">Votre adresse email <span class="ag-req">*</span></span><input id="f-email" name="email" type="email" maxlength="254" required autocomplete="email"></label>
         <label class="ag-piege" aria-hidden="true">Ne pas remplir<input id="f-site" name="site" tabindex="-1" autocomplete="off"></label>
       </div>
+      <label class="ag-accord"><input type="checkbox" id="f-reglement" name="reglement" required> <span>J'ai lu le règlement de l'agenda et mon événement le respecte (pas d'événement politique). <span class="ag-req">*</span></span></label>
       <p class="ag-statut" id="ag-statut" role="status" aria-live="polite"></p>
       <button type="submit" class="btn btn-primary" id="ag-envoyer">Envoyer ma proposition</button>
       <p class="ag-mention">Votre adresse email ne sert qu'à vous répondre au sujet de cet événement, et n'est jamais affichée sur le site. Elle est supprimée trois mois après la date de l'événement. L'équipe peut vous recontacter, par exemple pour en parler dans un article, sans aucun engagement de sa part. <a href="/confidentialite.html">Politique de confidentialité</a>.</p>
