@@ -2,26 +2,7 @@
 // Les événements (proposés par le public, acceptés dans Compo) sont écrits dans le HTML : indexables, aucun appel à la base à chaque visite.
 const compo = require('../../lib/compo');
 const { SITE, echapper, enveloppe, reponseIndisponible } = require('../../lib/page');
-const { EDITIONS, CATEGORIES, jourCle, jourLong, carte, urlPhoto, dateLongue, horaire } = require('../../lib/agenda');
-
-const PUB = `  <!-- Publicité : le cadre garde sa place (logo en gris) tant qu'il n'y a pas d'annonce ; assets/pub.js l'anime -->
-  <aside class="pub-zone pub-haut pub-milieu" data-encart="partenaire" aria-label="Publicité">
-    <div class="wrap">
-      <span class="ad-slot-label">Publicité</span>
-      <div class="pub-boite">
-        <img class="pub-logo" src="/assets/logo.png" alt="">
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="ca-pub-7695287329907050"
-             data-ad-slot="4713288084"
-             data-ad-format="horizontal"
-             data-full-width-responsive="true"></ins>
-      </div>
-    </div>
-  </aside>
-  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-  <script src="/assets/pub.js?v=20261501"></script>
-`;
+const { PUB, villes, cheminVille, EDITIONS, CATEGORIES, jourCle, jourLong, carte, urlPhoto, dateLongue, horaire } = require('../../lib/agenda');
 
 exports.handler = async function (event) {
   const m = String((event && event.path) || '').match(/agenda\/(tarn|haute-garonne)\/?$/);
@@ -56,6 +37,11 @@ exports.handler = async function (event) {
   const liste = n ? groupes.map((g) => `<section class="ag-jour" data-jour="${g.k}"><h2 class="ag-jour-titre">${echapper(g.titre)}</h2><div class="suite-grille">${g.items.map(carte).join('')}</div></section>`).join('')
     : `<div class="ag-vide"><p>Aucun événement à venir pour le moment.</p><p><a class="btn btn-primary" href="/agenda/proposer?edition=${edition}">Proposer le premier événement</a></p></div>`;
 
+  const parVille = [...villes(tous, edition).values()].sort((x, y) => y.items.length - x.items.length || x.nom.localeCompare(y.nom, 'fr'));
+  const sectionVilles = parVille.length ? `
+  <section class="journal ag-villes"><div class="wrap"><div class="journal-tete"><h2>L'agenda par ville ${echapper(ed.de)}</h2></div>
+    <nav class="villes-pastilles" aria-label="Agenda par ville">${parVille.map((x) => `<a href="${cheminVille(edition, x.slug)}">${echapper(x.nom)} <small>${x.items.length}</small></a>`).join('')}</nav></div></section>` : '';
+
   const main = `
   <section class="page-bandeau">
     <div class="wrap">
@@ -70,6 +56,7 @@ exports.handler = async function (event) {
   ${outils}
   <section class="journal ag-liste"><div class="wrap">${liste}<p class="ag-aucun" id="ag-aucun" hidden>Aucun événement pour ce choix.</p></div></section>
 
+  ${sectionVilles}
   ${PUB}
   <div class="ap2"><section class="ap2-band ap2-orange ag-cta"><div class="wrap">
     <h2 class="ap2-titre">Vous organisez un événement ?</h2>

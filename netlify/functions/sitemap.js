@@ -5,6 +5,7 @@
 // l'original, filtrer sur `!p.canonical_url` ci-dessous.
 // Si la base ne répond pas, le plan contient au moins les pages fixes (comme l'ancien sitemap.xml).
 
+const A = require('../../lib/agenda');
 const compo = require('../../lib/compo');
 const { chargerItems, regrouper, MIN_INDEX } = require('../../lib/themes');
 const { indexEquipe, articlesDe } = require('../../lib/auteurs');
@@ -53,6 +54,7 @@ function fabriquerSitemap(publications, themes, auteurs, agenda) {
   // Agenda public : les deux pages d'agenda, puis chaque événement à venir
   if (agenda) {
     ['tarn', 'haute-garonne'].forEach((e) => urls.push(`  <url>\n    <loc>${SITE}/agenda/${e}</loc>\n    <changefreq>daily</changefreq>\n  </url>`));
+    ['tarn', 'haute-garonne'].forEach((ed) => [...A.villes(agenda, ed).values()].forEach((v) => urls.push(`  <url>\n    <loc>${SITE}${A.cheminVille(ed, v.slug)}</loc>\n    <changefreq>daily</changefreq>\n  </url>`)));
     agenda.filter((e) => e && /^[a-z0-9-]{1,120}$/.test(e.slug || '')).forEach((e) => urls.push(`  <url>\n    <loc>${SITE}/evenement/${e.slug}</loc>\n  </url>`));
   }
   return '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + urls.join('\n') + '\n</urlset>\n';
