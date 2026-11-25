@@ -101,7 +101,7 @@ function rendrePage(items) {
 <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css?v=20261502">
 <!-- Statistiques d'audience sans cookies (Umami, hébergé par Ipsum Média) -->
-<script defer src="https://stats.ipsummedia.fr/script.js" data-website-id="02190f37-9db9-421b-b0c2-f71b803e2ccb"></script>
+<script defer src="https://stats.ipsummedia.fr/script.js" data-website-id="02190f37-9db9-421b-b0c2-f71b803e2ccb" data-performance="true"></script>
 </head>
 <body>
 
