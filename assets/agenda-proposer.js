@@ -159,6 +159,7 @@
     lien: 'Le lien doit commencer par https://',
     photo: 'La photo n\'a pas pu être envoyée. Essayez sans photo ou avec une autre image.',
     invalide: 'Vérifiez les champs obligatoires.',
+    reglement: 'Merci de confirmer que vous avez lu le règlement de l’agenda.',
   };
 
   form.addEventListener('submit', function (e) {
@@ -168,6 +169,7 @@
     var debut = versIso(v('f-debut')), fin = versIso(v('f-fin'));
     if (v('f-titre').length < 3 || v('f-lieu').length < 2 || v('f-commune').length < 2 || v('f-nom').length < 2 || !debut) { dire(MESSAGES.invalide, true); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v('f-email'))) { dire(MESSAGES.email, true); return; }
+    if (!document.getElementById('f-reglement').checked) { dire(MESSAGES.reglement, true); return; }
     if (fin && fin < debut) { dire('La fin ne peut pas être avant le début.', true); return; }
     if (v('f-lien') && !/^https?:\/\/\S+$/i.test(v('f-lien'))) { dire(MESSAGES.lien, true); return; }
     envoyer.disabled = true; dire('Envoi en cours…');
