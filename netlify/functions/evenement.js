@@ -4,6 +4,25 @@ const compo = require('../../lib/compo');
 const { SITE, echapper, enveloppe, reponseIndisponible } = require('../../lib/page');
 const { EDITIONS, CATEGORIES, dateLongue, horaire, heure, urlPhoto, carte, lienGoogleAgenda, lienEvenement } = require('../../lib/agenda');
 
+const PUB = `  <!-- Publicité : le cadre garde sa place (logo en gris) tant qu'il n'y a pas d'annonce ; assets/pub.js l'anime -->
+  <aside class="pub-zone pub-haut pub-milieu" data-encart="partenaire" aria-label="Publicité">
+    <div class="wrap">
+      <span class="ad-slot-label">Avec cette pub, Ipsum Média reste gratuit</span>
+      <div class="pub-boite">
+        <img class="pub-logo" src="/assets/logo.png" alt="">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-7695287329907050"
+             data-ad-slot="4713288084"
+             data-ad-format="horizontal"
+             data-full-width-responsive="true"></ins>
+      </div>
+    </div>
+  </aside>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  <script src="/assets/pub.js"></script>
+`;
+
 exports.handler = async function (event) {
   const m = String((event && event.path) || '').match(/evenement\/([a-z0-9-]{1,120})\/?$/);
   const slug = m ? m[1] : '';
@@ -57,6 +76,7 @@ exports.handler = async function (event) {
       </div>
     </aside>
   </div></section>
+  ${PUB}
   ${autres.length ? `<section class="journal suite"><div class="wrap"><div class="journal-tete"><h2>À la même période à ${echapper(e.commune)}</h2><a href="/agenda/${e.edition}">Tout l'agenda</a></div><div class="suite-grille">${autres.map(carte).join('')}</div></div></section>` : ''}
   ${aCarte ? '<script src="/assets/agenda-carte.js"></script>' : ''}
   <script>

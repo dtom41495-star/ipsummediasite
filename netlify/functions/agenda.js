@@ -4,6 +4,25 @@ const compo = require('../../lib/compo');
 const { SITE, echapper, enveloppe, reponseIndisponible } = require('../../lib/page');
 const { EDITIONS, CATEGORIES, jourCle, jourLong, carte, urlPhoto, dateLongue, horaire } = require('../../lib/agenda');
 
+const PUB = `  <!-- Publicité : le cadre garde sa place (logo en gris) tant qu'il n'y a pas d'annonce ; assets/pub.js l'anime -->
+  <aside class="pub-zone pub-haut pub-milieu" data-encart="partenaire" aria-label="Publicité">
+    <div class="wrap">
+      <span class="ad-slot-label">Avec cette pub, Ipsum Média reste gratuit</span>
+      <div class="pub-boite">
+        <img class="pub-logo" src="/assets/logo.png" alt="">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-7695287329907050"
+             data-ad-slot="4713288084"
+             data-ad-format="horizontal"
+             data-full-width-responsive="true"></ins>
+      </div>
+    </div>
+  </aside>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  <script src="/assets/pub.js"></script>
+`;
+
 exports.handler = async function (event) {
   const m = String((event && event.path) || '').match(/agenda\/(tarn|haute-garonne)\/?$/);
   const q = (event && event.queryStringParameters) || {};
@@ -51,6 +70,7 @@ exports.handler = async function (event) {
   ${outils}
   <section class="journal ag-liste"><div class="wrap">${liste}<p class="ag-aucun" id="ag-aucun" hidden>Aucun événement pour ce choix.</p></div></section>
 
+  ${PUB}
   <div class="ap2"><section class="ap2-band ap2-orange ag-cta"><div class="wrap">
     <h2 class="ap2-titre">Vous organisez un événement ?</h2>
     <p class="ap2-intro">Concert, match, marché, réunion publique, fête de village : proposez-le, c'est gratuit. Notre équipe le relit, puis il apparaît ici.</p>
