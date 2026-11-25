@@ -1916,14 +1916,7 @@ section.ag-jour { padding: 0; }
 .alertes-note { margin: 8px 0 0; font-size: .8rem; opacity: .75; }
 .alertes-ouvert { overflow: hidden; }
 
-/* Alertes : cloche de l'en-tête et carte en fin d'article */
-.alertes-cloche { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; padding: 0; background: transparent; border: 0; color: inherit; cursor: pointer; flex: none; }
-.alertes-cloche svg { width: 24px; height: 24px; }
-.alertes-cloche:hover { color: #EA5B1C; }
-.alertes-cloche:focus-visible { outline: 2px solid #EA5B1C; outline-offset: 2px; }
-.alertes-point { position: absolute; top: 6px; right: 6px; width: 10px; height: 10px; border-radius: 50%; background: #E7436E; box-shadow: 0 0 0 2px #fff; }
-.alertes-cloche.alertes-actives .alertes-point { display: none; }
-.alertes-cloche.alertes-actives { color: #EA5B1C; }
+/* Alertes : carte en fin d'article */
 .alertes-invit { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; margin: 32px 0; padding: 20px 22px; background: #FDD9C6; border-left: 8px solid #EA5B1C; color: #201A17; }
 .alertes-invit[hidden] { display: none; }
 .alertes-invit-texte { display: grid; gap: 4px; flex: 1 1 280px; }
