@@ -163,6 +163,15 @@ async function main() {
   const evenementH = require('../netlify/functions/evenement').handler;
   const proposerH = require('../netlify/functions/agenda-proposer').handler;
   ['tarn', 'haute-garonne'].forEach((e) => taches.push(() => page(`agenda/${e}.html`, agendaH, { path: '/agenda/' + e })));
+  // Une page par ville (celles qui ont des événements à venir, plus celles déjà vues : leur page reste en ligne, sans référencement, entre deux événements)
+  const AG = require('../lib/agenda');
+  const villeH = require('../netlify/functions/agenda-ville').handler;
+  AG.contexte.communesActus = new Set(Object.keys(groupes.communes));
+  const memoire = AG.retenirVilles(Object.fromEntries(['tarn', 'haute-garonne'].map((e) => [e, [...AG.villes(agendaEv || [], e).values()]])));
+  let nbVilles = 0;
+  ['tarn', 'haute-garonne'].forEach((e) => Object.keys(memoire[e] || {}).forEach((slug) => {
+    nbVilles++; taches.push(() => page(`agenda/${e}/${slug}.html`, villeH, { path: `/agenda/${e}/${slug}` }));
+  }));
   taches.push(() => page('agenda/proposer.html', proposerH, {}));
   (agendaEv || []).forEach((e) => {
     taches.push(() => page(`evenement/${e.slug}.html`, evenementH, { path: '/evenement/' + e.slug }));
@@ -194,7 +203,7 @@ async function main() {
   if (DOMAINE) ecrire('CNAME', DOMAINE + '\n');
 
   console.log(`Terminé en ${Math.round((Date.now() - t0) / 1000)} s : ${ecrites.length} fichiers dans ${path.relative(process.cwd(), SORTIE) || '.'}`);
-  console.log(`  articles : ${slugsArticles.size} · communes : ${Object.keys(groupes.communes).length} · rubriques : ${Object.keys(groupes.rubriques).length} · journalistes : ${auteurs.length} · événements : ${(agendaEv || []).length}`);
+  console.log(`  articles : ${slugsArticles.size} · communes : ${Object.keys(groupes.communes).length} · rubriques : ${Object.keys(groupes.rubriques).length} · journalistes : ${auteurs.length} · événements : ${(agendaEv || []).length} · pages de ville : ${nbVilles}`);
   if (problemes.length) { console.log(`${problemes.length} problème(s) :`); problemes.slice(0, 40).forEach((p) => console.log('  - ' + p)); }
   process.exit(0);
 }

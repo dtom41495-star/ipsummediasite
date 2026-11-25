@@ -2,26 +2,7 @@
 // (photo, titre) et données structurées « Event » pour Google. Les coordonnées de l'organisateur n'y figurent jamais.
 const compo = require('../../lib/compo');
 const { SITE, echapper, enveloppe, reponseIndisponible } = require('../../lib/page');
-const { EDITIONS, CATEGORIES, dateLongue, horaire, heure, urlPhoto, carte, lienGoogleAgenda, lienEvenement } = require('../../lib/agenda');
-
-const PUB = `  <!-- Publicité : le cadre garde sa place (logo en gris) tant qu'il n'y a pas d'annonce ; assets/pub.js l'anime -->
-  <aside class="pub-zone pub-haut pub-milieu" data-encart="partenaire" aria-label="Publicité">
-    <div class="wrap">
-      <span class="ad-slot-label">Publicité</span>
-      <div class="pub-boite">
-        <img class="pub-logo" src="/assets/logo.png" alt="">
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="ca-pub-7695287329907050"
-             data-ad-slot="4713288084"
-             data-ad-format="horizontal"
-             data-full-width-responsive="true"></ins>
-      </div>
-    </div>
-  </aside>
-  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-  <script src="/assets/pub.js?v=20261501"></script>
-`;
+const { PUB, slugVille, cheminVille, EDITIONS, CATEGORIES, dateLongue, horaire, heure, urlPhoto, carte, lienGoogleAgenda, lienEvenement } = require('../../lib/agenda');
 
 exports.handler = async function (event) {
   const m = String((event && event.path) || '').match(/evenement\/([a-z0-9-]{1,120})\/?$/);
@@ -45,6 +26,7 @@ exports.handler = async function (event) {
     .sort((x, y) => Math.abs(new Date(x.date_debut) - debutE) - Math.abs(new Date(y.date_debut) - debutE))
     .slice(0, 4)
     .sort((x, y) => new Date(x.date_debut) - new Date(y.date_debut));
+  const lienVille = cheminVille(e.edition, slugVille(e.commune));
   const quand = `${dateLongue(e.date_debut)} · ${horaire(e)}`;
   const aCarte = Number.isFinite(Number(e.lat)) && Number.isFinite(Number(e.lng)) && e.lat != null && e.lng != null;
   const lat = aCarte ? Number(e.lat) : null, lng = aCarte ? Number(e.lng) : null;
@@ -52,7 +34,7 @@ exports.handler = async function (event) {
   const main = `
   <section class="page-bandeau">
     <div class="wrap">
-      <nav class="theme-fil" aria-label="Fil d'Ariane"><a href="/index.html#accueil">Accueil</a> › <a href="/agenda/${e.edition}">${echapper(ed.titre)}</a> › <span aria-current="page">${echapper(e.titre)}</span></nav>
+      <nav class="theme-fil" aria-label="Fil d'Ariane"><a href="/index.html#accueil">Accueil</a> › <a href="/agenda/${e.edition}">${echapper(ed.titre)}</a> › <a href="${lienVille}">${echapper(e.commune)}</a> › <span aria-current="page">${echapper(e.titre)}</span></nav>
       <span class="page-bandeau-eyebrow">${echapper(CATEGORIES[e.categorie] || 'Événement')} · ${echapper(e.commune)}</span>
       <h1 class="ev-titre">${echapper(e.titre)}</h1>
       <p class="page-bandeau-lead">${echapper(quand)}<br>${echapper(e.lieu)}, ${echapper(e.commune)}</p>
@@ -67,7 +49,7 @@ exports.handler = async function (event) {
     <aside class="ev-cote">
       <div class="ev-fiche">
         <div><span class="ev-label">Quand</span>${echapper(quand)}</div>
-        <div><span class="ev-label">Où</span>${echapper(e.lieu)}<br>${echapper(e.commune)}</div>
+        <div><span class="ev-label">Où</span>${echapper(e.lieu)}<br><a href="${lienVille}">${echapper(e.commune)}</a></div>
         ${aCarte ? `<div class="ev-carte" id="ev-carte" data-lat="${lat}" data-lng="${lng}" hidden></div>
         <button type="button" class="btn btn-outline" id="ev-voir-carte">Voir sur la carte</button>
         <a class="btn btn-outline" href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}" target="_blank" rel="noopener">Itinéraire</a>` : ''}
@@ -77,7 +59,7 @@ exports.handler = async function (event) {
     </aside>
   </div></section>
   ${PUB}
-  ${autres.length ? `<section class="journal suite"><div class="wrap"><div class="journal-tete"><h2>À la même période à ${echapper(e.commune)}</h2><a href="/agenda/${e.edition}">Tout l'agenda</a></div><div class="suite-grille">${autres.map(carte).join('')}</div></div></section>` : ''}
+  ${autres.length ? `<section class="journal suite"><div class="wrap"><div class="journal-tete"><h2>À la même période à ${echapper(e.commune)}</h2><a href="${lienVille}">Tout l'agenda à ${echapper(e.commune)}</a></div><div class="suite-grille">${autres.map(carte).join('')}</div></div></section>` : ''}
   ${aCarte ? '<script src="/assets/agenda-carte.js"></script>' : ''}
   <script>
   (function () {
@@ -106,7 +88,8 @@ exports.handler = async function (event) {
       { '@type': 'BreadcrumbList', itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Accueil', item: SITE + '/' },
         { '@type': 'ListItem', position: 2, name: ed.titre, item: SITE + '/agenda/' + e.edition },
-        { '@type': 'ListItem', position: 3, name: e.titre, item: url } ] },
+        { '@type': 'ListItem', position: 3, name: `Agenda ${e.commune}`, item: SITE + lienVille },
+        { '@type': 'ListItem', position: 4, name: e.titre, item: url } ] },
     ],
   };
   const description = (String(e.description || '').replace(/\s+/g, ' ').trim() || `${CATEGORIES[e.categorie] || 'Événement'} à ${e.commune}`).slice(0, 150);
