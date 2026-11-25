@@ -45,7 +45,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Montserrat:wght@700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261506">
+<link rel="stylesheet" href="style.css?v=20261507">
 <!-- Statistiques d'audience sans cookies (Umami, hébergé par Ipsum Média) -->
 <script defer src="https://stats.ipsummedia.fr/script.js" data-website-id="02190f37-9db9-421b-b0c2-f71b803e2ccb" data-performance="true"></script>
 </head>
@@ -162,6 +162,15 @@
       <p class="villes-memo" id="villes-memo" hidden></p>
       <nav class="villes-pastilles" id="villes-pastilles" aria-label="Choisir une commune"></nav>
       <div class="villes-grille" id="villes-grille"></div>
+    </div>
+  </section>
+
+  <!-- Ça se passe chez vous : les 5 prochains événements de l'agenda (voir assets/accueil-agenda.js) -->
+  <section class="journal suite chez-vous" id="chez-vous" hidden>
+    <div class="wrap">
+      <div class="journal-tete"><h2>Ça se passe chez vous</h2><a href="/agenda/tarn" id="chez-vous-tout">Tout l'agenda</a></div>
+      <p class="villes-memo" id="chez-vous-memo" hidden></p>
+      <div class="suite-grille chez-vous-grille" id="chez-vous-grille"></div>
     </div>
   </section>
 
@@ -539,6 +548,7 @@
 
 <script src="assets/saints.js?v=20261117"></script>
 <script src="assets/accueil.js?v=20261408"></script>
+<script src="assets/accueil-agenda.js?v=20261601"></script>
 <script src="assets/videos.js"></script>
 <script src="assets/nav-rubriques.js"></script>
 <script src="assets/alertes.js"></script>

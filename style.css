@@ -1933,3 +1933,21 @@ section.ag-jour { padding: 0; }
 .ag-villes .villes-pastilles { margin-bottom: 0; }
 .ag-lien-actus { margin: 28px 0 0; font-weight: 600; }
 .page-bandeau-lead a { text-decoration: underline; text-underline-offset: 3px; }
+
+/* Ça se passe chez vous (accueil) et Bientôt à <ville> (colonne de droite des articles) */
+.chez-vous .journal-tete { margin-bottom: 18px; }
+.chez-vous-grille { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.chez-vous-grille .une-card { min-height: 300px; padding: 18px 18px 0; }
+.chez-vous-grille .une-card h3 { font-size: 1.15rem; }
+@media (max-width: 1200px) { .chez-vous-grille { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 800px) { .chez-vous-grille { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .chez-vous-grille { grid-template-columns: 1fr; } .chez-vous-grille .une-card { min-height: 0; } }
+.side-agenda { margin: 0 0 36px; }
+.side-agenda .side-liste a { align-items: center; }
+.side-agenda .side-date { flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 3.4rem; padding: 6px 0; background: #201A17; color: #fff; font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; line-height: 1.1; }
+.side-agenda .side-date b { font: 400 1.6rem/1 'Anton', 'Arial Narrow', Impact, sans-serif; color: #EA5B1C; }
+.side-agenda .side-lieu { display: block; margin-top: 3px; font-size: .8rem; color: var(--ink-soft, #5b524c); }
+.side-agenda .side-liste a:hover .side-titre-article { color: #EA5B1C; }
+.side-tout { display: inline-block; margin-top: 12px; font-weight: 700; font-size: .88rem; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.side-tout:hover { color: #EA5B1C; }
+.chez-vous .villes-memo { text-align: left; margin: 0 0 18px; }
