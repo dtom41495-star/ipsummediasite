@@ -27,12 +27,19 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      # Dimensions des photos des articles : lues une seule fois puis gardées d'une génération à l'autre (lib/images.js)
+      - uses: actions/cache@v4
+        with:
+          path: .cache
+          key: dimensions-images-${{ github.run_id }}
+          restore-keys: dimensions-images-
       - name: Générer le site
         run: node scripts/generer.js --sortie public ${{ vars.SITE_DOMAINE && format('--domaine {0}', vars.SITE_DOMAINE) || '' }}
       - name: Contrôle rapide
         run: |
           test -s public/index.html
           test -s public/sitemap.xml
+          test -s public/sitemap-news.xml
           echo "Articles : $(ls public/articles | wc -l) · Communes : $(ls public/commune 2>/dev/null | wc -l) · Rubriques : $(ls public/rubrique 2>/dev/null | wc -l) · Journalistes : $(ls public/auteurs 2>/dev/null | wc -l)"
           ! grep -rl '\.netlify/functions' public
           test "$(ls public/articles | wc -l)" -ge 20   # garde-fou : jamais publier un site quasi vide

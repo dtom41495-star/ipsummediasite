@@ -180,6 +180,9 @@ async function main() {
   });
   await enParallele(taches);
 
+  // Plan du site « actualités » pour Google Actualités (articles des 48 dernières heures)
+  ecrire('sitemap-news.xml', require('../netlify/functions/sitemap').fabriquerSitemapActus(publications));
+
   const sm = await sitemap({});
   if (sm.statusCode === 200) ecrire('sitemap.xml', sm.body); else problemes.push('sitemap.xml : réponse ' + sm.statusCode);
 

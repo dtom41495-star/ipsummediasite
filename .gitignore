@@ -1,2 +1,3 @@
 # Code des fonctions Supabase : gardé en local, pas publié
 backend-a-deployer/
+.cache/

@@ -58,6 +58,19 @@ function fabriquerSitemap(publications, themes, auteurs, agenda) {
   return '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + urls.join('\n') + '\n</urlset>\n';
 }
 
+// Plan du site « actualités » (Google Actualités) : seulement les articles publiés depuis moins de 48 h, avec leur date de publication et
+// leur titre. Régénéré à chaque passage horaire ; vide (mais valide) quand rien n'a été publié ces deux derniers jours.
+function fabriquerSitemapActus(publications, maintenant) {
+  const xml = (t) => String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+  const t0 = (maintenant || Date.now()) - 48 * 3600 * 1000;
+  const recents = (publications || [])
+    .filter((p) => p && /^[a-z0-9-]{1,200}$/.test(p.slug || '') && !p.canonical_url && p.titre && new Date(p.publie_le).getTime() >= t0 && new Date(p.publie_le).getTime() <= (maintenant || Date.now()) + 3600 * 1000)
+    .sort((x, y) => new Date(y.publie_le) - new Date(x.publie_le))
+    .slice(0, 1000);
+  const urls = recents.map((p) => `  <url>\n    <loc>${SITE}/articles/${p.slug}</loc>\n    <news:news>\n      <news:publication>\n        <news:name>Ipsum Média</news:name>\n        <news:language>fr</news:language>\n      </news:publication>\n      <news:publication_date>${new Date(p.publie_le).toISOString()}</news:publication_date>\n      <news:title>${xml(p.titre)}</news:title>\n    </news:news>\n  </url>`);
+  return '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">\n' + urls.join('\n') + (urls.length ? '\n' : '') + '</urlset>\n';
+}
+
 async function sitemap() {
   const [publications, items, lignesEquipe, agenda] = await Promise.all([compo.listePublications(5000), chargerItems(6000), compo.equipe(4000), compo.agenda(4000)]);
   const auteurs = [...indexEquipe(lignesEquipe).parSlug.values()]
@@ -74,3 +87,4 @@ async function sitemap() {
 
 exports.handler = sitemap;
 exports.fabriquerSitemap = fabriquerSitemap;
+exports.fabriquerSitemapActus = fabriquerSitemapActus;
